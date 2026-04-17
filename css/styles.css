@@ -51,6 +51,18 @@ img {
 }
 
 /* =============================================
+   BARRA DE ANUNCIO
+   ============================================= */
+.anuncio-bar {
+  background-color: var(--color-texto);
+  color: var(--color-fondo);
+  text-align: center;
+  padding: 8px 24px;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+}
+
+/* =============================================
    HEADER
    ============================================= */
 .header {
