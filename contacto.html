@@ -11,17 +11,8 @@
 
 <body>
 
-  <div class="anuncio-bar">
-    <button class="anuncio-arrow">&#8249;</button>
-    <p>Retiro <strong>GRATIS</strong> en Santiago</p>
-    <button class="anuncio-arrow">&#8250;</button>
-  </div>
-
   <header class="header">
     <div class="header-container">
-      <div class="logo">
-        <a href="index.html">Joyería Aravena</a>
-      </div>
       <nav class="nav">
         <ul>
           <li><a href="index.html#catalogo">Productos</a></li>
@@ -29,6 +20,9 @@
           <li><a href="contacto.html">Contacto</a></li>
         </ul>
       </nav>
+      <div class="logo">
+        <a href="index.html">Joyería Aravena</a>
+      </div>
       <div class="header-iconos">
         <button class="icono-btn" title="Mi cuenta">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -52,77 +46,65 @@
 
   <main class="contacto-main">
 
-    <div class="contacto-grid">
+    <h2 class="ejecutivos-titulo">Habla directamente con nuestros ejecutivos</h2>
+    <p class="ejecutivos-subtitulo">Escríbele al que prefieras por WhatsApp</p>
 
-      <!-- FORMULARIO -->
-      <div class="contacto-formulario">
-        <h2>Envíanos un mensaje</h2>
-        <form id="formulario-contacto">
+    <div class="ejecutivos-grid">
 
-          <div class="campo">
-            <label for="nombre">Nombre</label>
-            <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required>
-          </div>
-
-          <div class="campo">
-            <label for="email">Correo electrónico</label>
-            <input type="email" id="email" name="email" placeholder="tu@correo.cl" required>
-          </div>
-
-          <div class="campo">
-            <label for="asunto">Asunto</label>
-            <select id="asunto" name="asunto">
-              <option value="">Selecciona un tema</option>
-              <option value="consulta">Consulta sobre producto</option>
-              <option value="pedido">Seguimiento de pedido</option>
-              <option value="personalizado">Joya personalizada</option>
-              <option value="otro">Otro</option>
-            </select>
-          </div>
-
-          <div class="campo">
-            <label for="mensaje">Mensaje</label>
-            <textarea id="mensaje" name="mensaje" rows="5" placeholder="Escribe tu mensaje aquí..." required></textarea>
-          </div>
-
-          <button type="submit" class="btn-primary btn-form">Enviar mensaje</button>
-          <p class="form-aviso" id="form-aviso"></p>
-
-        </form>
+      <div class="ejecutivo-card">
+        <div class="ejecutivo-avatar">D</div>
+        <p class="ejecutivo-nombre">Diego</p>
+        <p class="ejecutivo-alias">Joyas Aravena</p>
+        <a href="https://wa.me/56966497904?text=Hola,%20me%20interesa%20una%20joya%20de%20Joyería%20Aravena"
+          class="btn-ejecutivo" target="_blank">&#128222; WhatsApp</a>
       </div>
 
-      <!-- INFO DE CONTACTO -->
-      <div class="contacto-info">
-        <h2>También puedes escribirnos</h2>
+      <div class="ejecutivo-card">
+        <div class="ejecutivo-avatar">J</div>
+        <p class="ejecutivo-nombre">Jamin</p>
+        <p class="ejecutivo-alias">Benjamin Andres</p>
+        <a href="https://wa.me/56986978578?text=Hola,%20me%20interesa%20una%20joya%20de%20Joyería%20Aravena"
+          class="btn-ejecutivo" target="_blank">&#128222; WhatsApp</a>
+      </div>
 
-        <div class="info-item">
-          <span class="info-icono">&#9993;</span>
-          <div>
-            <p class="info-label">Correo</p>
-            <p>contacto@joyeriaaravena.cl</p>
-          </div>
-        </div>
+      <div class="ejecutivo-card">
+        <div class="ejecutivo-avatar">C</div>
+        <p class="ejecutivo-nombre">Cris</p>
+        <p class="ejecutivo-alias">Christopher</p>
+        <a href="https://wa.me/56942486743?text=Hola,%20me%20interesa%20una%20joya%20de%20Joyería%20Aravena"
+          class="btn-ejecutivo" target="_blank">&#128222; WhatsApp</a>
+      </div>
 
-        <div class="info-item">
-          <span class="info-icono">&#128241;</span>
-          <div>
-            <p class="info-label">WhatsApp</p>
-            <p>+56 9 XXXX XXXX</p>
-          </div>
-        </div>
+      <div class="ejecutivo-card">
+        <div class="ejecutivo-avatar">M</div>
+        <p class="ejecutivo-nombre">Martin</p>
+        <p class="ejecutivo-alias">Joyas Finas</p>
+        <a href="https://wa.me/56956572257?text=Hola,%20me%20interesa%20una%20joya%20de%20Joyería%20Aravena"
+          class="btn-ejecutivo" target="_blank">&#128222; WhatsApp</a>
+      </div>
 
-        <div class="info-item">
-          <span class="info-icono">&#128205;</span>
-          <div>
-            <p class="info-label">Ubicación</p>
-            <p>Chile</p>
-          </div>
-        </div>
+      <div class="ejecutivo-card">
+        <div class="ejecutivo-avatar">J</div>
+        <p class="ejecutivo-nombre">Jordan</p>
+        <p class="ejecutivo-alias">Joyas Ice Lyon</p>
+        <a href="https://wa.me/56957986390?text=Hola,%20me%20interesa%20una%20joya%20de%20Joyería%20Aravena"
+          class="btn-ejecutivo" target="_blank">&#128222; WhatsApp</a>
+      </div>
 
-        <a href="https://wa.me/569XXXXXXXX?text=Hola,%20me%20interesa%20una%20joya%20de%20Joyería%20Aravena"
-          class="btn-primary btn-whatsapp" target="_blank">
-          &#128222; Escribir por WhatsApp
-        </a>
+      <div class="ejecutivo-card">
+        <div class="ejecutivo-avatar">V</div>
+        <p class="ejecutivo-nombre">Vale</p>
+        <p class="ejecutivo-alias">Amira Store</p>
+        <a href="https://wa.me/56994813489?text=Hola,%20me%20interesa%20una%20joya%20de%20Joyería%20Aravena"
+          class="btn-ejecutivo" target="_blank">&#128222; WhatsApp</a>
+      </div>
+
+      <div class="ejecutivo-card">
+        <div class="ejecutivo-avatar">A</div>
+        <p class="ejecutivo-nombre">Amanda</p>
+        <p class="ejecutivo-alias">Joyas Mandy</p>
+        <a href="https://wa.me/56937366781?text=Hola,%20me%20interesa%20una%20joya%20de%20Joyería%20Aravena"
+          class="btn-ejecutivo" target="_blank">&#128222; WhatsApp</a>
       </div>
 
     </div>

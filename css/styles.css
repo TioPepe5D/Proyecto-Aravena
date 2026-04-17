@@ -51,32 +51,6 @@ img {
 }
 
 /* =============================================
-   BARRA DE ANUNCIO
-   ============================================= */
-.anuncio-bar {
-  background-color: var(--color-texto);
-  color: var(--color-fondo);
-  text-align: center;
-  padding: 8px 24px;
-  font-size: 0.8rem;
-  letter-spacing: 0.5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-}
-
-.anuncio-arrow {
-  background: none;
-  border: none;
-  color: var(--color-fondo);
-  font-size: 1.1rem;
-  cursor: pointer;
-  opacity: 0.6;
-  padding: 0 4px;
-}
-
-/* =============================================
    HEADER
    ============================================= */
 .header {
@@ -94,9 +68,17 @@ img {
   margin: 0 auto;
   padding: 0 32px;
   height: 64px;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
+}
+
+.header-container .logo {
+  text-align: center;
+}
+
+.header-container .header-iconos {
+  justify-self: end;
 }
 
 .logo a {
