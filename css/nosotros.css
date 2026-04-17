@@ -80,15 +80,19 @@
 }
 
 .video-contenedor {
-  max-width: 800px;
+  max-width: 380px;
   margin: 0 auto;
   background-color: var(--color-fondo-secundario);
   border: 1px solid var(--color-plata-claro);
+  aspect-ratio: 9 / 16;
+  overflow: hidden;
 }
 
 .video-contenedor video {
   width: 100%;
+  height: 100%;
   display: block;
+  object-fit: cover;
 }
 
 /* Valores */
