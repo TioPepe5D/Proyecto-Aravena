@@ -11,6 +11,12 @@
 
 <body>
 
+  <div class="anuncio-bar">
+    <button class="anuncio-arrow">&#8249;</button>
+    <p>Retiro <strong>GRATIS</strong> en Santiago</p>
+    <button class="anuncio-arrow">&#8250;</button>
+  </div>
+
   <header class="header">
     <div class="header-container">
       <div class="logo">
@@ -18,14 +24,23 @@
       </div>
       <nav class="nav">
         <ul>
-          <li><a href="index.html#catalogo">Catálogo</a></li>
+          <li><a href="index.html#catalogo">Productos</a></li>
           <li><a href="nosotros.html">Nosotros</a></li>
           <li><a href="contacto.html">Contacto</a></li>
         </ul>
       </nav>
-      <div class="carrito-btn" id="carrito-btn">
-        <span class="carrito-icono">&#128722;</span>
-        <span class="carrito-contador" id="carrito-contador">0</span>
+      <div class="header-iconos">
+        <button class="icono-btn" title="Mi cuenta">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+        </button>
+        <button class="icono-btn carrito-btn" id="carrito-btn" title="Carrito">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          <span class="carrito-contador" id="carrito-contador">0</span>
+        </button>
       </div>
     </div>
   </header>

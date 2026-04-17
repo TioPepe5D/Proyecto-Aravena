@@ -51,24 +51,49 @@ img {
 }
 
 /* =============================================
+   BARRA DE ANUNCIO
+   ============================================= */
+.anuncio-bar {
+  background-color: var(--color-texto);
+  color: var(--color-fondo);
+  text-align: center;
+  padding: 8px 24px;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.anuncio-arrow {
+  background: none;
+  border: none;
+  color: var(--color-fondo);
+  font-size: 1.1rem;
+  cursor: pointer;
+  opacity: 0.6;
+  padding: 0 4px;
+}
+
+/* =============================================
    HEADER
    ============================================= */
 .header {
-  position: fixed;
+  position: sticky;
   top: 0;
   left: 0;
   width: 100%;
   background-color: var(--color-fondo);
   border-bottom: 1px solid var(--color-plata-claro);
   z-index: 1000;
-  box-shadow: var(--sombra);
 }
 
 .header-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px;
-  height: 70px;
+  padding: 0 32px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -76,10 +101,11 @@ img {
 
 .logo a {
   font-family: var(--fuente-principal);
-  font-size: 1.5rem;
-  letter-spacing: 2px;
+  font-size: 1.3rem;
+  letter-spacing: 3px;
   color: var(--color-texto);
   text-transform: uppercase;
+  font-weight: normal;
 }
 
 .logo a:hover {
@@ -89,43 +115,55 @@ img {
 
 .nav ul {
   display: flex;
-  gap: 32px;
+  gap: 36px;
 }
 
 .nav ul li a {
-  font-size: 0.9rem;
-  letter-spacing: 1px;
+  font-size: 0.78rem;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: var(--color-texto-suave);
+  color: var(--color-texto);
   transition: var(--transicion);
+  font-weight: 500;
 }
 
 .nav ul li a:hover {
-  color: var(--color-texto);
-  border-bottom: 1px solid var(--color-plata-oscuro);
-  padding-bottom: 2px;
+  color: var(--color-plata-oscuro);
 }
 
-/* Botón del carrito */
-.carrito-btn {
-  position: relative;
+/* Íconos del lado derecho */
+.header-iconos {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icono-btn {
+  background: none;
+  border: none;
   cursor: pointer;
+  color: var(--color-texto);
   padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transicion);
+  position: relative;
 }
 
-.carrito-icono {
-  font-size: 1.4rem;
+.icono-btn:hover {
+  color: var(--color-plata-oscuro);
 }
 
 .carrito-contador {
   position: absolute;
-  top: 0;
-  right: 0;
-  background-color: var(--color-plata-oscuro);
+  top: 2px;
+  right: 2px;
+  background-color: var(--color-texto);
   color: white;
-  font-size: 0.65rem;
-  width: 18px;
-  height: 18px;
+  font-size: 0.6rem;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -133,11 +171,56 @@ img {
   font-weight: bold;
 }
 
+/* Buscador overlay */
+.buscador-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: var(--color-fondo);
+  padding: 20px 32px;
+  z-index: 1100;
+  border-bottom: 1px solid var(--color-plata-claro);
+  box-shadow: var(--sombra);
+}
+
+.buscador-overlay.activo {
+  display: block;
+}
+
+.buscador-container {
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.buscador-container input {
+  flex: 1;
+  border: none;
+  border-bottom: 1px solid var(--color-texto);
+  padding: 8px 4px;
+  font-size: 1rem;
+  font-family: var(--fuente-secundaria);
+  outline: none;
+  color: var(--color-texto);
+}
+
+#buscador-cerrar {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: var(--color-texto-suave);
+}
+
 /* =============================================
    HERO
    ============================================= */
 .hero {
-  margin-top: 70px;
+  margin-top: 0;
   background-color: var(--color-fondo-secundario);
   min-height: 500px;
   display: flex;
