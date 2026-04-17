@@ -195,6 +195,19 @@
   border-top: 1px solid var(--color-plata-claro);
 }
 
+.maps-link {
+  display: inline-block;
+  margin-left: 12px;
+  color: #1a73e8;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  transition: var(--transicion);
+}
+
+.maps-link:hover {
+  color: #1558b0;
+}
+
 .local-video-contenedor {
   max-width: 380px;
   margin: 32px auto 0;
