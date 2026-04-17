@@ -60,6 +60,37 @@
   letter-spacing: 1px;
 }
 
+/* Video */
+.video-seccion {
+  margin-bottom: 80px;
+  text-align: center;
+}
+
+.video-seccion h2 {
+  font-family: var(--fuente-principal);
+  font-size: 1.8rem;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.video-subtitulo {
+  color: var(--color-texto-suave);
+  font-size: 0.9rem;
+  margin-bottom: 28px;
+}
+
+.video-contenedor {
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: var(--color-fondo-secundario);
+  border: 1px solid var(--color-plata-claro);
+}
+
+.video-contenedor video {
+  width: 100%;
+  display: block;
+}
+
 /* Valores */
 .valores {
   margin-bottom: 80px;
