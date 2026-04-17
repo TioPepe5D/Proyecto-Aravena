@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nosotros — Joyería Aravena</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/nosotros.css">
+</head>
+
+<body>
+
+  <header class="header">
+    <div class="header-container">
+      <div class="logo">
+        <a href="index.html">Joyería Aravena</a>
+      </div>
+      <nav class="nav">
+        <ul>
+          <li><a href="index.html#catalogo">Catálogo</a></li>
+          <li><a href="nosotros.html">Nosotros</a></li>
+          <li><a href="contacto.html">Contacto</a></li>
+        </ul>
+      </nav>
+      <div class="carrito-btn" id="carrito-btn">
+        <span class="carrito-icono">&#128722;</span>
+        <span class="carrito-contador" id="carrito-contador">0</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO de la página -->
+  <section class="pagina-hero">
+    <h1>Nuestra Historia</h1>
+    <p>Artesanía en plata con alma chilena</p>
+  </section>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="nosotros-main">
+
+    <!-- Historia -->
+    <section class="nosotros-seccion">
+      <div class="nosotros-texto">
+        <h2>¿Quiénes somos?</h2>
+        <p>
+          Joyería Aravena nació de la pasión por transformar la plata en piezas únicas que cuentan historias.
+          Cada joya es diseñada y trabajada a mano, con dedicación y atención al detalle.
+        </p>
+        <p>
+          Nos especializamos en plata 925, el estándar de mayor pureza para joyería, garantizando
+          durabilidad y brillo en cada pieza que llega a tus manos.
+        </p>
+      </div>
+      <div class="nosotros-imagen placeholder-imagen">
+        <span>Foto del taller</span>
+      </div>
+    </section>
+
+    <!-- Valores -->
+    <section class="valores">
+      <h2>Nuestros valores</h2>
+      <div class="valores-grid">
+        <div class="valor-card">
+          <div class="valor-icono">&#9670;</div>
+          <h3>Artesanal</h3>
+          <p>Cada pieza es trabajada a mano. No somos una fábrica, somos un taller.</p>
+        </div>
+        <div class="valor-card">
+          <div class="valor-icono">&#9670;</div>
+          <h3>Calidad</h3>
+          <p>Usamos exclusivamente plata 925, certificada y de origen confiable.</p>
+        </div>
+        <div class="valor-card">
+          <div class="valor-icono">&#9670;</div>
+          <h3>Único</h3>
+          <p>Diseños propios, irrepetibles. Tu joya no la tiene nadie más.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="nosotros-cta">
+      <h2>¿Te gustó lo que viste?</h2>
+      <p>Explora nuestra colección o escríbenos directamente</p>
+      <div class="nosotros-cta-botones">
+        <a href="index.html#catalogo" class="btn-primary">Ver catálogo</a>
+        <a href="contacto.html" class="btn-secondary">Contáctanos</a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <p class="footer-logo">Joyería Aravena</p>
+      <p>Piezas únicas de plata artesanal</p>
+      <p>contacto@joyeriaaravena.cl</p>
+      <p class="footer-copy">© 2024 Joyería Aravena. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <div class="carrito-overlay" id="carrito-overlay"></div>
+  <aside class="carrito-panel" id="carrito-panel">
+    <div class="carrito-header">
+      <h3>Tu Carrito</h3>
+      <button class="carrito-cerrar" id="carrito-cerrar">&times;</button>
+    </div>
+    <div class="carrito-items" id="carrito-items">
+      <p class="carrito-vacio">Tu carrito está vacío</p>
+    </div>
+    <div class="carrito-footer">
+      <p class="carrito-total">Total: <span id="carrito-total">$0</span></p>
+      <button class="btn-primary btn-cotizar">Cotizar por WhatsApp</button>
+    </div>
+  </aside>
+
+  <script src="js/products.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
+
+</html>

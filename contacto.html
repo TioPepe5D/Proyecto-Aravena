@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contacto — Joyería Aravena</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/contacto.css">
+</head>
+
+<body>
+
+  <header class="header">
+    <div class="header-container">
+      <div class="logo">
+        <a href="index.html">Joyería Aravena</a>
+      </div>
+      <nav class="nav">
+        <ul>
+          <li><a href="index.html#catalogo">Catálogo</a></li>
+          <li><a href="nosotros.html">Nosotros</a></li>
+          <li><a href="contacto.html">Contacto</a></li>
+        </ul>
+      </nav>
+      <div class="carrito-btn" id="carrito-btn">
+        <span class="carrito-icono">&#128722;</span>
+        <span class="carrito-contador" id="carrito-contador">0</span>
+      </div>
+    </div>
+  </header>
+
+  <section class="pagina-hero">
+    <h1>Contacto</h1>
+    <p>Estamos para ayudarte</p>
+  </section>
+
+  <main class="contacto-main">
+
+    <div class="contacto-grid">
+
+      <!-- FORMULARIO -->
+      <div class="contacto-formulario">
+        <h2>Envíanos un mensaje</h2>
+        <form id="formulario-contacto">
+
+          <div class="campo">
+            <label for="nombre">Nombre</label>
+            <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required>
+          </div>
+
+          <div class="campo">
+            <label for="email">Correo electrónico</label>
+            <input type="email" id="email" name="email" placeholder="tu@correo.cl" required>
+          </div>
+
+          <div class="campo">
+            <label for="asunto">Asunto</label>
+            <select id="asunto" name="asunto">
+              <option value="">Selecciona un tema</option>
+              <option value="consulta">Consulta sobre producto</option>
+              <option value="pedido">Seguimiento de pedido</option>
+              <option value="personalizado">Joya personalizada</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+
+          <div class="campo">
+            <label for="mensaje">Mensaje</label>
+            <textarea id="mensaje" name="mensaje" rows="5" placeholder="Escribe tu mensaje aquí..." required></textarea>
+          </div>
+
+          <button type="submit" class="btn-primary btn-form">Enviar mensaje</button>
+          <p class="form-aviso" id="form-aviso"></p>
+
+        </form>
+      </div>
+
+      <!-- INFO DE CONTACTO -->
+      <div class="contacto-info">
+        <h2>También puedes escribirnos</h2>
+
+        <div class="info-item">
+          <span class="info-icono">&#9993;</span>
+          <div>
+            <p class="info-label">Correo</p>
+            <p>contacto@joyeriaaravena.cl</p>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <span class="info-icono">&#128241;</span>
+          <div>
+            <p class="info-label">WhatsApp</p>
+            <p>+56 9 XXXX XXXX</p>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <span class="info-icono">&#128205;</span>
+          <div>
+            <p class="info-label">Ubicación</p>
+            <p>Chile</p>
+          </div>
+        </div>
+
+        <a href="https://wa.me/569XXXXXXXX?text=Hola,%20me%20interesa%20una%20joya%20de%20Joyería%20Aravena"
+          class="btn-primary btn-whatsapp" target="_blank">
+          &#128222; Escribir por WhatsApp
+        </a>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <p class="footer-logo">Joyería Aravena</p>
+      <p>Piezas únicas de plata artesanal</p>
+      <p>contacto@joyeriaaravena.cl</p>
+      <p class="footer-copy">© 2024 Joyería Aravena. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <div class="carrito-overlay" id="carrito-overlay"></div>
+  <aside class="carrito-panel" id="carrito-panel">
+    <div class="carrito-header">
+      <h3>Tu Carrito</h3>
+      <button class="carrito-cerrar" id="carrito-cerrar">&times;</button>
+    </div>
+    <div class="carrito-items" id="carrito-items">
+      <p class="carrito-vacio">Tu carrito está vacío</p>
+    </div>
+    <div class="carrito-footer">
+      <p class="carrito-total">Total: <span id="carrito-total">$0</span></p>
+      <button class="btn-primary btn-cotizar">Cotizar por WhatsApp</button>
+    </div>
+  </aside>
+
+  <script src="js/products.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/contacto.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
+
+</html>

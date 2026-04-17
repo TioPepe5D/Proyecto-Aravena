@@ -1,0 +1,121 @@
+.contacto-main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 64px 24px;
+}
+
+.contacto-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+}
+
+/* Formulario */
+.contacto-formulario h2,
+.contacto-info h2 {
+  font-family: var(--fuente-principal);
+  font-size: 1.5rem;
+  letter-spacing: 2px;
+  margin-bottom: 32px;
+}
+
+.campo {
+  margin-bottom: 20px;
+}
+
+.campo label {
+  display: block;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--color-texto-suave);
+  margin-bottom: 8px;
+}
+
+.campo input,
+.campo select,
+.campo textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--color-plata-claro);
+  background-color: var(--color-fondo);
+  font-size: 0.9rem;
+  color: var(--color-texto);
+  font-family: var(--fuente-secundaria);
+  transition: var(--transicion);
+  outline: none;
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+  border-color: var(--color-plata-oscuro);
+}
+
+.campo textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.btn-form {
+  width: 100%;
+  text-align: center;
+  margin-top: 8px;
+}
+
+.form-aviso {
+  margin-top: 12px;
+  font-size: 0.85rem;
+  text-align: center;
+  color: var(--color-texto-suave);
+}
+
+/* Info de contacto */
+.info-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 28px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--color-plata-claro);
+}
+
+.info-icono {
+  font-size: 1.3rem;
+  margin-top: 2px;
+}
+
+.info-label {
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--color-plata-oscuro);
+  margin-bottom: 4px;
+}
+
+.info-item p:last-child {
+  font-size: 0.9rem;
+  color: var(--color-texto);
+}
+
+.btn-whatsapp {
+  display: block;
+  text-align: center;
+  margin-top: 32px;
+  background-color: #25D366;
+  border-color: #25D366;
+  color: white;
+}
+
+.btn-whatsapp:hover {
+  background-color: #1ebe5d;
+  border-color: #1ebe5d;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .contacto-grid {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+}
