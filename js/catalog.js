@@ -11,8 +11,8 @@ function renderizarProductos(categoria = "todos") {
     return;
   }
 
-  grid.innerHTML = filtrados.map(producto => `
-    <div class="producto-card">
+  grid.innerHTML = filtrados.map((producto, i) => `
+    <div class="producto-card animar" style="transition-delay: ${i * 60}ms">
       <img src="${producto.imagen}" alt="${producto.nombre}">
       <div class="producto-info">
         <p class="producto-categoria">${producto.categoria}</p>
@@ -43,4 +43,5 @@ function inicializarFiltros() {
 function inicializarCatalogo() {
   renderizarProductos();
   inicializarFiltros();
+  inicializarAnimaciones();
 }
