@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Joyería Aravena</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+  <!-- HEADER: barra superior fija, siempre visible -->
+  <header class="header">
+    <div class="header-container">
+
+      <!-- Logo de la tienda -->
+      <div class="logo">
+        <a href="index.html">Joyería Aravena</a>
+      </div>
+
+      <!-- Navegación principal -->
+      <nav class="nav">
+        <ul>
+          <li><a href="#catalogo">Catálogo</a></li>
+          <li><a href="nosotros.html">Nosotros</a></li>
+          <li><a href="contacto.html">Contacto</a></li>
+        </ul>
+      </nav>
+
+      <!-- Ícono del carrito con contador -->
+      <div class="carrito-btn" id="carrito-btn">
+        <span class="carrito-icono">&#128722;</span>
+        <span class="carrito-contador" id="carrito-contador">0</span>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- HERO: banner de bienvenida -->
+  <section class="hero" id="hero">
+    <div class="hero-content">
+      <h1>Elegancia en Plata</h1>
+      <p>Descubre nuestra colección artesanal, hecha con amor y precisión</p>
+      <a href="#catalogo" class="btn-primary">Ver colección</a>
+    </div>
+  </section>
+
+  <!-- CATÁLOGO: sección de productos -->
+  <section class="catalogo" id="catalogo">
+    <h2>Nuestra Colección</h2>
+
+    <!-- Botones de filtro por categoría -->
+    <div class="filtros">
+      <button class="filtro-btn activo" data-categoria="todos">Todos</button>
+      <button class="filtro-btn" data-categoria="anillos">Anillos</button>
+      <button class="filtro-btn" data-categoria="collares">Collares</button>
+      <button class="filtro-btn" data-categoria="pulseras">Pulseras</button>
+      <button class="filtro-btn" data-categoria="aretes">Aretes</button>
+    </div>
+
+    <!-- Aquí JavaScript inyecta las tarjetas de productos -->
+    <div class="productos-grid" id="productos-grid"></div>
+
+  </section>
+
+  <!-- FOOTER: pie de página -->
+  <footer class="footer">
+    <div class="footer-container">
+      <p class="footer-logo">Joyería Aravena</p>
+      <p>Piezas únicas de plata artesanal</p>
+      <p>contacto@joyeriaaravena.cl</p>
+      <p class="footer-copy">© 2024 Joyería Aravena. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- CARRITO: panel lateral que aparece al hacer clic en el ícono -->
+  <div class="carrito-overlay" id="carrito-overlay"></div>
+  <aside class="carrito-panel" id="carrito-panel">
+    <div class="carrito-header">
+      <h3>Tu Carrito</h3>
+      <button class="carrito-cerrar" id="carrito-cerrar">&times;</button>
+    </div>
+    <div class="carrito-items" id="carrito-items">
+      <p class="carrito-vacio">Tu carrito está vacío</p>
+    </div>
+    <div class="carrito-footer">
+      <p class="carrito-total">Total: <span id="carrito-total">$0</span></p>
+      <button class="btn-primary btn-cotizar">Cotizar por WhatsApp</button>
+    </div>
+  </aside>
+
+  <!-- Scripts JavaScript -->
+  <script src="js/products.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/catalog.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
+
+</html>
