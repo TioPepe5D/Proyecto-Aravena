@@ -90,14 +90,22 @@
   <div class="carrito-overlay" id="carrito-overlay"></div>
   <aside class="carrito-panel" id="carrito-panel">
     <div class="carrito-header">
-      <h3>Tu Carrito</h3>
+      <h3>Tu Carrito <span class="carrito-header-badge" id="carrito-header-badge">0</span></h3>
       <button class="carrito-cerrar" id="carrito-cerrar">&times;</button>
     </div>
     <div class="carrito-items" id="carrito-items">
       <p class="carrito-vacio">Tu carrito está vacío</p>
     </div>
     <div class="carrito-footer">
-      <p class="carrito-total">Total: <span id="carrito-total">$0</span></p>
+      <div class="carrito-descuento">
+        <input type="text" placeholder="Código de descuento">
+        <button>Aplicar</button>
+      </div>
+      <div class="carrito-total-row">
+        <span class="carrito-total-label">Total estimado</span>
+        <span class="carrito-total" id="carrito-total">$0 CLP</span>
+      </div>
+      <p class="carrito-total-info">Aranceles e impuestos incluidos. Envío calculado en checkout.</p>
       <button class="btn-primary btn-cotizar">Cotizar por WhatsApp</button>
     </div>
   </aside>
