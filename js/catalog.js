@@ -21,14 +21,14 @@ function renderizarProductos(categoria = "todos") {
   }
 
   grid.innerHTML = filtrados.map((producto, i) => `
-    <div class="producto-card animar" style="transition-delay: ${i * 60}ms" onclick="window.location='producto.html?id=${producto.id}'" role="link">
+    <div class="producto-card animar" style="transition-delay: ${i * 60}ms">
       <img src="${producto.imagen}" alt="${producto.nombre}">
       <div class="producto-info">
         <p class="producto-categoria">${producto.categoria}</p>
         <h3 class="producto-nombre">${producto.nombre}</h3>
         <p class="producto-precio">$${producto.precio.toLocaleString("es-CL")}</p>
-        <button class="btn-primary" onclick="event.stopPropagation(); window.location='producto.html?id=${producto.id}'">
-          Ver producto
+        <button class="btn-primary" onclick="agregarAlCarrito(${producto.id})">
+          Agregar al carrito
         </button>
       </div>
     </div>
