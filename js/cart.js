@@ -29,6 +29,7 @@ function agregarAlCarrito(id) {
   guardarCarrito();
   actualizarContador();
   renderizarCarrito();
+  if (typeof renderizarProductos === "function") renderizarProductos();
   mostrarToast(producto.nombre);
 }
 
@@ -42,6 +43,7 @@ function cambiarCantidad(id, delta) {
   guardarCarrito();
   actualizarContador();
   renderizarCarrito();
+  if (typeof renderizarProductos === "function") renderizarProductos();
 }
 
 function eliminarDelCarrito(id) {
@@ -49,6 +51,7 @@ function eliminarDelCarrito(id) {
   guardarCarrito();
   actualizarContador();
   renderizarCarrito();
+  if (typeof renderizarProductos === "function") renderizarProductos();
 }
 
 function renderizarCarrito() {
@@ -91,7 +94,24 @@ function renderizarCarrito() {
     </div>
   `).join("");
 
-  const total = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
+  const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
+  const comision = Math.round(subtotal * 0.05);
+  const total = subtotal + comision;
+
+  const desglose = document.getElementById("carrito-desglose");
+  if (desglose) {
+    desglose.innerHTML = `
+      <div class="carrito-desglose-row">
+        <span>Subtotal</span>
+        <span>$${subtotal.toLocaleString("es-CL")} CLP</span>
+      </div>
+      <div class="carrito-desglose-row">
+        <span>Comisión Bancaria impuesto (5%)</span>
+        <span>$${comision.toLocaleString("es-CL")} CLP</span>
+      </div>
+    `;
+  }
+
   if (totalEl) totalEl.textContent = "$" + total.toLocaleString("es-CL") + " CLP";
 }
 
@@ -131,6 +151,18 @@ async function iniciarPago() {
     unit_price: i.precio,
     currency_id: "CLP"
   }));
+
+  const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
+  const comision = Math.round(subtotal * 0.05);
+  if (comision > 0) {
+    items.push({
+      id: "comision-bancaria",
+      title: "Comisión Bancaria impuesto",
+      quantity: 1,
+      unit_price: comision,
+      currency_id: "CLP"
+    });
+  }
 
   try {
     const res = await fetch("/.netlify/functions/crear-preferencia", {

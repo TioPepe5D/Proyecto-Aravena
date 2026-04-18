@@ -27,10 +27,14 @@ function renderizarProductos(material = materialActivo) {
     return;
   }
 
-  grid.innerHTML = filtrados.map((producto, i) => `
-    <div class="producto-card animar" style="transition-delay: ${i * 60}ms" data-id="${producto.id}">
+  grid.innerHTML = filtrados.map((producto, i) => {
+    const enCarrito = (typeof carrito !== "undefined") ? carrito.find(p => p.id === producto.id) : null;
+    const cantidad = enCarrito ? enCarrito.cantidad : 0;
+    return `
+    <div class="producto-card animar${cantidad > 0 ? ' en-carrito' : ''}" style="transition-delay: ${i * 60}ms" data-id="${producto.id}">
       <div class="producto-card-img-wrap">
         <img src="${producto.imagen}" alt="${producto.nombre}">
+        ${cantidad > 0 ? `<span class="badge-en-carrito">${cantidad}</span>` : ''}
       </div>
       <div class="producto-info">
         <p class="producto-categoria">${producto.categoria}</p>
@@ -38,6 +42,7 @@ function renderizarProductos(material = materialActivo) {
         <p class="producto-precio">$${producto.precio.toLocaleString("es-CL")}</p>
       </div>
       <div class="producto-card-btn-wrap">
+        ${cantidad === 0 ? `
         <button class="btn-agregar-card" onclick="event.stopPropagation(); agregarAlCarrito(${producto.id})">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
@@ -46,9 +51,17 @@ function renderizarProductos(material = materialActivo) {
           </svg>
           Agregar al carrito
         </button>
+        ` : `
+        <div class="cantidad-selector cantidad-selector-card" onclick="event.stopPropagation()">
+          <button onclick="event.stopPropagation(); cambiarCantidad(${producto.id}, -1)">−</button>
+          <span class="cantidad-valor">${cantidad}</span>
+          <button onclick="event.stopPropagation(); cambiarCantidad(${producto.id}, 1)">+</button>
+        </div>
+        `}
       </div>
     </div>
-  `).join("");
+  `;
+  }).join("");
 
   // Abrir panel de detalle al hacer clic en la tarjeta
   grid.querySelectorAll(".producto-card").forEach(card => {
