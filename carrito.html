@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nosotros — Joyería Aravena</title>
+  <title>Carrito — Joyería Aravena</title>
   <link rel="stylesheet" href="css/styles.css">
-  <link rel="stylesheet" href="css/nosotros.css">
+  <link rel="stylesheet" href="css/carrito.css">
 </head>
 
 <body>
@@ -28,9 +28,9 @@
         <a href="index.html">Joyería Aravena</a>
       </div>
       <div class="header-iconos">
-        <button class="icono-btn" title="Mi cuenta">
+        <button class="icono-btn" id="buscar-btn" title="Buscar">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
         </button>
         <a href="carrito.html" class="icono-btn carrito-btn" title="Carrito">
@@ -43,76 +43,33 @@
     </div>
   </header>
 
-  <!-- HERO de la página -->
-  <section class="pagina-hero">
-    <h1>Nuestra Historia</h1>
-    <p>Artesanía en plata con alma chilena</p>
-  </section>
+  <main class="carrito-page">
 
-  <!-- CONTENIDO PRINCIPAL -->
-  <main class="nosotros-main">
+    <div class="carrito-page-header">
+      <h1>Carrito <span id="carrito-badge" class="carrito-page-badge">0</span></h1>
+    </div>
 
-    <!-- Historia -->
-    <section class="nosotros-seccion">
-      <div class="nosotros-texto">
-        <h2>¿Quiénes somos?</h2>
-        <p>
-          Joyería Aravena nació de la pasión por transformar la plata en piezas únicas que cuentan historias.
-          Cada joya es diseñada y trabajada a mano, con dedicación y atención al detalle.
-        </p>
-        <p>
-          Nos especializamos en plata 925, el estándar de mayor pureza para joyería, garantizando
-          durabilidad y brillo en cada pieza que llega a tus manos.
-        </p>
+    <div class="carrito-page-grid">
+
+      <!-- Lista de items -->
+      <div class="carrito-page-items" id="carrito-page-items">
+        <p class="carrito-vacio-msg">Tu carrito está vacío. <a href="index.html#catalogo">Ver productos →</a></p>
       </div>
-      <div class="nosotros-imagen placeholder-imagen">
-        <span>Foto del taller</span>
-      </div>
-    </section>
 
-    <!-- VIDEO -->
-    <section class="video-seccion">
-      <h2>Conoce nuestro taller</h2>
-      <p class="video-subtitulo">Así trabajamos cada pieza</p>
-      <div class="video-contenedor">
-        <video controls preload="metadata" poster="">
-          <source src="images/video-taller.mp4" type="video/mp4">
-          Tu navegador no soporta la reproducción de video.
-        </video>
-      </div>
-    </section>
-
-    <!-- Valores -->
-    <section class="valores">
-      <h2>Nuestros valores</h2>
-      <div class="valores-grid">
-        <div class="valor-card">
-          <div class="valor-icono">&#9670;</div>
-          <h3>Artesanal</h3>
-          <p>Cada pieza es trabajada a mano. No somos una fábrica, somos un taller.</p>
+      <!-- Panel de total -->
+      <aside class="carrito-page-aside">
+        <div class="carrito-aside-total">
+          <div class="carrito-aside-row">
+            <span>Total estimado</span>
+            <span class="carrito-aside-precio" id="carrito-aside-total">$0 CLP</span>
+          </div>
+          <p class="carrito-aside-info">Impuestos incluidos. Envío calculado al finalizar.</p>
+          <button class="btn-cotizar-page" id="btn-cotizar-page">Cotizar por WhatsApp</button>
+          <a href="index.html#catalogo" class="btn-seguir">Seguir comprando</a>
         </div>
-        <div class="valor-card">
-          <div class="valor-icono">&#9670;</div>
-          <h3>Calidad</h3>
-          <p>Usamos exclusivamente plata 925, certificada y de origen confiable.</p>
-        </div>
-        <div class="valor-card">
-          <div class="valor-icono">&#9670;</div>
-          <h3>Único</h3>
-          <p>Diseños propios, irrepetibles. Tu joya no la tiene nadie más.</p>
-        </div>
-      </div>
-    </section>
+      </aside>
 
-    <!-- CTA -->
-    <section class="nosotros-cta">
-      <h2>¿Te gustó lo que viste?</h2>
-      <p>Explora nuestra colección o escríbenos directamente</p>
-      <div class="nosotros-cta-botones">
-        <a href="index.html#catalogo" class="btn-primary">Ver catálogo</a>
-        <a href="contacto.html" class="btn-secondary">Contáctanos</a>
-      </div>
-    </section>
+    </div>
 
   </main>
 
@@ -120,12 +77,10 @@
     <div class="footer-container">
       <p class="footer-logo">Joyería Aravena</p>
       <p>Piezas únicas de plata artesanal</p>
-      <p>contacto@joyeriaaravena.cl</p>
       <p class="footer-copy">© 2024 Joyería Aravena. Todos los derechos reservados.</p>
     </div>
   </footer>
 
-  <!-- Botón WhatsApp flotante -->
   <a href="https://wa.me/56966497904?text=Hola,%20me%20interesa%20una%20joya%20de%20Joyería%20Aravena"
     class="whatsapp-flotante" target="_blank" title="Escríbenos por WhatsApp">
     <svg viewBox="0 0 32 32" width="28" height="28" fill="white" xmlns="http://www.w3.org/2000/svg">
@@ -133,9 +88,8 @@
     </svg>
   </a>
 
-  <script src="js/contador.js"></script>
-  <script src="js/animations.js"></script>
+  <script src="js/products.js"></script>
+  <script src="js/carrito-page.js"></script>
 
 </body>
-
 </html>
