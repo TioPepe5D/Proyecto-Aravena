@@ -2,23 +2,23 @@
    VARIABLES GLOBALES
    ============================================= */
 :root {
-  --color-primario: #4288c9;
-  --color-primario-oscuro: #3065b0;
-  --color-primario-claro: #dce3e9;
-  --color-texto: #29323d;
-  --color-texto-suave: #7d8283;
-  --color-fondo: #f1f1f1;
-  --color-fondo-secundario: #f5f8fa;
-  --color-footer: #131814;
-  --color-plata: #4288c9;
-  --color-plata-oscuro: #3065b0;
-  --color-plata-claro: #d4dadb;
+  --color-primario: #2563eb;
+  --color-primario-oscuro: #1d4ed8;
+  --color-primario-claro: #f1f5f9;
+  --color-texto: #020817;
+  --color-texto-suave: #64748b;
+  --color-fondo: #ffffff;
+  --color-fondo-secundario: #f1f5f9;
+  --color-footer: #020817;
+  --color-plata: #2563eb;
+  --color-plata-oscuro: #1d4ed8;
+  --color-plata-claro: #e2e8f0;
   --fuente-principal: 'Georgia', serif;
-  --fuente-secundaria: 'Inter', sans-serif;
-  --sombra: 0px 2px 4px 0px hsl(0 0% 0% / 0.10), 0px 1px 2px -1px hsl(0 0% 0% / 0.10);
+  --fuente-secundaria: 'Inter', system-ui, sans-serif;
+  --sombra: 0px 4px 10px 0px hsl(0, 0%, 0% / 0.10), 0px 1px 2px -1px hsl(0, 0%, 0% / 0.10);
   --transicion: all 0.3s ease;
-  --radio: 0.5rem;
-  --tracking-normal: -0.01em;
+  --radio: 0.375rem;
+  --tracking-normal: -0.015em;
 }
 
 /* =============================================
