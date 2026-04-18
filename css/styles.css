@@ -321,6 +321,19 @@ img {
   border-color: var(--color-primario);
 }
 
+.filtro-oferta {
+  border-color: #dc2626;
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.filtro-oferta:hover,
+.filtro-oferta.activo {
+  background-color: #dc2626;
+  border-color: #dc2626;
+  color: #ffffff;
+}
+
 /* Grid de productos */
 .productos-grid {
   display: grid;

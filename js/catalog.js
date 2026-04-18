@@ -1,10 +1,19 @@
 // Muestra los productos en el grid, filtrando por categoría si se especifica
 function renderizarProductos(categoria = "todos") {
   const grid = document.getElementById("productos-grid");
+  const titulo = document.getElementById("catalogo-titulo");
 
-  const filtrados = categoria === "todos"
-    ? productos
-    : productos.filter(p => p.categoria === categoria);
+  let filtrados;
+  if (categoria === "todos") {
+    filtrados = productos;
+    titulo.textContent = "Nuestra Colección";
+  } else if (categoria === "ofertas") {
+    filtrados = productos.filter(p => p.precio < 20000);
+    titulo.textContent = "Ofertas hasta $20.000";
+  } else {
+    filtrados = productos.filter(p => p.categoria === categoria);
+    titulo.textContent = "Nuestra Colección";
+  }
 
   if (filtrados.length === 0) {
     grid.innerHTML = "<p style='text-align:center;color:#888;'>No hay productos en esta categoría.</p>";
