@@ -4,25 +4,28 @@ const productos = [
     id: 1,
     nombre: "Anillo",
     categoria: "anillos",
+    material: "plata-nacional",
     precio: 25990,
     imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Anillo",
-    descripcion: "Anillo"
+    descripcion: "Anillo en Plata Nacional SL 925"
   },
   {
     id: 2,
     nombre: "Anillo",
     categoria: "anillos",
+    material: "plata-italiana",
     precio: 18990,
     imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Anillo",
-    descripcion: "Anillo"
+    descripcion: "Anillo en Plata Italiana"
   },
   {
     id: 3,
     nombre: "Anillo",
     categoria: "anillos",
+    material: "oro-goldfit",
     precio: 29990,
     imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Anillo",
-    descripcion: "Anillo"
+    descripcion: "Anillo en Oro GoldFit 18K"
   },
 
   // COLLARES
@@ -30,25 +33,28 @@ const productos = [
     id: 4,
     nombre: "Collar",
     categoria: "collares",
+    material: "plata-nacional",
     precio: 34990,
     imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Collar",
-    descripcion: "Collar"
+    descripcion: "Collar en Plata Nacional SL 925"
   },
   {
     id: 5,
     nombre: "Collar",
     categoria: "collares",
+    material: "plata-italiana",
     precio: 27990,
     imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Collar",
-    descripcion: "Collar"
+    descripcion: "Collar en Plata Italiana"
   },
   {
     id: 6,
     nombre: "Collar",
     categoria: "collares",
+    material: "oro-goldfit",
     precio: 22990,
     imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Collar",
-    descripcion: "Collar"
+    descripcion: "Collar en Oro GoldFit 18K"
   },
 
   // PULSERAS
@@ -56,25 +62,28 @@ const productos = [
     id: 7,
     nombre: "Pulsera",
     categoria: "pulseras",
+    material: "plata-nacional",
     precio: 19990,
     imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Pulsera",
-    descripcion: "Pulsera"
+    descripcion: "Pulsera en Plata Nacional SL 925"
   },
   {
     id: 8,
     nombre: "Pulsera",
     categoria: "pulseras",
+    material: "plata-italiana",
     precio: 32990,
     imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Pulsera",
-    descripcion: "Pulsera"
+    descripcion: "Pulsera en Plata Italiana"
   },
   {
     id: 9,
     nombre: "Pulsera",
     categoria: "pulseras",
+    material: "oro-goldfit",
     precio: 28990,
     imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Pulsera",
-    descripcion: "Pulsera"
+    descripcion: "Pulsera en Oro GoldFit 18K"
   },
 
   // ARETES
@@ -82,24 +91,27 @@ const productos = [
     id: 10,
     nombre: "Arete",
     categoria: "aretes",
+    material: "plata-nacional",
     precio: 15990,
     imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Arete",
-    descripcion: "Arete"
+    descripcion: "Arete en Plata Nacional SL 925"
   },
   {
     id: 11,
     nombre: "Arete",
     categoria: "aretes",
+    material: "plata-italiana",
     precio: 21990,
     imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Arete",
-    descripcion: "Arete"
+    descripcion: "Arete en Plata Italiana"
   },
   {
     id: 12,
     nombre: "Arete",
     categoria: "aretes",
+    material: "oro-goldfit",
     precio: 17990,
     imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Arete",
-    descripcion: "Arete"
+    descripcion: "Arete en Oro GoldFit 18K"
   }
 ];

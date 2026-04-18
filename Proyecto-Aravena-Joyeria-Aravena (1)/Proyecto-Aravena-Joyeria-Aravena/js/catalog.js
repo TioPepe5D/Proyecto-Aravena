@@ -1,17 +1,33 @@
-function renderizarProductos(categoria = "todos") {
+let materialActivo = "todos";
+let categoriaActiva = "todos";
+
+const nombresMaterial = {
+  "plata-nacional": "Plata Nacional SL 925",
+  "plata-italiana": "Plata Italiana",
+  "oro-goldfit": "Oro GoldFit 18K"
+};
+
+function renderizarProductos(categoria = categoriaActiva, material = materialActivo) {
+  categoriaActiva = categoria;
+  materialActivo = material;
+
   const grid = document.getElementById("productos-grid");
   const titulo = document.getElementById("catalogo-titulo");
 
-  let filtrados;
-  if (categoria === "todos") {
-    filtrados = productos;
-    titulo.textContent = "Nuestra Colección";
-  } else if (categoria === "ofertas") {
-    filtrados = productos.filter(p => p.precio < 20000);
+  let filtrados = productos;
+
+  if (material !== "todos") {
+    filtrados = filtrados.filter(p => p.material === material);
+  }
+
+  if (categoria === "ofertas") {
+    filtrados = filtrados.filter(p => p.precio < 20000);
     titulo.textContent = "Ofertas hasta $20.000";
+  } else if (categoria !== "todos") {
+    filtrados = filtrados.filter(p => p.categoria === categoria);
+    titulo.textContent = material !== "todos" ? nombresMaterial[material] : "Nuestra Colección";
   } else {
-    filtrados = productos.filter(p => p.categoria === categoria);
-    titulo.textContent = "Nuestra Colección";
+    titulo.textContent = material !== "todos" ? nombresMaterial[material] : "Nuestra Colección";
   }
 
   if (filtrados.length === 0) {
@@ -126,12 +142,24 @@ function detalleAgregarAlCarrito(id) {
 }
 
 function inicializarFiltros() {
-  const botones = document.querySelectorAll(".filtro-btn");
-  botones.forEach(boton => {
+  const botonesCat = document.querySelectorAll(".filtro-btn");
+  botonesCat.forEach(boton => {
     boton.addEventListener("click", () => {
-      botones.forEach(b => b.classList.remove("activo"));
+      botonesCat.forEach(b => b.classList.remove("activo"));
       boton.classList.add("activo");
-      renderizarProductos(boton.dataset.categoria);
+      renderizarProductos(boton.dataset.categoria, materialActivo);
+    });
+  });
+
+  const botonesMat = document.querySelectorAll(".material-btn");
+  botonesMat.forEach(boton => {
+    boton.addEventListener("click", () => {
+      botonesMat.forEach(b => b.classList.remove("activo"));
+      boton.classList.add("activo");
+      // Resetear filtro de categoría al cambiar material
+      botonesCat.forEach(b => b.classList.remove("activo"));
+      botonesCat[0].classList.add("activo");
+      renderizarProductos("todos", boton.dataset.material);
     });
   });
 }

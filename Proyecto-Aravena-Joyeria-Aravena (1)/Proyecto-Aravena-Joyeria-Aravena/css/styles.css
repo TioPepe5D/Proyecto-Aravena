@@ -292,6 +292,60 @@ img {
   color: var(--color-texto);
 }
 
+/* Selector de material */
+.materiales {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.material-btn {
+  padding: 10px 24px;
+  border: 2px solid var(--color-plata-claro);
+  background-color: var(--color-fondo);
+  color: var(--color-texto-suave);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: var(--transicion);
+  border-radius: 999px;
+}
+
+.material-btn:hover {
+  border-color: var(--color-texto-suave);
+  color: var(--color-texto);
+}
+
+.material-btn.activo {
+  background-color: var(--color-texto);
+  color: #fff;
+  border-color: var(--color-texto);
+}
+
+.material-plata-nacional:hover,
+.material-plata-nacional.activo {
+  background-color: #334155;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.material-plata-italiana:hover,
+.material-plata-italiana.activo {
+  background-color: #1e3a5f;
+  border-color: #1e3a5f;
+  color: #bfdbfe;
+}
+
+.material-oro:hover,
+.material-oro.activo {
+  background-color: #78350f;
+  border-color: #78350f;
+  color: #fde68a;
+}
+
 /* Filtros */
 .filtros {
   display: flex;
