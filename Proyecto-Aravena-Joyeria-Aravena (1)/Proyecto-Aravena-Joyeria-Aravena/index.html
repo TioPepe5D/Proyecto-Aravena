@@ -75,20 +75,26 @@
 
     <!-- Selector de material -->
     <div class="materiales">
-      <button class="material-btn activo" data-material="todos">Todos los materiales</button>
+      <button class="material-btn activo" data-material="todos">Todos Los Productos</button>
       <button class="material-btn material-plata-nacional" data-material="plata-nacional">Plata Nacional SL 925</button>
       <button class="material-btn material-plata-italiana" data-material="plata-italiana">Plata Italiana</button>
       <button class="material-btn material-oro" data-material="oro-goldfit">Oro GoldFit 18K</button>
     </div>
 
-    <!-- Botones de filtro por categoría -->
-    <div class="filtros">
-      <button class="filtro-btn activo" data-categoria="todos">Todos</button>
-      <button class="filtro-btn" data-categoria="anillos">Anillos</button>
-      <button class="filtro-btn" data-categoria="collares">Collares</button>
-      <button class="filtro-btn" data-categoria="pulseras">Pulseras</button>
-      <button class="filtro-btn" data-categoria="aretes">Aretes</button>
-      <button class="filtro-btn filtro-oferta" data-categoria="ofertas">🏷️ Ofertas hasta $20.000</button>
+    <!-- Filtro por precio y nombre (aparece al seleccionar material) -->
+    <div class="filtro-barra" id="filtro-barra">
+      <input type="text" id="filtro-nombre" placeholder="Buscar por nombre...">
+      <select id="filtro-precio">
+        <option value="">Ordenar por precio</option>
+        <option value="asc">Menor precio primero</option>
+        <option value="desc">Mayor precio primero</option>
+      </select>
+    </div>
+
+    <!-- Sub-opciones Plata Nacional -->
+    <div class="plata-nacional-extra" id="plata-nacional-extra">
+      <button class="extra-btn" id="btn-lotes">📦 Lotes por mayor</button>
+      <button class="extra-btn extra-btn-personalizado" id="btn-lote-personalizado">✨ Arma tu lote personalizado</button>
     </div>
 
     <!-- Aquí JavaScript inyecta las tarjetas de productos -->

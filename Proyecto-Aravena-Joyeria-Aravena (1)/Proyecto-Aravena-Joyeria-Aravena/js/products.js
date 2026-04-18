@@ -90,7 +90,7 @@ const productos = [
   {
     id: 10,
     nombre: "Arete",
-    categoria: "aretes",
+    categoria: "aros",
     material: "plata-nacional",
     precio: 15990,
     imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Arete",
@@ -99,7 +99,7 @@ const productos = [
   {
     id: 11,
     nombre: "Arete",
-    categoria: "aretes",
+    categoria: "aros",
     material: "plata-italiana",
     precio: 21990,
     imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Arete",
@@ -108,7 +108,7 @@ const productos = [
   {
     id: 12,
     nombre: "Arete",
-    categoria: "aretes",
+    categoria: "aros",
     material: "oro-goldfit",
     precio: 17990,
     imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Arete",
