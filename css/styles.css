@@ -2,17 +2,20 @@
    VARIABLES GLOBALES
    ============================================= */
 :root {
-  --color-plata: #C0C0C0;
-  --color-plata-oscuro: #A8A8A8;
-  --color-plata-claro: #E8E8E8;
-  --color-texto: #1A1A1A;
-  --color-texto-suave: #555555;
+  --color-primario: #3B82F6;
+  --color-primario-oscuro: #2563EB;
+  --color-primario-claro: #DBEAFE;
+  --color-texto: #0A0A0A;
+  --color-texto-suave: #4B5563;
   --color-fondo: #FFFFFF;
-  --color-fondo-secundario: #F5F5F5;
-  --color-footer: #1A1A1A;
+  --color-fondo-secundario: #F0F4FF;
+  --color-footer: #0A0A0A;
+  --color-plata: #3B82F6;
+  --color-plata-oscuro: #2563EB;
+  --color-plata-claro: #DBEAFE;
   --fuente-principal: 'Georgia', serif;
   --fuente-secundaria: 'Arial', sans-serif;
-  --sombra: 0 2px 12px rgba(0, 0, 0, 0.08);
+  --sombra: 0 2px 12px rgba(59, 130, 246, 0.12);
   --transicion: all 0.3s ease;
 }
 

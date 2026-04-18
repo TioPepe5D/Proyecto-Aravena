@@ -2,104 +2,104 @@ const productos = [
   // ANILLOS
   {
     id: 1,
-    nombre: "Anillo Lunas",
+    nombre: "Anillo",
     categoria: "anillos",
     precio: 25990,
-    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Anillo+Lunas",
-    descripcion: "Anillo de plata 925 con diseño de lunas crecientes. Acabado pulido."
+    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Anillo",
+    descripcion: "Anillo"
   },
   {
     id: 2,
-    nombre: "Anillo Espiral",
+    nombre: "Anillo",
     categoria: "anillos",
     precio: 18990,
-    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Anillo+Espiral",
-    descripcion: "Anillo fino de plata con forma de espiral. Diseño minimalista."
+    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Anillo",
+    descripcion: "Anillo"
   },
   {
     id: 3,
-    nombre: "Anillo Flor",
+    nombre: "Anillo",
     categoria: "anillos",
     precio: 29990,
-    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Anillo+Flor",
-    descripcion: "Anillo de plata 925 con flor central y pétalos detallados a mano."
+    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Anillo",
+    descripcion: "Anillo"
   },
 
   // COLLARES
   {
     id: 4,
-    nombre: "Collar Lágrima",
+    nombre: "Collar",
     categoria: "collares",
     precio: 34990,
-    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Collar+Lagrima",
-    descripcion: "Collar de plata con dije en forma de lágrima. Cadena de 45cm."
+    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Collar",
+    descripcion: "Collar"
   },
   {
     id: 5,
-    nombre: "Collar Hoja",
+    nombre: "Collar",
     categoria: "collares",
     precio: 27990,
-    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Collar+Hoja",
-    descripcion: "Dije de plata con forma de hoja texturizada. Cadena fina incluida."
+    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Collar",
+    descripcion: "Collar"
   },
   {
     id: 6,
-    nombre: "Collar Infinito",
+    nombre: "Collar",
     categoria: "collares",
     precio: 22990,
-    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Collar+Infinito",
-    descripcion: "Símbolo infinito en plata 925. Elegante y atemporal."
+    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Collar",
+    descripcion: "Collar"
   },
 
   // PULSERAS
   {
     id: 7,
-    nombre: "Pulsera Cadena Fina",
+    nombre: "Pulsera",
     categoria: "pulseras",
     precio: 19990,
-    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Pulsera+Cadena",
-    descripcion: "Pulsera de cadena fina en plata 925. Cierre de mosquetón."
+    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Pulsera",
+    descripcion: "Pulsera"
   },
   {
     id: 8,
-    nombre: "Pulsera Eslabones",
+    nombre: "Pulsera",
     categoria: "pulseras",
     precio: 32990,
-    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Pulsera+Eslabones",
-    descripcion: "Pulsera de eslabones anchos en plata. Estilo moderno y robusto."
+    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Pulsera",
+    descripcion: "Pulsera"
   },
   {
     id: 9,
-    nombre: "Pulsera Charm Luna",
+    nombre: "Pulsera",
     categoria: "pulseras",
     precio: 28990,
-    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Pulsera+Luna",
-    descripcion: "Pulsera con charm de luna en plata 925. Ajustable."
+    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Pulsera",
+    descripcion: "Pulsera"
   },
 
   // ARETES
   {
     id: 10,
-    nombre: "Aretes Argolla Fina",
+    nombre: "Arete",
     categoria: "aretes",
     precio: 15990,
-    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Aretes+Argolla",
-    descripcion: "Argollas finas de plata 925. Diámetro 2cm. Cierre a presión."
+    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Arete",
+    descripcion: "Arete"
   },
   {
     id: 11,
-    nombre: "Aretes Gota",
+    nombre: "Arete",
     categoria: "aretes",
     precio: 21990,
-    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Aretes+Gota",
-    descripcion: "Aretes colgantes en forma de gota. Plata pulida 925."
+    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Arete",
+    descripcion: "Arete"
   },
   {
     id: 12,
-    nombre: "Aretes Estrella",
+    nombre: "Arete",
     categoria: "aretes",
     precio: 17990,
-    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Aretes+Estrella",
-    descripcion: "Aretes pequeños con forma de estrella. Cierre de mariposa."
+    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Arete",
+    descripcion: "Arete"
   }
 ];
