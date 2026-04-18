@@ -64,8 +64,16 @@
             <span class="carrito-aside-precio" id="carrito-aside-total">$0 CLP</span>
           </div>
           <p class="carrito-aside-info">Impuestos incluidos. Envío calculado al finalizar.</p>
-          <button class="btn-cotizar-page" id="btn-cotizar-page">Cotizar por WhatsApp</button>
-          <a href="index.html#catalogo" class="btn-seguir">Seguir comprando</a>
+          <button class="btn-mp" id="btn-pagar" disabled>
+            <svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="24" cy="24" r="24" fill="#009EE3"/>
+              <path d="M13 24c0-6.075 4.925-11 11-11s11 4.925 11 11-4.925 11-11 11S13 30.075 13 24z" fill="white"/>
+              <path d="M20 24l3 3 6-6" stroke="#009EE3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Pagar con MercadoPago
+          </button>
+          <div class="btn-mp-estado" id="btn-mp-estado"></div>
+          <a href="index.html#catalogo" class="btn-seguir">← Seguir comprando</a>
         </div>
       </aside>
 

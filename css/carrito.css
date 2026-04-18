@@ -202,10 +202,10 @@
   margin-bottom: 8px;
 }
 
-.btn-cotizar-page {
+.btn-mp {
   width: 100%;
   padding: 16px;
-  background-color: var(--color-texto);
+  background-color: #009EE3;
   color: #fff;
   border: none;
   border-radius: 999px;
@@ -213,13 +213,28 @@
   font-weight: 600;
   cursor: pointer;
   transition: var(--transicion);
-  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  letter-spacing: 0.3px;
 }
 
-.btn-cotizar-page:hover {
-  background-color: #1f2937;
+.btn-mp:hover:not(:disabled) {
+  background-color: #0082bf;
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 20px rgba(0, 158, 227, 0.35);
+}
+
+.btn-mp:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn-mp-estado {
+  font-size: 0.8rem;
+  text-align: center;
+  min-height: 18px;
 }
 
 .btn-seguir {
