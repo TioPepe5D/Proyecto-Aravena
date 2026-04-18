@@ -29,7 +29,6 @@ function agregarAlCarrito(id) {
   guardarCarrito();
   actualizarContador();
   renderizarCarrito();
-  abrirCarrito();
   mostrarToast(producto.nombre);
 }
 
@@ -122,7 +121,7 @@ async function iniciarPago() {
   if (!btn || carrito.length === 0) return;
 
   btn.disabled = true;
-  btn.textContent = "Procesando...";
+  btn.textContent = "Procesando…";
   if (estado) estado.textContent = "";
 
   const items = carrito.map(i => ({
@@ -148,7 +147,7 @@ async function iniciarPago() {
       estado.style.color = "#dc2626";
     }
     btn.disabled = false;
-    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="24" fill="#009EE3"/><path d="M13 24c0-6.075 4.925-11 11-11s11 4.925 11 11-4.925 11-11 11S13 30.075 13 24z" fill="white"/><path d="M20 24l3 3 6-6" stroke="#009EE3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Pagar con MercadoPago`;
+    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="24" fill="#009EE3"/><path d="M13 24c0-6.075 4.925-11 11-11s11 4.925 11 11-4.925 11-11 11S13 30.075 13 24z" fill="white"/><path d="M20 24l3 3 6-6" stroke="#009EE3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Pagar`;
   }
 }
 
