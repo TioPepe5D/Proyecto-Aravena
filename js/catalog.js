@@ -1,18 +1,26 @@
-function renderizarProductos(categoria = "todos") {
+let materialActivo = "todos";
+
+const nombresMaterial = {
+  "plata-nacional": "Plata Nacional SL 925",
+  "plata-italiana": "Plata Italiana",
+  "oro-goldfit": "Oro GoldFit 18K"
+};
+
+function renderizarProductos(material = materialActivo) {
+  materialActivo = material;
+
   const grid = document.getElementById("productos-grid");
   const titulo = document.getElementById("catalogo-titulo");
+  const busqueda = (document.getElementById("filtro-nombre")?.value || "").toLowerCase();
+  const orden = document.getElementById("filtro-precio")?.value || "";
 
-  let filtrados;
-  if (categoria === "todos") {
-    filtrados = productos;
-    titulo.textContent = "Nuestra Colección";
-  } else if (categoria === "ofertas") {
-    filtrados = productos.filter(p => p.precio < 20000);
-    titulo.textContent = "Ofertas hasta $20.000";
-  } else {
-    filtrados = productos.filter(p => p.categoria === categoria);
-    titulo.textContent = "Nuestra Colección";
-  }
+  let filtrados = material === "todos" ? productos : productos.filter(p => p.material === material);
+
+  if (busqueda) filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(busqueda));
+  if (orden === "asc") filtrados = [...filtrados].sort((a, b) => a.precio - b.precio);
+  if (orden === "desc") filtrados = [...filtrados].sort((a, b) => b.precio - a.precio);
+
+  titulo.textContent = material !== "todos" ? nombresMaterial[material] : "Nuestra Colección";
 
   if (filtrados.length === 0) {
     grid.innerHTML = "<p style='text-align:center;color:#888;'>No hay productos en esta categoría.</p>";
@@ -126,13 +134,31 @@ function detalleAgregarAlCarrito(id) {
 }
 
 function inicializarFiltros() {
-  const botones = document.querySelectorAll(".filtro-btn");
-  botones.forEach(boton => {
+  const botonesMat = document.querySelectorAll(".material-btn");
+  const filtroBarra = document.getElementById("filtro-barra");
+  const plataNacionalExtra = document.getElementById("plata-nacional-extra");
+
+  botonesMat.forEach(boton => {
     boton.addEventListener("click", () => {
-      botones.forEach(b => b.classList.remove("activo"));
+      botonesMat.forEach(b => b.classList.remove("activo"));
       boton.classList.add("activo");
-      renderizarProductos(boton.dataset.categoria);
+      const mat = boton.dataset.material;
+      filtroBarra.classList.toggle("visible", mat !== "todos");
+      plataNacionalExtra.classList.toggle("visible", mat === "plata-nacional");
+      document.getElementById("filtro-nombre").value = "";
+      document.getElementById("filtro-precio").value = "";
+      renderizarProductos(mat);
     });
+  });
+
+  document.getElementById("filtro-nombre").addEventListener("input", () => renderizarProductos());
+  document.getElementById("filtro-precio").addEventListener("change", () => renderizarProductos());
+
+  document.getElementById("btn-lotes").addEventListener("click", () => {
+    alert("Función Lotes por mayor: próximamente disponible.");
+  });
+  document.getElementById("btn-lote-personalizado").addEventListener("click", () => {
+    alert("Función Arma tu lote personalizado: próximamente disponible.");
   });
 }
 

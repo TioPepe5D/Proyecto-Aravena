@@ -292,46 +292,96 @@ img {
   color: var(--color-texto);
 }
 
-/* Filtros */
-.filtros {
+/* Selector de material */
+.materiales {
   display: flex;
   justify-content: center;
-  gap: 12px;
-  margin-bottom: 48px;
+  gap: 16px;
+  margin-bottom: 24px;
   flex-wrap: wrap;
 }
 
-.filtro-btn {
-  padding: 8px 20px;
-  border: 1px solid var(--color-plata-claro);
-  background-color: var(--color-fondo-secundario);
+.material-btn {
+  padding: 10px 24px;
+  border: 2px solid var(--color-plata-claro);
+  background-color: var(--color-fondo);
   color: var(--color-texto-suave);
-  font-size: 0.8rem;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+  font-size: 0.82rem;
+  font-weight: 600;
   cursor: pointer;
   transition: var(--transicion);
+  border-radius: 999px;
+}
+
+.material-btn:hover { border-color: var(--color-texto-suave); color: var(--color-texto); }
+.material-btn.activo { background-color: var(--color-texto); color: #fff; border-color: var(--color-texto); }
+
+.material-plata-nacional:hover, .material-plata-nacional.activo {
+  background-color: #334155; border-color: #334155; color: #e2e8f0;
+}
+.material-plata-italiana:hover, .material-plata-italiana.activo {
+  background-color: #1e3a5f; border-color: #1e3a5f; color: #bfdbfe;
+}
+.material-oro:hover, .material-oro.activo {
+  background-color: #78350f; border-color: #78350f; color: #fde68a;
+}
+
+/* Barra de filtro por nombre y precio */
+.filtro-barra {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  animation: fadeDown 0.3s ease both;
+}
+.filtro-barra.visible { display: flex; }
+
+.filtro-barra input,
+.filtro-barra select {
+  padding: 9px 16px;
+  border: 1px solid var(--color-plata-claro);
   border-radius: var(--radio);
+  font-size: 0.85rem;
+  font-family: var(--fuente-secundaria);
+  color: var(--color-texto);
+  background: var(--color-fondo);
+  outline: none;
+  transition: border-color 0.2s;
+  min-width: 200px;
 }
+.filtro-barra input:focus, .filtro-barra select:focus { border-color: var(--color-primario); }
 
-.filtro-btn:hover,
-.filtro-btn.activo {
-  background-color: var(--color-primario);
-  color: #ffffff;
-  border-color: var(--color-primario);
+/* Sub-opciones Plata Nacional */
+.plata-nacional-extra {
+  display: none;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  animation: fadeDown 0.3s ease both;
 }
+.plata-nacional-extra.visible { display: flex; }
 
-.filtro-oferta {
-  border-color: #dc2626;
-  color: #dc2626;
+.extra-btn {
+  padding: 10px 24px;
+  border: 2px solid #334155;
+  background: var(--color-fondo);
+  color: #334155;
+  font-size: 0.85rem;
   font-weight: 600;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: var(--transicion);
 }
+.extra-btn:hover { background: #334155; color: #fff; }
+.extra-btn-personalizado { border-color: var(--color-primario); color: var(--color-primario); }
+.extra-btn-personalizado:hover { background: var(--color-primario); color: #fff; }
 
-.filtro-oferta:hover,
-.filtro-oferta.activo {
-  background-color: #dc2626;
-  border-color: #dc2626;
-  color: #ffffff;
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* Grid de productos */
