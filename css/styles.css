@@ -2,30 +2,35 @@
    VARIABLES GLOBALES
    ============================================= */
 :root {
-  --color-primario: #3B82F6;
-  --color-primario-oscuro: #2563EB;
-  --color-primario-claro: #DBEAFE;
-  --color-texto: #0A0A0A;
-  --color-texto-suave: #4B5563;
-  --color-fondo: #FFFFFF;
-  --color-fondo-secundario: #F0F4FF;
-  --color-footer: #0A0A0A;
-  --color-plata: #3B82F6;
-  --color-plata-oscuro: #2563EB;
-  --color-plata-claro: #DBEAFE;
+  --color-primario: #4288c9;
+  --color-primario-oscuro: #3065b0;
+  --color-primario-claro: #dce3e9;
+  --color-texto: #29323d;
+  --color-texto-suave: #7d8283;
+  --color-fondo: #f1f1f1;
+  --color-fondo-secundario: #f5f8fa;
+  --color-footer: #131814;
+  --color-plata: #4288c9;
+  --color-plata-oscuro: #3065b0;
+  --color-plata-claro: #d4dadb;
   --fuente-principal: 'Georgia', serif;
-  --fuente-secundaria: 'Arial', sans-serif;
-  --sombra: 0 2px 12px rgba(59, 130, 246, 0.12);
+  --fuente-secundaria: 'Inter', sans-serif;
+  --sombra: 0px 2px 4px 0px hsl(0 0% 0% / 0.10), 0px 1px 2px -1px hsl(0 0% 0% / 0.10);
   --transicion: all 0.3s ease;
+  --radio: 0.5rem;
+  --tracking-normal: -0.01em;
 }
 
 /* =============================================
    RESET BÁSICO
    ============================================= */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  border-color: var(--color-plata-claro);
 }
 
 html {
@@ -37,6 +42,7 @@ body {
   color: var(--color-texto);
   background-color: var(--color-fondo);
   line-height: 1.6;
+  letter-spacing: var(--tracking-normal);
 }
 
 a {
@@ -250,19 +256,21 @@ img {
 .btn-primary {
   display: inline-block;
   padding: 12px 32px;
-  background-color: var(--color-texto);
-  color: var(--color-fondo);
-  border: 2px solid var(--color-texto);
+  background-color: var(--color-primario);
+  color: #ffffff;
+  border: 2px solid var(--color-primario);
   font-size: 0.85rem;
   letter-spacing: 2px;
   text-transform: uppercase;
   cursor: pointer;
   transition: var(--transicion);
+  border-radius: var(--radio);
 }
 
 .btn-primary:hover {
-  background-color: var(--color-fondo);
-  color: var(--color-texto);
+  background-color: var(--color-primario-oscuro);
+  border-color: var(--color-primario-oscuro);
+  color: #ffffff;
 }
 
 /* =============================================
@@ -295,21 +303,22 @@ img {
 
 .filtro-btn {
   padding: 8px 20px;
-  border: 1px solid var(--color-plata);
-  background-color: transparent;
+  border: 1px solid var(--color-plata-claro);
+  background-color: var(--color-fondo-secundario);
   color: var(--color-texto-suave);
   font-size: 0.8rem;
   letter-spacing: 1px;
   text-transform: uppercase;
   cursor: pointer;
   transition: var(--transicion);
+  border-radius: var(--radio);
 }
 
 .filtro-btn:hover,
 .filtro-btn.activo {
-  background-color: var(--color-texto);
-  color: var(--color-fondo);
-  border-color: var(--color-texto);
+  background-color: var(--color-primario);
+  color: #ffffff;
+  border-color: var(--color-primario);
 }
 
 /* Grid de productos */
@@ -321,8 +330,10 @@ img {
 
 /* Tarjeta de producto */
 .producto-card {
-  background-color: var(--color-fondo);
+  background-color: var(--color-fondo-secundario);
   border: 1px solid var(--color-plata-claro);
+  border-radius: var(--radio);
+  overflow: hidden;
   transition: var(--transicion);
   cursor: pointer;
 }
