@@ -33,6 +33,10 @@ function renderizarProductos(categoria = "todos") {
       </div>
     </div>
   `).join("");
+
+  setTimeout(() => {
+    grid.querySelectorAll(".animar").forEach(el => el.classList.add("visible"));
+  }, 50);
 }
 
 // Maneja los botones de filtro (activo/inactivo) y llama a renderizarProductos
