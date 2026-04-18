@@ -82,14 +82,13 @@ img { max-width: 100%; display: block; }
   margin: 0 auto;
   padding: 0 32px;
   height: 64px;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 32px;
 }
 
-.header-container .logo { flex-shrink: 0; }
-.header-container .nav { flex: 1; }
-.header-container .header-iconos { margin-left: auto; }
+.header-container .logo { text-align: center; }
+.header-container .header-iconos { justify-self: end; }
 
 .logo a {
   display: flex;
@@ -1118,6 +1117,63 @@ img { max-width: 100%; display: block; }
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+
+/* =============================================
+   MODO CLARO
+   ============================================= */
+.light {
+  --color-primario: #0d7ec4;
+  --color-primario-oscuro: #0a5f94;
+  --color-primario-claro: #e8f4fd;
+  --color-texto: #0f1419;
+  --color-texto-suave: #536471;
+  --color-fondo: #ffffff;
+  --color-fondo-secundario: #f7f9fa;
+  --color-card: #f0f3f4;
+  --color-borde: #e1e8ed;
+  --color-footer: #0f1419;
+  --color-plata: #536471;
+  --color-plata-oscuro: #0d7ec4;
+  --color-plata-claro: #e1e8ed;
+  --sombra: 0 2px 12px rgba(0,0,0,0.08);
+  --sombra-glow: 0 0 20px rgba(13,126,196,0.15);
+}
+
+.light .header {
+  background-color: rgba(255,255,255,0.95);
+  border-bottom-color: #e1e8ed;
+}
+
+.light .hero {
+  background: radial-gradient(ellipse at center, #e8f4fd 0%, #f7f9fa 70%);
+}
+
+.light .hero::before { opacity: 0.3; }
+.light .hero::after { background: linear-gradient(90deg, transparent, #0d7ec4, transparent); }
+
+.light .anuncio-bar {
+  background: linear-gradient(90deg, #f0f3f4, #e8f4fd, #f0f3f4);
+  border-bottom-color: #e1e8ed;
+}
+
+.light .buscador-overlay { background: rgba(255,255,255,0.98); }
+
+.light .producto-detalle-panel,
+.light .carrito-panel { background: #ffffff; border-color: #e1e8ed; }
+
+.light .carrito-footer { background: #f7f9fa; }
+
+.light .cantidad-selector button { background: #ffffff; }
+.light .cantidad-valor { background: #f7f9fa; }
+
+.light .filtro-barra input,
+.light .filtro-barra select { background: #ffffff; color: #0f1419; }
+
+.light .footer { background: #0f1419; }
+.light .footer-col p,
+.light .footer-col a { color: #8899a6; }
+.light .footer-col h4 { color: #1e9df1; }
+.light .footer-bottom { border-color: #1a2d3d; }
 
 /* Scrollbar oscura */
 ::-webkit-scrollbar { width: 6px; }
