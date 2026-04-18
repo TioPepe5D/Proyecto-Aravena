@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nosotros — Joyería Aravena</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/nosotros.css">
+</head>
+
+<body>
+
+  <div class="anuncio-bar">
+    <p>&#128666; Envíos a todo Chile</p>
+  </div>
+
+  <header class="header">
+    <div class="header-container">
+      <nav class="nav">
+        <ul>
+          <li><a href="index.html#catalogo">Productos</a></li>
+          <li><a href="nosotros.html">Nosotros</a></li>
+          <li><a href="contacto.html">Contacto</a></li>
+        </ul>
+      </nav>
+      <div class="logo">
+        <a href="index.html">Joyería Aravena</a>
+      </div>
+      <div class="header-iconos">
+        <button class="icono-btn" title="Mi cuenta">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+        </button>
+        <button class="icono-btn carrito-btn" id="carrito-btn" title="Carrito">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          <span class="carrito-contador" id="carrito-contador">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO de la página -->
+  <section class="pagina-hero">
+    <h1>Nuestra Historia</h1>
+    <p>Artesanía en plata con alma chilena</p>
+  </section>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="nosotros-main">
+
+    <!-- Historia -->
+    <section class="nosotros-seccion">
+      <div class="nosotros-texto">
+        <h2>¿Quiénes somos?</h2>
+        <p>
+          Joyería Aravena nació de la pasión por transformar la plata en piezas únicas que cuentan historias.
+          Cada joya es diseñada y trabajada a mano, con dedicación y atención al detalle.
+        </p>
+        <p>
+          Nos especializamos en plata 925, el estándar de mayor pureza para joyería, garantizando
+          durabilidad y brillo en cada pieza que llega a tus manos.
+        </p>
+      </div>
+      <div class="nosotros-imagen placeholder-imagen">
+        <span>Foto del taller</span>
+      </div>
+    </section>
+
+    <!-- VIDEO -->
+    <section class="video-seccion">
+      <h2>Conoce nuestro taller</h2>
+      <p class="video-subtitulo">Así trabajamos cada pieza</p>
+      <div class="video-contenedor">
+        <video controls preload="metadata" poster="">
+          <source src="images/video-taller.mp4" type="video/mp4">
+          Tu navegador no soporta la reproducción de video.
+        </video>
+      </div>
+    </section>
+
+    <!-- Valores -->
+    <section class="valores">
+      <h2>Nuestros valores</h2>
+      <div class="valores-grid">
+        <div class="valor-card">
+          <div class="valor-icono">&#9670;</div>
+          <h3>Artesanal</h3>
+          <p>Cada pieza es trabajada a mano. No somos una fábrica, somos un taller.</p>
+        </div>
+        <div class="valor-card">
+          <div class="valor-icono">&#9670;</div>
+          <h3>Calidad</h3>
+          <p>Usamos exclusivamente plata 925, certificada y de origen confiable.</p>
+        </div>
+        <div class="valor-card">
+          <div class="valor-icono">&#9670;</div>
+          <h3>Único</h3>
+          <p>Diseños propios, irrepetibles. Tu joya no la tiene nadie más.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="nosotros-cta">
+      <h2>¿Te gustó lo que viste?</h2>
+      <p>Explora nuestra colección o escríbenos directamente</p>
+      <div class="nosotros-cta-botones">
+        <a href="index.html#catalogo" class="btn-primary">Ver catálogo</a>
+        <a href="contacto.html" class="btn-secondary">Contáctanos</a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <p class="footer-logo">Joyería Aravena</p>
+      <p>Piezas únicas de plata artesanal</p>
+      <p>contacto@joyeriaaravena.cl</p>
+      <p class="footer-copy">© 2024 Joyería Aravena. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Botón WhatsApp flotante -->
+  <a href="https://wa.me/56966497904?text=Hola,%20me%20interesa%20una%20joya%20de%20Joyería%20Aravena"
+    class="whatsapp-flotante" target="_blank" title="Escríbenos por WhatsApp">
+    <svg viewBox="0 0 32 32" width="28" height="28" fill="white" xmlns="http://www.w3.org/2000/svg">
+      <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.678 4.797 1.856 6.785L2 30l7.43-1.82A13.94 13.94 0 0 0 16 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.5a11.44 11.44 0 0 1-5.826-1.594l-.418-.248-4.33 1.062 1.094-4.212-.272-.432A11.467 11.467 0 0 1 4.5 16C4.5 9.596 9.596 4.5 16 4.5S27.5 9.596 27.5 16 22.404 27.5 16 27.5zm6.29-8.634c-.344-.172-2.036-1.004-2.352-1.118-.316-.116-.546-.172-.776.172-.23.344-.892 1.118-1.094 1.348-.2.23-.402.258-.746.086-.344-.172-1.452-.536-2.766-1.706-1.022-.912-1.712-2.036-1.912-2.38-.2-.344-.022-.53.15-.702.154-.154.344-.402.516-.602.172-.2.23-.344.344-.574.116-.23.058-.43-.028-.602-.086-.172-.776-1.87-1.064-2.562-.28-.674-.564-.582-.776-.594-.2-.01-.43-.012-.66-.012s-.602.086-.918.43c-.316.344-1.204 1.176-1.204 2.868s1.232 3.326 1.404 3.556c.172.23 2.426 3.706 5.878 5.198.822.354 1.464.566 1.964.724.826.262 1.578.226 2.172.138.662-.1 2.036-.832 2.322-1.634.288-.802.288-1.49.202-1.634-.086-.144-.316-.23-.66-.402z"/>
+    </svg>
+  </a>
+
+  <div class="carrito-overlay" id="carrito-overlay"></div>
+  <aside class="carrito-panel" id="carrito-panel">
+    <div class="carrito-header">
+      <h3>Tu Carrito <span class="carrito-header-badge" id="carrito-header-badge">0</span></h3>
+      <button class="carrito-cerrar" id="carrito-cerrar">&times;</button>
+    </div>
+    <div class="carrito-items" id="carrito-items">
+      <p class="carrito-vacio">Tu carrito está vacío</p>
+    </div>
+    <div class="carrito-footer">
+      <div class="carrito-total-row">
+        <span class="carrito-total-label">Total estimado</span>
+        <span class="carrito-total" id="carrito-total">$0 CLP</span>
+      </div>
+      <p class="carrito-total-info">Impuestos incluidos. Envío calculado al finalizar.</p>
+      <button class="btn-mp" id="btn-pagar-sidebar" disabled>
+        <svg width="18" height="18" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="24" fill="#009EE3"/><path d="M13 24c0-6.075 4.925-11 11-11s11 4.925 11 11-4.925 11-11 11S13 30.075 13 24z" fill="white"/><path d="M20 24l3 3 6-6" stroke="#009EE3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Pagar con MercadoPago
+      </button>
+      <div class="btn-mp-estado" id="btn-mp-estado"></div>
+    </div>
+  </aside>
+
+  <script src="js/products.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/animations.js"></script>
+
+</body>
+
+</html>
