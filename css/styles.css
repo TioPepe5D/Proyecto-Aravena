@@ -100,7 +100,7 @@ img { max-width: 100%; display: block; }
 }
 
 .logo-texto {
-  font-family: var(--fuente-display);
+  font-family: 'Times New Roman', Times, serif;
   font-size: 1.3rem;
   font-weight: 600;
   letter-spacing: 2px;
