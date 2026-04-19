@@ -690,7 +690,7 @@ img { max-width: 100%; display: block; }
 }
 .cantidad-selector-card .cantidad-valor {
   flex: 1;
-  color: #fff;
+  color: var(--color-texto);
   font-size: 0.95rem;
   font-weight: 700;
   border-left: 1px solid rgba(255,255,255,0.25);
