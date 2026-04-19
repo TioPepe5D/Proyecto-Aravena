@@ -21,5 +21,26 @@ function inicializarBuscador() {
   cerrar.addEventListener("click", () => {
     overlay.classList.remove("activo");
     input.value = "";
+    const filtroNombre = document.getElementById("filtro-nombre");
+    if (filtroNombre) { filtroNombre.value = ""; renderizarProductos(); }
+  });
+
+  input.addEventListener("input", () => {
+    const filtroNombre = document.getElementById("filtro-nombre");
+    if (!filtroNombre) return;
+    filtroNombre.value = input.value;
+    renderizarProductos();
+    if (input.value.trim()) {
+      document.getElementById("catalogo")?.scrollIntoView({ behavior: "smooth" });
+    }
+  });
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      overlay.classList.remove("activo");
+      input.value = "";
+      const filtroNombre = document.getElementById("filtro-nombre");
+      if (filtroNombre) { filtroNombre.value = ""; renderizarProductos(); }
+    }
   });
 }
