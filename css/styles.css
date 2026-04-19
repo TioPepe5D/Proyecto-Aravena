@@ -99,6 +99,20 @@ img { max-width: 100%; display: block; }
   transition: var(--transicion);
 }
 
+.logo-texto {
+  font-family: var(--fuente-display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: var(--color-acento);
+  text-decoration: none;
+  transition: var(--transicion);
+}
+
+.logo-texto:hover {
+  filter: drop-shadow(0 0 12px rgba(30,157,241,0.8));
+}
+
 .logo-img {
   height: 52px;
   width: 52px;
