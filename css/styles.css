@@ -1331,20 +1331,22 @@ img { max-width: 100%; display: block; }
   .beneficios-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
   .hero-logo { width: 120px; height: 120px; }
 
-  /* Header móvil: logo centrado, iconos a la derecha */
+  /* Header móvil: grid 3 columnas para centrar el logo sin solapamientos */
   .header-container {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
-    padding: 0 16px;
+    padding: 0 12px;
+    gap: 4px;
   }
+  .header-container .nav { display: none; }
   .header-container .logo {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    position: static;
+    transform: none;
+    text-align: center;
   }
-  .logo-texto { font-size: 1.1rem; letter-spacing: 1.5px; }
-  .header-iconos { gap: 4px; }
+  .logo-texto { font-size: 1.05rem; letter-spacing: 1.5px; }
+  .header-iconos { gap: 2px; justify-self: end; }
   .icono-btn { padding: 6px; }
 
   /* Catálogo móvil */
