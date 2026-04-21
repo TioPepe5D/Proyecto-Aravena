@@ -11,6 +11,17 @@
 
 <body>
 
+  <div class="page-loader" id="page-loader" aria-hidden="true">
+    <div class="page-loader-logo">Joyería Aravena</div>
+  </div>
+
+  <script>
+    (function() {
+      const tema = localStorage.getItem("tema") || "dark";
+      if (tema === "light") document.documentElement.classList.add("light");
+    })();
+  </script>
+
   <div class="anuncio-bar">
     <p>&#128666; Envíos a todo Chile</p>
   </div>
@@ -25,7 +36,7 @@
         </ul>
       </nav>
       <div class="logo">
-        <a href="index.html">Joyería Aravena</a>
+        <a href="index.html" class="logo-texto">Joyería Aravena</a>
       </div>
       <div class="header-iconos">
         <button class="icono-btn" title="Mi cuenta">
@@ -45,10 +56,10 @@
 
   <main class="contacto-main">
 
-    <h2 class="ejecutivos-titulo">Habla directamente con nuestros ejecutivos</h2>
-    <p class="ejecutivos-subtitulo">Escríbele al que prefieras por WhatsApp</p>
+    <h2 class="ejecutivos-titulo animar">Habla directamente con nuestros ejecutivos</h2>
+    <p class="ejecutivos-subtitulo animar">Escríbele al que prefieras por WhatsApp</p>
 
-    <div class="ejecutivos-grid">
+    <div class="ejecutivos-grid animar">
 
       <div class="ejecutivo-card">
         <div class="ejecutivo-avatar">D</div>
@@ -60,8 +71,10 @@
 
     </div>
 
+    <hr class="section-divider">
+
     <!-- SECCIÓN LOCAL -->
-    <div class="local-seccion">
+    <div class="local-seccion animar">
       <h2 class="ejecutivos-titulo">Visítanos</h2>
       <p class="ejecutivos-subtitulo">
         Fidel Oteiza 1921, Providencia — Oficina 1003, Piso 10
@@ -86,29 +99,6 @@
       <p class="footer-copy">© 2024 Joyería Aravena. Todos los derechos reservados.</p>
     </div>
   </footer>
-
-  <div class="carrito-overlay" id="carrito-overlay"></div>
-  <aside class="carrito-panel" id="carrito-panel">
-    <div class="carrito-header">
-      <h3>Tu Carrito <span class="carrito-header-badge" id="carrito-header-badge">0</span></h3>
-      <button class="carrito-cerrar" id="carrito-cerrar">&times;</button>
-    </div>
-    <div class="carrito-items" id="carrito-items">
-      <p class="carrito-vacio">Tu carrito está vacío</p>
-    </div>
-    <div class="carrito-footer">
-      <div class="carrito-descuento">
-        <input type="text" placeholder="Código de descuento">
-        <button>Aplicar</button>
-      </div>
-      <div class="carrito-total-row">
-        <span class="carrito-total-label">Total estimado</span>
-        <span class="carrito-total" id="carrito-total">$0 CLP</span>
-      </div>
-      <p class="carrito-total-info">Aranceles e impuestos incluidos. Envío calculado en checkout.</p>
-      <button class="btn-primary btn-cotizar">Cotizar por WhatsApp</button>
-    </div>
-  </aside>
 
   <!-- Botón WhatsApp flotante -->
   <a href="https://wa.me/56966497904?text=Hola,%20me%20interesa%20una%20joya%20de%20Joyería%20Aravena"

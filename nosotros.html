@@ -11,6 +11,17 @@
 
 <body>
 
+  <div class="page-loader" id="page-loader" aria-hidden="true">
+    <div class="page-loader-logo">Joyería Aravena</div>
+  </div>
+
+  <script>
+    (function() {
+      const tema = localStorage.getItem("tema") || "dark";
+      if (tema === "light") document.documentElement.classList.add("light");
+    })();
+  </script>
+
   <div class="anuncio-bar">
     <p>&#128666; Envíos a todo Chile</p>
   </div>
@@ -25,7 +36,7 @@
         </ul>
       </nav>
       <div class="logo">
-        <a href="index.html">Joyería Aravena</a>
+        <a href="index.html" class="logo-texto">Joyería Aravena</a>
       </div>
       <div class="header-iconos">
         <button class="icono-btn" title="Mi cuenta">
@@ -44,16 +55,18 @@
   </header>
 
   <!-- HERO de la página -->
-  <section class="pagina-hero">
+  <section class="pagina-hero animar">
     <h1>Nuestra Historia</h1>
     <p>Artesanía en plata con alma chilena</p>
   </section>
+
+  <hr class="section-divider">
 
   <!-- CONTENIDO PRINCIPAL -->
   <main class="nosotros-main">
 
     <!-- Historia -->
-    <section class="nosotros-seccion">
+    <section class="nosotros-seccion animar">
       <div class="nosotros-texto">
         <h2>¿Quiénes somos?</h2>
         <p>
@@ -71,7 +84,7 @@
     </section>
 
     <!-- VIDEO -->
-    <section class="video-seccion">
+    <section class="video-seccion animar">
       <h2>Conoce nuestro taller</h2>
       <p class="video-subtitulo">Así trabajamos cada pieza</p>
       <div class="video-contenedor">
@@ -83,7 +96,7 @@
     </section>
 
     <!-- Valores -->
-    <section class="valores">
+    <section class="valores animar">
       <h2>Nuestros valores</h2>
       <div class="valores-grid">
         <div class="valor-card">
@@ -105,11 +118,11 @@
     </section>
 
     <!-- CTA -->
-    <section class="nosotros-cta">
+    <section class="nosotros-cta animar">
       <h2>¿Te gustó lo que viste?</h2>
       <p>Explora nuestra colección o escríbenos directamente</p>
       <div class="nosotros-cta-botones">
-        <a href="index.html#catalogo" class="btn-primary">Ver catálogo</a>
+        <a href="index.html#catalogo" class="btn-primary btn-pulse">Ver catálogo</a>
         <a href="contacto.html" class="btn-secondary">Contáctanos</a>
       </div>
     </section>

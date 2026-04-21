@@ -11,6 +11,17 @@
 
 <body>
 
+  <div class="page-loader" id="page-loader" aria-hidden="true">
+    <div class="page-loader-logo">Joyería Aravena</div>
+  </div>
+
+  <script>
+    (function() {
+      const tema = localStorage.getItem("tema") || "dark";
+      if (tema === "light") document.documentElement.classList.add("light");
+    })();
+  </script>
+
   <div class="anuncio-bar">
     <p>&#128666; Envíos a todo Chile</p>
   </div>
@@ -25,7 +36,7 @@
         </ul>
       </nav>
       <div class="logo">
-        <a href="index.html">Joyería Aravena</a>
+        <a href="index.html" class="logo-texto">Joyería Aravena</a>
       </div>
       <div class="header-iconos">
         <button class="icono-btn" id="buscar-btn" title="Buscar">
@@ -45,11 +56,11 @@
 
   <main class="carrito-page">
 
-    <div class="carrito-page-header">
+    <div class="carrito-page-header animar">
       <h1>Carrito <span id="carrito-badge" class="carrito-page-badge">0</span></h1>
     </div>
 
-    <div class="carrito-page-grid">
+    <div class="carrito-page-grid animar">
 
       <!-- Lista de items -->
       <div class="carrito-page-items" id="carrito-page-items">
@@ -98,6 +109,8 @@
 
   <script src="js/products.js"></script>
   <script src="js/carrito-page.js"></script>
+  <script src="js/animations.js"></script>
+  <script>inicializarAnimaciones && inicializarAnimaciones();</script>
 
 </body>
 </html>
