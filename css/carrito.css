@@ -111,35 +111,38 @@
 .cantidad-selector {
   display: inline-flex;
   align-items: center;
-  border: 1px solid var(--color-plata-claro);
-  border-radius: var(--radio);
+  border: 1px solid var(--color-primario);
+  border-radius: 999px;
   overflow: hidden;
+  background: linear-gradient(135deg, var(--color-primario), var(--color-primario-oscuro));
+  box-shadow: 0 0 12px rgba(30,157,241,0.25);
 }
 
 .cantidad-selector button {
-  background: var(--color-fondo);
+  background: transparent;
   border: none;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   font-size: 1.1rem;
   cursor: pointer;
-  color: var(--color-texto);
+  color: #fff;
   transition: var(--transicion);
+  font-weight: 700;
 }
 
 .cantidad-selector button:hover {
-  background: var(--color-fondo-secundario);
-  color: var(--color-primario);
+  background: rgba(255,255,255,0.15);
 }
 
 .cantidad-valor {
   min-width: 36px;
   text-align: center;
   font-size: 0.9rem;
-  font-weight: 600;
-  border-left: 1px solid var(--color-plata-claro);
-  border-right: 1px solid var(--color-plata-claro);
+  font-weight: 700;
+  border-left: 1px solid rgba(255,255,255,0.25);
+  border-right: 1px solid rgba(255,255,255,0.25);
   padding: 7px 0;
+  color: #fff;
 }
 
 /* Eliminar */
