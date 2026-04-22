@@ -1243,6 +1243,14 @@ img { max-width: 100%; display: block; }
   color: var(--color-texto-suave);
   background: rgba(30,157,241,0.05);
   transition: var(--transicion);
+  overflow: hidden;
+  line-height: 0;
+}
+.footer-red svg {
+  width: 38px;
+  height: 38px;
+  display: block;
+  flex-shrink: 0;
 }
 .footer-red:hover {
   color: var(--color-primario);
