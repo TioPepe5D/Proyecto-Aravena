@@ -5,28 +5,8 @@
 
 let usuarioActual = null;
 
-async function initAuth() {
-  // Verificar sesión existente
-  const { data: { session } } = await db.auth.getSession();
-  if (session) {
-    usuarioActual = session.user;
-    actualizarHeaderUsuario(session.user);
-  }
-
-  // Escuchar cambios de sesión
-  db.auth.onAuthStateChange((event, session) => {
-    usuarioActual = session?.user || null;
-    actualizarHeaderUsuario(usuarioActual);
-    if (event === 'SIGNED_IN') {
-      cerrarAuthPanel();
-      const nombre = usuarioActual?.user_metadata?.nombre || usuarioActual?.email?.split('@')[0] || 'Usuario';
-      mostrarToastAuth(`¡Bienvenido, ${nombre.split(' ')[0]}!`);
-    }
-    if (event === 'SIGNED_OUT') {
-      mostrarToastAuth('Sesión cerrada correctamente');
-    }
-  });
-
+function initAuth() {
+  // ── 1. Registrar TODOS los event listeners primero (síncronos) ──
   // Botón Mi Cuenta
   document.getElementById('cuenta-btn')?.addEventListener('click', () => {
     if (usuarioActual) abrirUsuarioPanel();
@@ -65,6 +45,30 @@ async function initAuth() {
   // ESC cierra paneles
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') cerrarTodosPaneles();
+  });
+
+  // ── 2. Verificar sesión existente de forma asíncrona ──
+  if (!db) return; // sin Supabase no hay sesión que revisar
+
+  db.auth.getSession().then(({ data: { session } }) => {
+    if (session) {
+      usuarioActual = session.user;
+      actualizarHeaderUsuario(session.user);
+    }
+  }).catch(e => console.warn('[Auth] getSession:', e));
+
+  // Escuchar cambios de sesión
+  db.auth.onAuthStateChange((event, session) => {
+    usuarioActual = session?.user || null;
+    actualizarHeaderUsuario(usuarioActual);
+    if (event === 'SIGNED_IN') {
+      cerrarAuthPanel();
+      const nombre = usuarioActual?.user_metadata?.nombre || usuarioActual?.email?.split('@')[0] || 'Usuario';
+      mostrarToastAuth(`¡Bienvenido, ${nombre.split(' ')[0]}!`);
+    }
+    if (event === 'SIGNED_OUT') {
+      mostrarToastAuth('Sesión cerrada correctamente');
+    }
   });
 }
 
@@ -169,19 +173,26 @@ function cerrarTodosPaneles() {
 /* ── Formularios ─────────────────────────── */
 async function manejarLogin(e) {
   e.preventDefault();
+  if (!db) { mostrarMsg('msg-login', 'Error de conexión. Intenta más tarde.', 'error'); return; }
+
   const email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
   const btn = document.getElementById('btn-login-submit');
 
   setLoading(btn, true, 'Iniciando sesión...');
-  const { error } = await db.auth.signInWithPassword({ email, password });
+  try {
+    const { error } = await db.auth.signInWithPassword({ email, password });
+    if (error) mostrarMsg('msg-login', traducirError(error.message), 'error');
+  } catch(e) {
+    mostrarMsg('msg-login', 'Error de conexión. Intenta más tarde.', 'error');
+  }
   setLoading(btn, false, 'Iniciar sesión');
-
-  if (error) mostrarMsg('msg-login', traducirError(error.message), 'error');
 }
 
 async function manejarRegistro(e) {
   e.preventDefault();
+  if (!db) { mostrarMsg('msg-registro', 'Error de conexión. Intenta más tarde.', 'error'); return; }
+
   const nombre = document.getElementById('reg-nombre').value.trim();
   const email = document.getElementById('reg-email').value.trim();
   const password = document.getElementById('reg-password').value;
@@ -197,23 +208,26 @@ async function manejarRegistro(e) {
   }
 
   setLoading(btn, true, 'Creando cuenta...');
-  const { data, error } = await db.auth.signUp({
-    email, password,
-    options: { data: { nombre } }
-  });
-  setLoading(btn, false, 'Crear cuenta');
-
-  if (error) {
-    mostrarMsg('msg-registro', traducirError(error.message), 'error');
-  } else if (data.user && !data.session) {
-    mostrarMsg('msg-registro', '✓ Revisa tu email para confirmar tu cuenta', 'exito');
-    document.getElementById('form-registro').reset();
+  try {
+    const { data, error } = await db.auth.signUp({
+      email, password,
+      options: { data: { nombre } }
+    });
+    if (error) {
+      mostrarMsg('msg-registro', traducirError(error.message), 'error');
+    } else if (data.user && !data.session) {
+      mostrarMsg('msg-registro', '✓ Revisa tu email para confirmar tu cuenta', 'exito');
+      document.getElementById('form-registro').reset();
+    }
+  } catch(e) {
+    mostrarMsg('msg-registro', 'Error de conexión. Intenta más tarde.', 'error');
   }
+  setLoading(btn, false, 'Crear cuenta');
 }
 
 async function logout() {
   cerrarUsuarioPanel();
-  await db.auth.signOut();
+  if (db) await db.auth.signOut();
 }
 
 /* ── Helpers ─────────────────────────────── */
