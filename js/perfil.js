@@ -115,12 +115,14 @@ async function cargarPedidos(userId) {
   contenedor.innerHTML = '<div class="perfil-loading">Cargando pedidos…</div>';
 
   try {
+    console.log('[Pedidos] Consultando pedidos para userId:', userId);
     const { data, error } = await db
       .from('pedidos')
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
+    console.log('[Pedidos] Resultado:', { data, error });
     if (error) throw error;
 
     if (!data || data.length === 0) {
@@ -155,7 +157,8 @@ async function cargarPedidos(userId) {
     }).join('');
 
   } catch (e) {
-    contenedor.innerHTML = `<p style="color:#f4212e;font-size:.85rem">Error al cargar pedidos.</p>`;
+    console.error('[Pedidos] Error real:', e);
+    contenedor.innerHTML = `<p style="color:#f4212e;font-size:.85rem">Error al cargar pedidos: ${e?.message || JSON.stringify(e)}</p>`;
   }
 }
 
