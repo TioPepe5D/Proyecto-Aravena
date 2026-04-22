@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Joyería Aravena</title>
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -49,10 +51,11 @@
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
         </button>
-        <button class="icono-btn" title="Mi cuenta">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <button class="icono-btn" id="cuenta-btn" title="Mi cuenta">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" id="cuenta-icono">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
           </svg>
+          <span class="cuenta-nombre-header" id="cuenta-nombre"></span>
         </button>
         <button class="icono-btn carrito-btn" id="carrito-btn" title="Carrito">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -247,11 +250,114 @@
     })();
   </script>
 
+  <!-- AUTH: overlay + panel login/registro -->
+  <div class="auth-overlay" id="auth-overlay"></div>
+
+  <aside class="auth-panel" id="auth-panel">
+    <div class="auth-panel-header">
+      <div class="auth-tabs">
+        <button class="auth-tab activo" id="tab-login">Iniciar sesión</button>
+        <button class="auth-tab" id="tab-registro">Crear cuenta</button>
+      </div>
+      <button class="auth-panel-cerrar" id="auth-cerrar">&times;</button>
+    </div>
+    <div class="auth-panel-body">
+      <!-- Login -->
+      <form class="auth-form" id="form-login">
+        <div class="auth-field">
+          <label>Email</label>
+          <input type="email" id="login-email" placeholder="tu@email.com" autocomplete="email" required>
+        </div>
+        <div class="auth-field">
+          <label>Contraseña</label>
+          <div class="auth-password-wrap">
+            <input type="password" id="login-password" placeholder="••••••••" required>
+            <button type="button" class="auth-toggle-pass" title="Mostrar contraseña">
+              <svg class="ojo-abierto" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg class="ojo-cerrado" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            </button>
+          </div>
+        </div>
+        <p class="auth-msg" id="msg-login"></p>
+        <button type="submit" class="btn-primary auth-btn-submit" id="btn-login-submit">Iniciar sesión</button>
+        <p class="auth-switch">¿No tienes cuenta? <button type="button" onclick="cambiarTab('registro')">Crear cuenta</button></p>
+      </form>
+      <!-- Registro -->
+      <form class="auth-form" id="form-registro" style="display:none">
+        <div class="auth-field">
+          <label>Nombre completo</label>
+          <input type="text" id="reg-nombre" placeholder="Tu nombre completo" autocomplete="name" required>
+        </div>
+        <div class="auth-field">
+          <label>Email</label>
+          <input type="email" id="reg-email" placeholder="tu@email.com" autocomplete="email" required>
+        </div>
+        <div class="auth-field">
+          <label>Contraseña</label>
+          <div class="auth-password-wrap">
+            <input type="password" id="reg-password" placeholder="Mínimo 6 caracteres" required>
+            <button type="button" class="auth-toggle-pass" title="Mostrar contraseña">
+              <svg class="ojo-abierto" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg class="ojo-cerrado" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            </button>
+          </div>
+        </div>
+        <p class="auth-msg" id="msg-registro"></p>
+        <button type="submit" class="btn-primary auth-btn-submit" id="btn-registro-submit">Crear cuenta</button>
+        <p class="auth-switch">¿Ya tienes cuenta? <button type="button" onclick="cambiarTab('login')">Iniciar sesión</button></p>
+      </form>
+    </div>
+  </aside>
+
+  <!-- USUARIO: panel cuando está logueado -->
+  <aside class="usuario-panel" id="usuario-panel">
+    <div class="usuario-panel-header">
+      <div class="usuario-info">
+        <div class="usuario-avatar" id="panel-avatar">U</div>
+        <div>
+          <p class="usuario-nombre" id="panel-nombre">Usuario</p>
+          <p class="usuario-email" id="panel-email">email@ejemplo.com</p>
+        </div>
+      </div>
+      <button class="auth-panel-cerrar" id="usuario-panel-cerrar">&times;</button>
+    </div>
+    <nav class="usuario-nav">
+      <a href="perfil.html#pedidos" class="usuario-nav-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span>Mis Pedidos</span>
+        <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+      <a href="perfil.html#favoritos" class="usuario-nav-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span>Mis Favoritos</span>
+        <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+      <a href="perfil.html#envio" class="usuario-nav-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span>Datos de envío</span>
+        <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+      <a href="perfil.html" class="usuario-nav-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Mi Perfil</span>
+        <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+    </nav>
+    <div class="usuario-panel-footer">
+      <button class="btn-logout" id="btn-logout">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Cerrar sesión
+      </button>
+    </div>
+  </aside>
+
   <!-- Scripts JavaScript -->
   <script src="js/products.js"></script>
   <script src="js/cart.js"></script>
   <script src="js/catalog.js"></script>
   <script src="js/animations.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
   <script>
     document.getElementById("tema-btn").addEventListener("click", () => {

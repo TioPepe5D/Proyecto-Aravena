@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   inicializarCarrito();
   inicializarAnimaciones();
   inicializarBuscador();
+  if (typeof initAuth === "function") initAuth();
 });
 
 function inicializarBuscador() {

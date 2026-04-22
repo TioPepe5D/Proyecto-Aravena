@@ -1,0 +1,262 @@
+/* =============================================
+   AUTH — Joyería Aravena
+   Login, Registro, Panel de usuario
+   ============================================= */
+
+let usuarioActual = null;
+
+async function initAuth() {
+  // Verificar sesión existente
+  const { data: { session } } = await db.auth.getSession();
+  if (session) {
+    usuarioActual = session.user;
+    actualizarHeaderUsuario(session.user);
+  }
+
+  // Escuchar cambios de sesión
+  db.auth.onAuthStateChange((event, session) => {
+    usuarioActual = session?.user || null;
+    actualizarHeaderUsuario(usuarioActual);
+    if (event === 'SIGNED_IN') {
+      cerrarAuthPanel();
+      const nombre = usuarioActual?.user_metadata?.nombre || usuarioActual?.email?.split('@')[0] || 'Usuario';
+      mostrarToastAuth(`¡Bienvenido, ${nombre.split(' ')[0]}!`);
+    }
+    if (event === 'SIGNED_OUT') {
+      mostrarToastAuth('Sesión cerrada correctamente');
+    }
+  });
+
+  // Botón Mi Cuenta
+  document.getElementById('cuenta-btn')?.addEventListener('click', () => {
+    if (usuarioActual) abrirUsuarioPanel();
+    else abrirAuthPanel('login');
+  });
+
+  // Overlay
+  document.getElementById('auth-overlay')?.addEventListener('click', cerrarTodosPaneles);
+
+  // Cerrar botones
+  document.getElementById('auth-cerrar')?.addEventListener('click', cerrarAuthPanel);
+  document.getElementById('usuario-panel-cerrar')?.addEventListener('click', cerrarUsuarioPanel);
+
+  // Tabs
+  document.getElementById('tab-login')?.addEventListener('click', () => cambiarTab('login'));
+  document.getElementById('tab-registro')?.addEventListener('click', () => cambiarTab('registro'));
+
+  // Formularios
+  document.getElementById('form-login')?.addEventListener('submit', manejarLogin);
+  document.getElementById('form-registro')?.addEventListener('submit', manejarRegistro);
+
+  // Logout
+  document.getElementById('btn-logout')?.addEventListener('click', logout);
+
+  // Toggle contraseña
+  document.querySelectorAll('.auth-toggle-pass').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = btn.previousElementSibling;
+      const esPassword = input.type === 'password';
+      input.type = esPassword ? 'text' : 'password';
+      btn.querySelector('.ojo-abierto').style.display = esPassword ? 'none' : 'block';
+      btn.querySelector('.ojo-cerrado').style.display = esPassword ? 'block' : 'none';
+    });
+  });
+
+  // ESC cierra paneles
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') cerrarTodosPaneles();
+  });
+}
+
+/* ── Header ──────────────────────────────── */
+function actualizarHeaderUsuario(user) {
+  const btn = document.getElementById('cuenta-btn');
+  const icono = document.getElementById('cuenta-icono');
+  const nombreEl = document.getElementById('cuenta-nombre');
+  if (!btn) return;
+
+  if (user) {
+    const nombre = user.user_metadata?.nombre || user.email?.split('@')[0] || 'Usuario';
+    const inicial = nombre.charAt(0).toUpperCase();
+    btn.classList.add('cuenta-activa');
+    btn.title = nombre;
+    if (icono) icono.style.display = 'none';
+    if (nombreEl) {
+      nombreEl.textContent = inicial;
+      nombreEl.style.display = 'flex';
+    }
+  } else {
+    btn.classList.remove('cuenta-activa');
+    btn.title = 'Mi cuenta';
+    if (icono) icono.style.display = 'block';
+    if (nombreEl) nombreEl.style.display = 'none';
+  }
+}
+
+/* ── Auth Panel (login/registro) ─────────── */
+function abrirAuthPanel(tab = 'login') {
+  document.getElementById('auth-overlay')?.classList.add('activo');
+  document.getElementById('auth-panel')?.classList.add('activo');
+  cambiarTab(tab);
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarAuthPanel() {
+  document.getElementById('auth-panel')?.classList.remove('activo');
+  const overlay = document.getElementById('auth-overlay');
+  if (!document.getElementById('usuario-panel')?.classList.contains('activo')) {
+    overlay?.classList.remove('activo');
+    document.body.style.overflow = '';
+  }
+  limpiarMensajes();
+}
+
+function cambiarTab(tab) {
+  const tabLogin = document.getElementById('tab-login');
+  const tabReg = document.getElementById('tab-registro');
+  const formLogin = document.getElementById('form-login');
+  const formReg = document.getElementById('form-registro');
+
+  if (tab === 'login') {
+    tabLogin?.classList.add('activo');
+    tabReg?.classList.remove('activo');
+    if (formLogin) formLogin.style.display = 'flex';
+    if (formReg) formReg.style.display = 'none';
+  } else {
+    tabReg?.classList.add('activo');
+    tabLogin?.classList.remove('activo');
+    if (formReg) formReg.style.display = 'flex';
+    if (formLogin) formLogin.style.display = 'none';
+  }
+  limpiarMensajes();
+}
+
+/* ── Usuario Panel (logueado) ────────────── */
+function abrirUsuarioPanel() {
+  if (!usuarioActual) return;
+  const nombre = usuarioActual.user_metadata?.nombre || usuarioActual.email?.split('@')[0] || 'Usuario';
+  const email = usuarioActual.email;
+
+  const panelNombre = document.getElementById('panel-nombre');
+  const panelEmail = document.getElementById('panel-email');
+  const panelAvatar = document.getElementById('panel-avatar');
+
+  if (panelNombre) panelNombre.textContent = nombre;
+  if (panelEmail) panelEmail.textContent = email;
+  if (panelAvatar) panelAvatar.textContent = nombre.charAt(0).toUpperCase();
+
+  document.getElementById('auth-overlay')?.classList.add('activo');
+  document.getElementById('usuario-panel')?.classList.add('activo');
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarUsuarioPanel() {
+  document.getElementById('usuario-panel')?.classList.remove('activo');
+  const overlay = document.getElementById('auth-overlay');
+  if (!document.getElementById('auth-panel')?.classList.contains('activo')) {
+    overlay?.classList.remove('activo');
+    document.body.style.overflow = '';
+  }
+}
+
+function cerrarTodosPaneles() {
+  cerrarAuthPanel();
+  cerrarUsuarioPanel();
+  document.getElementById('auth-overlay')?.classList.remove('activo');
+  document.body.style.overflow = '';
+}
+
+/* ── Formularios ─────────────────────────── */
+async function manejarLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const btn = document.getElementById('btn-login-submit');
+
+  setLoading(btn, true, 'Iniciando sesión...');
+  const { error } = await db.auth.signInWithPassword({ email, password });
+  setLoading(btn, false, 'Iniciar sesión');
+
+  if (error) mostrarMsg('msg-login', traducirError(error.message), 'error');
+}
+
+async function manejarRegistro(e) {
+  e.preventDefault();
+  const nombre = document.getElementById('reg-nombre').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-password').value;
+  const btn = document.getElementById('btn-registro-submit');
+
+  if (password.length < 6) {
+    mostrarMsg('msg-registro', 'La contraseña debe tener al menos 6 caracteres', 'error');
+    return;
+  }
+  if (!nombre) {
+    mostrarMsg('msg-registro', 'Ingresa tu nombre completo', 'error');
+    return;
+  }
+
+  setLoading(btn, true, 'Creando cuenta...');
+  const { data, error } = await db.auth.signUp({
+    email, password,
+    options: { data: { nombre } }
+  });
+  setLoading(btn, false, 'Crear cuenta');
+
+  if (error) {
+    mostrarMsg('msg-registro', traducirError(error.message), 'error');
+  } else if (data.user && !data.session) {
+    mostrarMsg('msg-registro', '✓ Revisa tu email para confirmar tu cuenta', 'exito');
+    document.getElementById('form-registro').reset();
+  }
+}
+
+async function logout() {
+  cerrarUsuarioPanel();
+  await db.auth.signOut();
+}
+
+/* ── Helpers ─────────────────────────────── */
+function setLoading(btn, loading, texto) {
+  if (!btn) return;
+  btn.disabled = loading;
+  btn.textContent = texto;
+}
+
+function mostrarMsg(id, msg, tipo) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = msg;
+  el.className = `auth-msg auth-msg-${tipo}`;
+  el.style.display = 'block';
+}
+
+function limpiarMensajes() {
+  ['msg-login', 'msg-registro'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.display = 'none'; el.textContent = ''; }
+  });
+}
+
+function traducirError(msg) {
+  if (msg.includes('Invalid login') || msg.includes('invalid_credentials')) return 'Email o contraseña incorrectos';
+  if (msg.includes('Email not confirmed')) return 'Confirma tu email antes de ingresar';
+  if (msg.includes('User already registered')) return 'Este email ya está registrado';
+  if (msg.includes('Password should')) return 'La contraseña debe tener al menos 6 caracteres';
+  if (msg.includes('Unable to validate')) return 'Email inválido';
+  return 'Ocurrió un error, intenta de nuevo';
+}
+
+function mostrarToastAuth(msg) {
+  let toast = document.getElementById('toast-auth');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast-auth';
+    toast.className = 'toast-carrito';
+    toast.innerHTML = `<span>✓</span> <span id="toast-auth-msg"></span>`;
+    document.body.appendChild(toast);
+  }
+  document.getElementById('toast-auth-msg').textContent = msg;
+  toast.classList.add('activo');
+  setTimeout(() => toast.classList.remove('activo'), 2800);
+}
