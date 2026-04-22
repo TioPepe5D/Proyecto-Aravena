@@ -232,20 +232,20 @@ async function quitarFavorito(favId, userId) {
 /* ── Datos de envío ───────────────────────── */
 async function cargarDireccion(userId) {
   try {
-    const { data } = await db
+    const { data, error } = await db
       .from('direcciones')
       .select('*')
       .eq('user_id', userId)
-      .limit(1)
-      .single();
+      .limit(1);
 
-    if (!data) return;
+    if (error || !data || data.length === 0) return;
+    const fila = data[0];
 
     // Rellenar campos
     const campos = ['nombre', 'apellido', 'telefono', 'direccion', 'ciudad', 'codigo_postal', 'region'];
     campos.forEach(c => {
       const el = document.getElementById(`env-${c}`);
-      if (el && data[c]) el.value = data[c];
+      if (el && fila[c]) el.value = fila[c];
     });
   } catch (e) {
     // No hay dirección guardada, está bien
