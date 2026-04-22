@@ -84,6 +84,10 @@ async function iniciarPago() {
   btn.textContent = "Procesando...";
   if (estado) estado.textContent = "";
 
+  const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
+  const comision = Math.round(subtotal * 0.05);
+  const totalFinal = subtotal + comision;
+
   const items = carrito.map(i => ({
     id: String(i.id),
     title: i.nombre,
@@ -91,6 +95,19 @@ async function iniciarPago() {
     unit_price: i.precio,
     currency_id: "CLP"
   }));
+
+  if (comision > 0) {
+    items.push({
+      id: "comision-bancaria",
+      title: "Comisión Bancaria impuesto",
+      quantity: 1,
+      unit_price: comision,
+      currency_id: "CLP"
+    });
+  }
+
+  // ── Guardar pedido pendiente en Supabase ──
+  await guardarPedidoPendiente(totalFinal);
 
   try {
     const res = await fetch("/.netlify/functions/crear-preferencia", {
@@ -102,7 +119,6 @@ async function iniciarPago() {
     if (!res.ok) throw new Error("Error del servidor");
 
     const data = await res.json();
-    // Redirige al checkout de MercadoPago
     window.location.href = data.init_point;
   } catch (err) {
     if (estado) {
@@ -112,6 +128,123 @@ async function iniciarPago() {
     btn.disabled = false;
     btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="24" fill="#009EE3"/><path d="M13 24c0-6.075 4.925-11 11-11s11 4.925 11 11-4.925 11-11 11S13 30.075 13 24z" fill="white"/><path d="M20 24l3 3 6-6" stroke="#009EE3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Pagar con MercadoPago`;
   }
+}
+
+/* ── Guardar pedido en Supabase ───────────── */
+async function guardarPedidoPendiente(total) {
+  if (typeof db === 'undefined' || !db) return;
+  try {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) return;
+
+    const itemsGuardar = carrito.map(i => ({
+      id: i.id,
+      nombre: i.nombre,
+      cantidad: i.cantidad,
+      precio: i.precio,
+      imagen: i.imagen || ''
+    }));
+
+    const { data: pedido, error } = await db
+      .from('pedidos')
+      .insert({
+        user_id: session.user.id,
+        items: itemsGuardar,
+        total: total,
+        estado: 'pendiente'
+      })
+      .select('id')
+      .single();
+
+    if (!error && pedido) {
+      localStorage.setItem('pedido_pendiente_id', pedido.id);
+    }
+  } catch (e) {
+    console.warn('[Pedidos] No se pudo guardar el pedido:', e);
+  }
+}
+
+/* ── Manejar retorno desde MercadoPago ────── */
+async function manejarRetornoPago() {
+  const params = new URLSearchParams(window.location.search);
+  const pago = params.get('pago');
+  if (!pago) return;
+
+  // Limpiar URL sin recargar la página
+  history.replaceState({}, '', window.location.pathname);
+
+  const pedidoId = localStorage.getItem('pedido_pendiente_id');
+
+  if (pago === 'ok') {
+    // Actualizar estado en Supabase
+    if (pedidoId && typeof db !== 'undefined' && db) {
+      try {
+        const { data: { session } } = await db.auth.getSession();
+        if (session) {
+          await db.from('pedidos')
+            .update({ estado: 'pagado' })
+            .eq('id', pedidoId)
+            .eq('user_id', session.user.id);
+          localStorage.removeItem('pedido_pendiente_id');
+        }
+      } catch (e) { console.warn('[Pedidos] Error al actualizar estado:', e); }
+    }
+
+    // Vaciar carrito
+    carrito = [];
+    guardarCarrito();
+    actualizarContador();
+    renderizarCarritoPage();
+    habilitarBotonPago();
+
+    mostrarBannerPago(
+      '¡Pago realizado con éxito! Gracias por tu compra, pronto te contactaremos.',
+      'ok',
+      'Ver mis pedidos →',
+      'perfil.html#pedidos'
+    );
+
+  } else if (pago === 'pendiente') {
+    mostrarBannerPago(
+      'Tu pago está siendo procesado. Te avisaremos cuando se confirme.',
+      'pendiente'
+    );
+
+  } else if (pago === 'error') {
+    // Marcar pedido como fallido
+    if (pedidoId && typeof db !== 'undefined' && db) {
+      try {
+        const { data: { session } } = await db.auth.getSession();
+        if (session) {
+          await db.from('pedidos')
+            .update({ estado: 'fallido' })
+            .eq('id', pedidoId)
+            .eq('user_id', session.user.id);
+          localStorage.removeItem('pedido_pendiente_id');
+        }
+      } catch (e) {}
+    }
+
+    mostrarBannerPago(
+      'Hubo un problema con el pago. Puedes intentarlo de nuevo.',
+      'error'
+    );
+  }
+}
+
+function mostrarBannerPago(texto, tipo, linkTexto = '', linkUrl = '') {
+  const main = document.querySelector('.carrito-page');
+  if (!main) return;
+
+  const banner = document.createElement('div');
+  banner.className = `pago-banner pago-banner-${tipo}`;
+  const icono = tipo === 'ok' ? '✓' : tipo === 'pendiente' ? '⏳' : '⚠';
+  banner.innerHTML = `
+    <span class="pago-banner-icono">${icono}</span>
+    <span>${texto}</span>
+    ${linkTexto ? `<a href="${linkUrl}" class="pago-banner-link">${linkTexto}</a>` : ''}
+  `;
+  main.prepend(banner);
 }
 
 function configurarPago() {

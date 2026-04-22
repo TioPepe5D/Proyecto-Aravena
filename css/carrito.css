@@ -278,3 +278,53 @@
     position: static;
   }
 }
+
+/* ── Banner resultado de pago ─────────────── */
+.pago-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 24px;
+  border-radius: var(--radio);
+  margin-bottom: 32px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  animation: fadeInDown 0.4s ease;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.pago-banner-ok {
+  background: rgba(0,200,100,0.08);
+  border: 1px solid rgba(0,200,100,0.25);
+  color: #00c864;
+}
+
+.pago-banner-pendiente {
+  background: rgba(255,190,0,0.08);
+  border: 1px solid rgba(255,190,0,0.25);
+  color: #ffbe00;
+}
+
+.pago-banner-error {
+  background: rgba(244,33,46,0.08);
+  border: 1px solid rgba(244,33,46,0.25);
+  color: #f4212e;
+}
+
+.pago-banner-icono {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.pago-banner-link {
+  margin-left: auto;
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  white-space: nowrap;
+  font-size: 0.82rem;
+}

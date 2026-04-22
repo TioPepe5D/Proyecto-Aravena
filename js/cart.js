@@ -144,6 +144,10 @@ async function iniciarPago() {
   btn.textContent = "Procesando…";
   if (estado) estado.textContent = "";
 
+  const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
+  const comision = Math.round(subtotal * 0.05);
+  const totalFinal = subtotal + comision;
+
   const items = carrito.map(i => ({
     id: String(i.id),
     title: i.nombre,
@@ -152,8 +156,6 @@ async function iniciarPago() {
     currency_id: "CLP"
   }));
 
-  const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
-  const comision = Math.round(subtotal * 0.05);
   if (comision > 0) {
     items.push({
       id: "comision-bancaria",
@@ -162,6 +164,24 @@ async function iniciarPago() {
       unit_price: comision,
       currency_id: "CLP"
     });
+  }
+
+  // ── Guardar pedido pendiente en Supabase ──
+  if (typeof db !== 'undefined' && db) {
+    try {
+      const { data: { session } } = await db.auth.getSession();
+      if (session) {
+        const itemsGuardar = carrito.map(i => ({
+          id: i.id, nombre: i.nombre, cantidad: i.cantidad,
+          precio: i.precio, imagen: i.imagen || ''
+        }));
+        const { data: pedido, error } = await db
+          .from('pedidos')
+          .insert({ user_id: session.user.id, items: itemsGuardar, total: totalFinal, estado: 'pendiente' })
+          .select('id').single();
+        if (!error && pedido) localStorage.setItem('pedido_pendiente_id', pedido.id);
+      }
+    } catch (e) { console.warn('[Pedidos] No se pudo guardar:', e); }
   }
 
   try {
