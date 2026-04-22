@@ -1326,7 +1326,8 @@ img { max-width: 100%; display: block; }
 }
 
 @media (max-width: 480px) {
-  .nav { display: none; }
+  /* Nav invisible pero preserva espacio para centrar logo */
+  .nav { visibility: hidden; pointer-events: none; }
   .hero-content h1 { font-size: 1.6rem; letter-spacing: 2px; }
   .beneficios-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
   .hero-logo { width: 120px; height: 120px; }
