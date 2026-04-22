@@ -3,6 +3,11 @@
    ============================================= */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Georgia&display=swap');
 
+/* Canvas de efectos escarcha/estrellas */
+#stars-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+
+
+
 :root {
   --color-primario: #1e9df1;
   --color-primario-oscuro: #0d7ec4;
@@ -354,7 +359,46 @@ img { max-width: 100%; display: block; }
   text-shadow: 0 0 40px rgba(30,157,241,0.4);
 }
 
-.hero-content h1 span { color: var(--color-primario); }
+.hero-content h1 span {
+  background: linear-gradient(
+    90deg,
+    var(--color-primario) 0%,
+    #a8d8ff 28%,
+    #ffffff 45%,
+    #a8d8ff 62%,
+    var(--color-primario) 100%
+  );
+  background-size: 250% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: heroShimmer 3.5s linear infinite;
+  filter: drop-shadow(0 0 18px rgba(30,157,241,0.55));
+}
+
+@keyframes heroShimmer {
+  0%   { background-position: -250% center; }
+  100% { background-position:  250% center; }
+}
+
+/* Chispas hero */
+.hero-sparkle {
+  position: absolute;
+  pointer-events: none;
+  z-index: 2;
+  font-size: 1rem;
+  color: var(--color-primario);
+  opacity: 0;
+  animation: sparkleRise var(--dur, 2.2s) ease-out forwards;
+  text-shadow: 0 0 8px rgba(30,157,241,0.8);
+}
+
+@keyframes sparkleRise {
+  0%   { opacity: 0;   transform: translateY(0)    scale(0.4) rotate(0deg); }
+  25%  { opacity: 1;   transform: translateY(-18px) scale(1.1) rotate(40deg); }
+  75%  { opacity: 0.6; transform: translateY(-55px) scale(0.8) rotate(110deg); }
+  100% { opacity: 0;   transform: translateY(-90px) scale(0.2) rotate(180deg); }
+}
 
 .hero-content p {
   font-size: 1rem;
@@ -1243,6 +1287,14 @@ img { max-width: 100%; display: block; }
   color: var(--color-texto-suave);
   background: rgba(30,157,241,0.05);
   transition: var(--transicion);
+  overflow: hidden;
+  line-height: 0;
+}
+.footer-red svg {
+  width: 38px;
+  height: 38px;
+  display: block;
+  flex-shrink: 0;
 }
 .footer-red:hover {
   color: var(--color-primario);
@@ -1332,9 +1384,22 @@ img { max-width: 100%; display: block; }
   .beneficios-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
   .hero-logo { width: 120px; height: 120px; }
 
-  .header-container { padding: 0 16px; }
+  /* Header móvil: grid 3 columnas para centrar el logo sin solapamientos */
+  .header-container {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    padding: 0 12px;
+    gap: 4px;
+  }
+  .header-container .nav { display: none; }
+  .header-container .logo {
+    position: static;
+    transform: none;
+    text-align: center;
+  }
   .logo-texto { font-size: 1.05rem; letter-spacing: 1.5px; }
-  .header-iconos { gap: 2px; }
+  .header-iconos { gap: 2px; justify-self: end; }
   .icono-btn { padding: 6px; }
 
   /* Catálogo móvil */

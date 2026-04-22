@@ -106,7 +106,7 @@ function renderizarCarrito() {
         <span>$${subtotal.toLocaleString("es-CL")} CLP</span>
       </div>
       <div class="carrito-desglose-row">
-        <span>Comisión Bancaria impuesto (5%)</span>
+        <span style="font-size:0.7rem">Comisión Bancaria impuesto (5%)</span>
         <span>$${comision.toLocaleString("es-CL")} CLP</span>
       </div>
     `;
