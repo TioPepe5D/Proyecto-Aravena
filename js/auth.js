@@ -54,6 +54,7 @@ function initAuth() {
     if (session) {
       usuarioActual = session.user;
       actualizarHeaderUsuario(session.user);
+      if (typeof inicializarFavoritos === 'function') inicializarFavoritos(session.user.id);
     }
   }).catch(e => console.warn('[Auth] getSession:', e));
 
@@ -65,9 +66,13 @@ function initAuth() {
       cerrarAuthPanel();
       const nombre = usuarioActual?.user_metadata?.nombre || usuarioActual?.email?.split('@')[0] || 'Usuario';
       mostrarToastAuth(`¡Bienvenido, ${nombre.split(' ')[0]}!`);
+      if (typeof inicializarFavoritos === 'function') inicializarFavoritos(usuarioActual.id);
     }
     if (event === 'SIGNED_OUT') {
       mostrarToastAuth('Sesión cerrada correctamente');
+      // Limpiar favoritos al cerrar sesión
+      if (typeof favoritosSet !== 'undefined') { favoritosSet.clear(); favoritosMap = {}; }
+      if (typeof renderizarProductos === 'function') renderizarProductos();
     }
   });
 }

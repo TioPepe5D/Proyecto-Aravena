@@ -35,6 +35,7 @@ function renderizarProductos(material = materialActivo) {
       <div class="producto-card-img-wrap">
         <img src="${producto.imagen}" alt="${producto.nombre}">
         ${cantidad > 0 ? `<span class="badge-en-carrito">${cantidad}</span>` : ''}
+        ${typeof iconCorazon === 'function' ? iconCorazon(producto.id) : ''}
       </div>
       <div class="producto-info">
         <p class="producto-categoria">${producto.categoria}</p>
@@ -99,14 +100,22 @@ function abrirDetalleProducto(id) {
           <button onclick="detalleCambiarCantidad(1)">+</button>
         </div>
       </div>
-      <button class="btn-detalle-agregar" id="btn-detalle-agregar" onclick="detalleAgregarAlCarrito(${producto.id})">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-          <line x1="3" y1="6" x2="21" y2="6"/>
-          <path d="M16 10a4 4 0 0 1-8 0"/>
-        </svg>
-        Agregar al carrito
-      </button>
+      <div class="detalle-acciones">
+        <button class="btn-detalle-agregar" id="btn-detalle-agregar" onclick="detalleAgregarAlCarrito(${producto.id})">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          Agregar al carrito
+        </button>
+        ${typeof iconCorazon === 'function' ? `
+        <button class="btn-detalle-favorito${favoritosSet.has(String(producto.id)) ? ' favorito-activo' : ''}" data-fav-id="${producto.id}" onclick="toggleFavorito(${producto.id})" title="${favoritosSet.has(String(producto.id)) ? 'Quitar de favoritos' : 'Guardar en favoritos'}">
+          <svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="${favoritosSet.has(String(producto.id)) ? 'currentColor' : 'none'}">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </button>` : ''}
+      </div>
       <div class="detalle-badges">
         <span>🚚 Envíos a todo Chile</span>
         <span>🔒 Plata 925 certificada</span>
