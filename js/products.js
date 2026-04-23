@@ -113,5 +113,14 @@ const productos = [
     precio: 17990,
     imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Aro",
     descripcion: "Aro en Oro GoldFit 18K"
+  },
+  {
+    id: 13,
+    nombre: "Anillo",
+    categoria: "anillos",
+    material: "plata-nacional",
+    precio: 9990,
+    imagen: "https://placehold.co/400x400/E8E8E8/A8A8A8?text=Anillo",
+    descripcion: "Anillo en Plata Nacional SL 925"
   }
 ];
