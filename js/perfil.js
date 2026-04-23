@@ -146,7 +146,7 @@ async function cargarPedidos(userId) {
         <div class="pedido-card">
           <div class="pedido-header">
             <div>
-              <p class="pedido-id">#${p.id.slice(0, 8).toUpperCase()}</p>
+              <p class="pedido-id">#${String(p.id).slice(0, 8).toUpperCase()}</p>
               <p class="pedido-fecha">${fecha}</p>
             </div>
             <span class="pedido-estado ${estado}">${estado.charAt(0).toUpperCase() + estado.slice(1)}</span>
