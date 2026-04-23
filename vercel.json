@@ -1,7 +1,1 @@
-{
-  "outputDirectory": ".",
-  "functions": {
-    "api/crear-preferencia.js": { "runtime": "nodejs20.x" },
-    "api/mp-webhook.js": { "runtime": "nodejs20.x" }
-  }
-}
+{}
