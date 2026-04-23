@@ -108,12 +108,13 @@ async function iniciarPago() {
 
   // ── Guardar pedido pendiente en Supabase ──
   await guardarPedidoPendiente(totalFinal);
+  const pedidoId = localStorage.getItem('pedido_pendiente_id') || "";
 
   try {
     const res = await fetch("/.netlify/functions/crear-preferencia", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ items })
+      body: JSON.stringify({ items, pedidoId })
     });
 
     if (!res.ok) throw new Error("Error del servidor");
