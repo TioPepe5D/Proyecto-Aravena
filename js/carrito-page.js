@@ -268,12 +268,12 @@ function mostrarBannerPago(texto, tipo, linkTexto = '', linkUrl = '') {
 
 // ── Datos bancarios (actualizar con los datos reales) ──
 const DATOS_BANCO = {
-  banco:   'Banco de Chile',
-  nombre:  'Diego Aravena Vera',
+  banco:   'TU BANCO',            // ← reemplazar
+  nombre:  'NOMBRE TITULAR',      // ← reemplazar
   rut:     'XX.XXX.XXX-X',        // ← reemplazar
-  tipo:    'Cuenta Corriente',
+  tipo:    'Cuenta Corriente',    // ← reemplazar
   numero:  'XXXXXXXXXX',          // ← reemplazar
-  email:   'contacto@joyasaravena.cl'
+  email:   'TU@EMAIL.CL'          // ← reemplazar
 };
 
 async function iniciarTransferencia() {
