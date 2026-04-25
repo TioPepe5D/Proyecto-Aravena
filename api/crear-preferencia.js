@@ -32,9 +32,9 @@ module.exports = async (req, res) => {
           currency_id: "CLP"
         })),
         back_urls: {
-          success: `${siteUrl}/carrito.html?pago=ok`,
-          failure: `${siteUrl}/carrito.html?pago=error`,
-          pending: `${siteUrl}/carrito.html?pago=pendiente`
+          success: `${siteUrl}/pago-exitoso.html`,
+          failure: `${siteUrl}/pago-fallido.html`,
+          pending: `${siteUrl}/pago-pendiente.html`
         },
         auto_return:          "approved",
         statement_descriptor: "Joyería Aravena",

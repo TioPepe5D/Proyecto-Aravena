@@ -1146,12 +1146,38 @@ img { max-width: 100%; display: block; }
   transform: translateY(-1px);
 }
 
+.btn-detalle-wsp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px;
+  margin-top: 12px;
+  background: linear-gradient(135deg, #25D366, #1aab52);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 20px rgba(37,211,102,0.3);
+}
+.btn-detalle-wsp:hover {
+  box-shadow: 0 0 35px rgba(37,211,102,0.55);
+  transform: translateY(-1px);
+  color: #fff;
+}
+
 .detalle-badges {
   display: flex;
   flex-direction: column;
   gap: 8px;
   border-top: 1px solid var(--color-borde);
   padding-top: 16px;
+  margin-top: 16px;
 }
 .detalle-badges span { font-size: 0.82rem; color: var(--color-texto-suave); }
 

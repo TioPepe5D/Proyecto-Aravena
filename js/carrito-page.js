@@ -80,6 +80,19 @@ async function iniciarPago() {
   const estado = document.getElementById("btn-mp-estado");
   if (carrito.length === 0) return;
 
+  // Verificar sesión antes de proceder al pago
+  if (typeof db === 'undefined' || !db) return;
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) {
+    document.getElementById('auth-overlay')?.classList.add('activo');
+    document.getElementById('auth-panel')?.classList.add('activo');
+    if (estado) {
+      estado.textContent = "⚠ Debes iniciar sesión para completar tu compra.";
+      estado.style.color = "#f59e0b";
+    }
+    return;
+  }
+
   btn.disabled = true;
   btn.textContent = "Procesando...";
   if (estado) estado.textContent = "";
