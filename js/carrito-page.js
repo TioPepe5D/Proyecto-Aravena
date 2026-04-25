@@ -312,7 +312,22 @@ async function iniciarTransferencia() {
     console.warn('[Transferencia] No se pudo guardar el pedido:', e);
   }
 
-  // 4. Mostrar modal con datos bancarios
+  // 4. Notificar al dueño por WhatsApp (silencioso, no bloquea el flujo)
+  try {
+    fetch('/api/notificar-pedido', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tipo:     'transferencia',
+        pedidoId: localStorage.getItem('pedido_pendiente_id') || '',
+        total,
+        items:    carrito.map(i => ({ nombre: i.nombre, cantidad: i.cantidad })),
+        email:    session.user.email || 'N/A'
+      })
+    });
+  } catch (_) {}
+
+  // 5. Mostrar modal con datos bancarios
   abrirModalTransferencia(total);
 }
 
