@@ -213,6 +213,27 @@ img { max-width: 100%; display: block; }
 
 .header-iconos { display: flex; align-items: center; gap: 8px; }
 
+/* ── Botón acceso rápido Admin ── */
+.btn-acceso-admin {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  background: linear-gradient(135deg, #f4c960, #b8941f);
+  color: #1a1a1a;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border-radius: 7px;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.35);
+  transition: all 0.2s;
+}
+.btn-acceso-admin:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.5);
+}
+
 .icono-btn {
   background: none;
   border: none;
@@ -623,20 +644,41 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 0 16px rgba(30,157,241,0.35);
 }
 
-.material-plata-nacional:hover, .material-plata-nacional.activo {
-  background: linear-gradient(135deg, #607d8b, #37474f);
-  border-color: #607d8b; color: #eceff1;
-  box-shadow: 0 0 16px rgba(96,125,139,0.4);
+/* Colores únicos por categoría */
+[data-material="collares"]:hover, [data-material="collares"].activo {
+  background: linear-gradient(135deg, #9c27b0, #6a1b9a);
+  border-color: #9c27b0; color: #fff;
+  box-shadow: 0 0 16px rgba(156,39,176,0.4);
 }
-.material-plata-italiana:hover, .material-plata-italiana.activo {
+[data-material="pulseras"]:hover, [data-material="pulseras"].activo {
+  background: linear-gradient(135deg, #e91e8c, #c2185b);
+  border-color: #e91e8c; color: #fff;
+  box-shadow: 0 0 16px rgba(233,30,140,0.4);
+}
+[data-material="aros"]:hover, [data-material="aros"].activo {
   background: linear-gradient(135deg, #1e9df1, #0d7ec4);
   border-color: #1e9df1; color: #fff;
   box-shadow: 0 0 16px rgba(30,157,241,0.4);
 }
-.material-oro:hover, .material-oro.activo {
+[data-material="colgantes"]:hover, [data-material="colgantes"].activo {
+  background: linear-gradient(135deg, #ff6f00, #e65100);
+  border-color: #ff6f00; color: #fff;
+  box-shadow: 0 0 16px rgba(255,111,0,0.4);
+}
+[data-material="conjuntos"]:hover, [data-material="conjuntos"].activo {
   background: linear-gradient(135deg, #c9a227, #9e7c0e);
   border-color: #c9a227; color: #fff;
   box-shadow: 0 0 16px rgba(201,162,39,0.4);
+}
+[data-material="anillos"]:hover, [data-material="anillos"].activo {
+  background: linear-gradient(135deg, #607d8b, #37474f);
+  border-color: #607d8b; color: #eceff1;
+  box-shadow: 0 0 16px rgba(96,125,139,0.4);
+}
+[data-material="exhibidores"]:hover, [data-material="exhibidores"].activo {
+  background: linear-gradient(135deg, #2e7d32, #1b5e20);
+  border-color: #2e7d32; color: #fff;
+  box-shadow: 0 0 16px rgba(46,125,50,0.4);
 }
 
 /* Filtro barra */

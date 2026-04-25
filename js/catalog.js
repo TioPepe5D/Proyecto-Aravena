@@ -1,26 +1,30 @@
-let materialActivo = "todos";
+let categoriaActiva = "todos";
 
-const nombresMaterial = {
-  "plata-nacional": "Plata Nacional SL 925",
-  "plata-italiana": "Plata Italiana",
-  "oro-goldfit": "Oro GoldFit 18K"
+const nombresCategoria = {
+  "collares":    "Collares",
+  "pulseras":    "Pulseras & Tobilleras",
+  "aros":        "Aros & Argollas",
+  "colgantes":   "Colgantes",
+  "conjuntos":   "Conjuntos",
+  "anillos":     "Anillos",
+  "exhibidores": "Exhibidores & Accesorios"
 };
 
-function renderizarProductos(material = materialActivo) {
-  materialActivo = material;
+function renderizarProductos(categoria = categoriaActiva) {
+  categoriaActiva = categoria;
 
   const grid = document.getElementById("productos-grid");
   const titulo = document.getElementById("catalogo-titulo");
   const busqueda = (document.getElementById("filtro-nombre")?.value || "").toLowerCase();
   const orden = document.getElementById("filtro-precio")?.value || "";
 
-  let filtrados = material === "todos" ? productos : productos.filter(p => p.material === material);
+  let filtrados = categoria === "todos" ? productos : productos.filter(p => p.categoria === categoria);
 
   if (busqueda) filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(busqueda));
   if (orden === "asc") filtrados = [...filtrados].sort((a, b) => a.precio - b.precio);
   if (orden === "desc") filtrados = [...filtrados].sort((a, b) => b.precio - a.precio);
 
-  titulo.textContent = material !== "todos" ? nombresMaterial[material] : "Nuestra Colección";
+  titulo.textContent = categoria !== "todos" ? nombresCategoria[categoria] : "Nuestra Colección";
 
   if (filtrados.length === 0) {
     grid.innerHTML = "<p style='text-align:center;color:#888;'>No hay productos en esta categoría.</p>";
@@ -118,8 +122,8 @@ function abrirDetalleProducto(id) {
       </div>
       <div class="detalle-badges">
         <span>🚚 Envíos a todo Chile</span>
-        <span>🔒 Plata 925 certificada</span>
-        <span>✦ Pieza artesanal única</span>
+        <span>💎 Joyería mayorista</span>
+        <span>📦 Precio de lote</span>
       </div>
     </div>
   `;
@@ -156,32 +160,23 @@ function detalleAgregarAlCarrito(id) {
 }
 
 function inicializarFiltros() {
-  const botonesMat = document.querySelectorAll(".material-btn");
+  const botonesCat = document.querySelectorAll(".material-btn");
   const filtroBarra = document.getElementById("filtro-barra");
-  const plataNacionalExtra = document.getElementById("plata-nacional-extra");
 
-  botonesMat.forEach(boton => {
+  botonesCat.forEach(boton => {
     boton.addEventListener("click", () => {
-      botonesMat.forEach(b => b.classList.remove("activo"));
+      botonesCat.forEach(b => b.classList.remove("activo"));
       boton.classList.add("activo");
-      const mat = boton.dataset.material;
-      filtroBarra.classList.toggle("visible", mat !== "todos");
-      plataNacionalExtra.classList.toggle("visible", mat === "plata-nacional");
+      const cat = boton.dataset.material;
+      filtroBarra.classList.toggle("visible", cat !== "todos");
       document.getElementById("filtro-nombre").value = "";
       document.getElementById("filtro-precio").value = "";
-      renderizarProductos(mat);
+      renderizarProductos(cat);
     });
   });
 
   document.getElementById("filtro-nombre").addEventListener("input", () => renderizarProductos());
   document.getElementById("filtro-precio").addEventListener("change", () => renderizarProductos());
-
-  document.getElementById("btn-lotes").addEventListener("click", () => {
-    alert("Función Lotes por mayor: próximamente disponible.");
-  });
-  document.getElementById("btn-lote-personalizado").addEventListener("click", () => {
-    alert("Función Arma tu lote personalizado: próximamente disponible.");
-  });
 }
 
 function inicializarCatalogo() {

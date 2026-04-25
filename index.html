@@ -4,13 +4,72 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Joyería Aravena</title>
+  <title>Joyería Aravena — Anillos, Collares y Pulseras en Chile</title>
+  <meta name="description" content="Descubre nuestra colección de joyas en plata nacional SL 925, plata italiana y oro GoldFit 18K. Anillos, collares, pulseras y aros con envío a todo Chile.">
+  <meta name="keywords" content="joyería, joyas Chile, anillos plata, collares oro, pulseras, aros, plata 925, oro goldfit, joyería online Chile">
+  <meta name="author" content="Joyería Aravena">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://joyasaravena.cl/">
+
+  <!-- Open Graph / WhatsApp / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Joyería Aravena">
+  <meta property="og:url" content="https://joyasaravena.cl/">
+  <meta property="og:title" content="Joyería Aravena — Anillos, Collares y Pulseras en Chile">
+  <meta property="og:description" content="Joyas en plata nacional SL 925, plata italiana y oro GoldFit 18K. Anillos, collares, pulseras y aros. Envío a todo Chile.">
+  <meta property="og:image" content="https://joyasaravena.cl/img/og.jpg">
+  <meta property="og:locale" content="es_CL">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Joyería Aravena — Anillos, Collares y Pulseras en Chile">
+  <meta name="twitter:description" content="Joyas en plata nacional SL 925, plata italiana y oro GoldFit 18K. Envío a todo Chile.">
+  <meta name="twitter:image" content="https://joyasaravena.cl/img/og.jpg">
+
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/auth.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
+  <script defer src="/_vercel/insights/script.js"></script>
 </head>
 
 <body>
+
+  <!-- JSON-LD: Datos estructurados para Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "JewelryStore",
+    "name": "Joyería Aravena",
+    "url": "https://joyasaravena.cl",
+    "logo": "https://joyasaravena.cl/img/og.jpg",
+    "image": "https://joyasaravena.cl/img/og.jpg",
+    "description": "Joyería con colección de anillos, collares, pulseras y aros en plata nacional SL 925, plata italiana y oro GoldFit 18K. Envíos a todo Chile.",
+    "priceRange": "$$",
+    "currenciesAccepted": "CLP",
+    "paymentAccepted": "MercadoPago, Tarjeta de crédito, Débito",
+    "areaServed": {
+      "@type": "Country",
+      "name": "Chile"
+    },
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "customer service",
+      "availableLanguage": "Spanish"
+    },
+    "sameAs": [],
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Catálogo de Joyas",
+      "itemListElement": [
+        { "@type": "OfferCatalog", "name": "Anillos" },
+        { "@type": "OfferCatalog", "name": "Collares" },
+        { "@type": "OfferCatalog", "name": "Pulseras" },
+        { "@type": "OfferCatalog", "name": "Aros" }
+      ]
+    }
+  }
+  </script>
 
   <!-- LOADER INICIAL -->
   <div class="page-loader" id="page-loader" aria-hidden="true">
@@ -137,15 +196,19 @@
   <section class="catalogo" id="catalogo">
     <h2 id="catalogo-titulo" class="animar">Nuestra Colección</h2>
 
-    <!-- Selector de material -->
+    <!-- Selector de categoría -->
     <div class="materiales">
-      <button class="material-btn activo" data-material="todos">Todos Los Productos</button>
-      <button class="material-btn material-plata-nacional" data-material="plata-nacional">Plata Nacional SL 925</button>
-      <button class="material-btn material-plata-italiana" data-material="plata-italiana">Plata Italiana</button>
-      <button class="material-btn material-oro" data-material="oro-goldfit">Oro GoldFit 18K</button>
+      <button class="material-btn activo" data-material="todos">✨ Todos</button>
+      <button class="material-btn" data-material="collares">📿 Collares</button>
+      <button class="material-btn" data-material="pulseras">💎 Pulseras</button>
+      <button class="material-btn" data-material="aros">🔵 Aros</button>
+      <button class="material-btn" data-material="colgantes">⭐ Colgantes</button>
+      <button class="material-btn" data-material="conjuntos">🎁 Conjuntos</button>
+      <button class="material-btn" data-material="anillos">💍 Anillos</button>
+      <button class="material-btn" data-material="exhibidores">🗂 Exhibidores</button>
     </div>
 
-    <!-- Filtro por precio y nombre (aparece al seleccionar material) -->
+    <!-- Filtro por precio y nombre (aparece al seleccionar categoría) -->
     <div class="filtro-barra" id="filtro-barra">
       <input type="text" id="filtro-nombre" placeholder="Buscar por nombre...">
       <select id="filtro-precio">
@@ -153,12 +216,6 @@
         <option value="asc">Menor precio primero</option>
         <option value="desc">Mayor precio primero</option>
       </select>
-    </div>
-
-    <!-- Sub-opciones Plata Nacional -->
-    <div class="plata-nacional-extra" id="plata-nacional-extra">
-      <button class="extra-btn" id="btn-lotes">📦 Lotes por mayor</button>
-      <button class="extra-btn extra-btn-personalizado" id="btn-lote-personalizado">✨ Arma tu lote personalizado</button>
     </div>
 
     <!-- Aquí JavaScript inyecta las tarjetas de productos -->
