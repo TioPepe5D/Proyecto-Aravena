@@ -268,12 +268,12 @@ function mostrarBannerPago(texto, tipo, linkTexto = '', linkUrl = '') {
 
 // ── Datos bancarios (actualizar con los datos reales) ──
 const DATOS_BANCO = {
-  banco:   'TU BANCO',            // ← reemplazar
-  nombre:  'NOMBRE TITULAR',      // ← reemplazar
-  rut:     'XX.XXX.XXX-X',        // ← reemplazar
-  tipo:    'Cuenta Corriente',    // ← reemplazar
-  numero:  'XXXXXXXXXX',          // ← reemplazar
-  email:   'TU@EMAIL.CL'          // ← reemplazar
+  banco:   'Banco de Chile',
+  nombre:  'Inversiones Aravena SpA',
+  rut:     '77.807.825-2',
+  tipo:    'Cuenta Corriente',
+  numero:  '00-801-77289-03',
+  email:   'diegoaravenavera@gmail.com'
 };
 
 async function iniciarTransferencia() {
