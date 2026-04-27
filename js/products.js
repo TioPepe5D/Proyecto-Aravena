@@ -14,7 +14,7 @@ const productos = [
     id: 2,
     nombre: "Lote Collares Hombre",
     categoria: "collares",
-    material: "plata-italiana",
+    material: "plata-nacional",
     precio: 53900,
     imagen: "img/2c2a6b23-bceb-475e-9621-74791a98030c.jpg",
     descripcion: "Lote 7 collares de hombre + 1 rosario. Cadenas gruesas estilo figaro, cubana, marinera y más."
@@ -669,7 +669,7 @@ const productos = [
     id: 73,
     nombre: "Lote Pulseras Hombre",
     categoria: "pulseras",
-    material: "plata-italiana",
+    material: "plata-nacional",
     precio: 44900,
     imagen: "img/02859c45-5714-48ab-bffc-9ef24929237d.jpg",
     descripcion: "Lote pulseras para hombre: cubana, figaro, rope y cadenas gruesas. Plata 925 italiana."
@@ -696,7 +696,7 @@ const productos = [
     id: 76,
     nombre: "Lote Pulseras Hombre Premium",
     categoria: "pulseras",
-    material: "plata-italiana",
+    material: "plata-nacional",
     precio: 62900,
     imagen: "img/4474bbea-4e1b-4313-b841-8ef17297688a.jpg",
     descripcion: "Lote premium pulseras para hombre. Cadenas gruesas cubana, figaro, rope y más en plata italiana."
@@ -723,7 +723,7 @@ const productos = [
     id: 79,
     nombre: "Lote Pulseras Hombre Plata",
     categoria: "pulseras",
-    material: "plata-italiana",
+    material: "plata-nacional",
     precio: 22900,
     imagen: "img/21628e28-8c0b-4265-850d-14ceca0f499a.jpg",
     descripcion: "Lote pulseras hombre en plata. Cadenas figaro, cubana y rope en distintos grosores. Precio mayorista."
@@ -750,7 +750,7 @@ const productos = [
     id: 82,
     nombre: "Lote Pulseras Hombre Gruesas",
     categoria: "pulseras",
-    material: "plata-italiana",
+    material: "plata-nacional",
     precio: 42900,
     imagen: "img/c4b0f949-e577-4126-83de-d6d4b4fe326e.jpg",
     descripcion: "Lote pulseras hombre con cadenas gruesas: cubana, figaro, eslabón y rope. Plata de alta calidad."
@@ -795,7 +795,7 @@ const productos = [
     id: 87,
     nombre: "Lote Pulseras Plata Cadenas",
     categoria: "pulseras",
-    material: "plata-italiana",
+    material: "plata-nacional",
     precio: 36900,
     imagen: "img/672476E4-777C-4767-9C04-C2D2CCF0E990.jpg",
     descripcion: "Lote pulseras plata en manga. Cadenas variadas: figaro, cubana, rope, espiga y más estilos."
@@ -804,7 +804,7 @@ const productos = [
     id: 88,
     nombre: "Lote Pulseras Plata Finas",
     categoria: "pulseras",
-    material: "plata-italiana",
+    material: "plata-nacional",
     precio: 22900,
     imagen: "img/80A1D8A4-F9C1-4761-9168-C5D9B509A97F.jpg",
     descripcion: "Lote pulseras plata finas en manga. Estilos figaro, singapur, rope, espiga y cadenas clásicas."
@@ -831,7 +831,7 @@ const productos = [
     id: 91,
     nombre: "Lote Pulseras Hombre 6 Cadenas",
     categoria: "pulseras",
-    material: "plata-italiana",
+    material: "plata-nacional",
     precio: 36900,
     imagen: "img/c74acccb-2f03-4250-949b-780c62569a9d.jpg",
     descripcion: "Lote 6 pulseras hombre en plata: rope, figaro, cubana, tejida y cadenas gruesas variadas."
@@ -840,7 +840,7 @@ const productos = [
     id: 92,
     nombre: "Lote Pulseras Hombre 12 Cadenas",
     categoria: "pulseras",
-    material: "plata-italiana",
+    material: "plata-nacional",
     precio: 44900,
     imagen: "img/ca49fa9b-50ff-45ed-a2ee-b6f72fe394ea.jpg",
     descripcion: "Lote 12 pulseras hombre en plata con cadenas variadas: figaro, cubana, rope y tenis. Gran variedad."
@@ -849,7 +849,7 @@ const productos = [
     id: 93,
     nombre: "Lote Pulseras Hombre 7 Cadenas",
     categoria: "pulseras",
-    material: "plata-italiana",
+    material: "plata-nacional",
     precio: 22900,
     imagen: "img/e93c6398-cbae-4e84-a3b1-523a2d868ff1.jpg",
     descripcion: "Lote 7 pulseras hombre en plata: figaro, cubana, marinera, rope y cadenas surtidas. Precio mayorista."
@@ -896,7 +896,7 @@ const productos = [
     id: 98,
     nombre: "Lote Rosarios",
     categoria: "collares",
-    material: "plata-italiana",
+    material: "plata-nacional",
     precio: 37990,
     imagen: "img/dac69426-d3df-4ada-b6a4-c7ad7f271b69.jpg",
     descripcion: "Lote rosarios en plata con distintas medallas religiosas. Diseño clásico y elegante. Precio mayorista."
@@ -923,7 +923,7 @@ const productos = [
     id: 101,
     nombre: "Lote Collares Hombre",
     categoria: "collares",
-    material: "plata-italiana",
+    material: "plata-nacional",
     precio: 104990,
     imagen: "img/c714989a-38ac-433e-a5a2-b6af148656f9.jpg",
     descripcion: "Gran lote collares para hombre en plata. Cadenas gruesas: cubana, figaro, rope, marinera y más."
@@ -941,7 +941,7 @@ const productos = [
     id: 103,
     nombre: "Rosarios Disponibles",
     categoria: "collares",
-    material: "plata-italiana",
+    material: "plata-nacional",
     precio: 0,
     imagen: "img/AD95114A-700A-4857-A7B9-B47FC126ECED.jpg",
     descripcion: "Rosarios disponibles en plata. Varios modelos: cruz, imagen religiosa y Virgen. Desde $5.890. Consultar."
@@ -1051,7 +1051,7 @@ const productos = [
     id: 115,
     nombre: "Colgantes Plata Pura 925/950/980",
     categoria: "colgantes",
-    material: "plata-italiana",
+    material: "plata-nacional",
     precio: 0,
     imagen: "img/40f60683-29f1-4905-8017-ee259141b5e3.jpg",
     descripcion: "Colgantes religiosos en plata pura 925/950/980: Jesucristo, Virgen, San Judas y más. Desde $9.890. Consultar."
