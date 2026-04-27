@@ -115,14 +115,12 @@ async function cargarPedidos(userId) {
   contenedor.innerHTML = '<div class="perfil-loading">Cargando pedidos…</div>';
 
   try {
-    console.log('[Pedidos] Consultando pedidos para userId:', userId);
     const { data, error } = await db
       .from('pedidos')
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
-    console.log('[Pedidos] Resultado:', { data, error });
     if (error) throw error;
 
     if (!data || data.length === 0) {
@@ -136,30 +134,84 @@ async function cargarPedidos(userId) {
       return;
     }
 
-    contenedor.innerHTML = data.map(p => {
-      const items = Array.isArray(p.items) ? p.items : [];
-      const resumen = items.map(i => `${i.nombre || i.name || 'Producto'} x${i.cantidad || i.qty || 1}`).join(', ');
-      const fecha = new Date(p.created_at).toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' });
-      const estado = p.estado || 'pendiente';
-      const total = (p.total || 0).toLocaleString('es-CL');
-      return `
-        <div class="pedido-card">
-          <div class="pedido-header">
-            <div>
-              <p class="pedido-id">#${String(p.id).slice(0, 8).toUpperCase()}</p>
-              <p class="pedido-fecha">${fecha}</p>
-            </div>
-            <span class="pedido-estado ${estado}">${estado.charAt(0).toUpperCase() + estado.slice(1)}</span>
-          </div>
-          <p class="pedido-items">${resumen || '—'}</p>
-          <p class="pedido-total">$${total} CLP</p>
-        </div>`;
-    }).join('');
+    contenedor.innerHTML = data.map(p => renderPedidoCard(p)).join('');
 
   } catch (e) {
-    console.error('[Pedidos] Error real:', e);
-    contenedor.innerHTML = `<p style="color:#f4212e;font-size:.85rem">Error al cargar pedidos: ${e?.message || JSON.stringify(e)}</p>`;
+    console.error('[Pedidos] Error:', e);
+    contenedor.innerHTML = `<p style="color:#f4212e;font-size:.85rem">Error al cargar pedidos: ${e?.message || 'Intenta de nuevo.'}</p>`;
   }
+}
+
+function renderPedidoCard(p) {
+  const items   = Array.isArray(p.items) ? p.items : [];
+  const estado  = p.estado || 'pendiente';
+  const total   = (p.total || 0).toLocaleString('es-CL');
+  const fecha   = new Date(p.created_at).toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' });
+  const idCorto = String(p.id).slice(0, 8).toUpperCase();
+
+  // Método de pago
+  const esTransferencia = estado === 'transferencia_pendiente';
+  const metodoBadge = esTransferencia
+    ? `<span class="pedido-metodo pedido-metodo-transferencia">🏦 Transferencia</span>`
+    : `<span class="pedido-metodo pedido-metodo-mp">💳 MercadoPago</span>`;
+
+  // Badge de estado
+  const estadoTextos = {
+    pagado:                  '✓ Pagado',
+    pendiente:               '⏳ Pendiente',
+    transferencia_pendiente: '🏦 Transferencia pendiente',
+    fallido:                 '✗ Fallido',
+    enviado:                 '🚚 Enviado',
+    entregado:               '✅ Entregado',
+  };
+  const estadoLabel = estadoTextos[estado] || estado;
+
+  // Miniaturas de productos (máx. 4)
+  const imagenes = items.filter(i => i.imagen).slice(0, 4);
+  const masItems = items.length - 4;
+  const thumbnails = imagenes.length
+    ? `<div class="pedido-thumbs">
+        ${imagenes.map(i => `<img src="${i.imagen}" alt="${i.nombre}" class="pedido-thumb" loading="lazy">`).join('')}
+        ${masItems > 0 ? `<div class="pedido-thumb-mas">+${masItems}</div>` : ''}
+      </div>`
+    : '';
+
+  // Resumen de items
+  const resumen = items.map(i => `${i.nombre} ×${i.cantidad}`).join(' · ') || '—';
+
+  // Botón acción según estado
+  let accion = '';
+  if (estado === 'transferencia_pendiente') {
+    const msg = encodeURIComponent(`Hola! Realicé una transferencia por mi pedido #${idCorto} por $${total} CLP. ¿Pueden confirmarlo?`);
+    accion = `<a href="https://wa.me/56966497904?text=${msg}" target="_blank" class="pedido-btn-wsp">
+      <svg width="14" height="14" viewBox="0 0 32 32" fill="currentColor"><path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.678 4.797 1.856 6.785L2 30l7.43-1.82A13.94 13.94 0 0 0 16 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm6.29 19.366c-.344-.172-2.036-1.004-2.352-1.118-.316-.116-.546-.172-.776.172-.23.344-.892 1.118-1.094 1.348-.2.23-.402.258-.746.086-.344-.172-1.452-.536-2.766-1.706-1.022-.912-1.712-2.036-1.912-2.38-.2-.344-.022-.53.15-.702.154-.154.344-.402.516-.602.172-.2.23-.344.344-.574.116-.23.058-.43-.028-.602-.086-.172-.776-1.87-1.064-2.562-.28-.674-.564-.582-.776-.594-.2-.01-.43-.012-.66-.012s-.602.086-.918.43c-.316.344-1.204 1.176-1.204 2.868s1.232 3.326 1.404 3.556c.172.23 2.426 3.706 5.878 5.198.822.354 1.464.566 1.964.724.826.262 1.578.226 2.172.138.662-.1 2.036-.832 2.322-1.634.288-.802.288-1.49.202-1.634-.086-.144-.316-.23-.66-.402z"/></svg>
+      Enviar comprobante
+    </a>`;
+  } else if (estado === 'pendiente') {
+    const msg = encodeURIComponent(`Hola! Tengo una consulta sobre mi pedido #${idCorto}.`);
+    accion = `<a href="https://wa.me/56966497904?text=${msg}" target="_blank" class="pedido-btn-wsp">
+      <svg width="14" height="14" viewBox="0 0 32 32" fill="currentColor"><path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.678 4.797 1.856 6.785L2 30l7.43-1.82A13.94 13.94 0 0 0 16 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm6.29 19.366c-.344-.172-2.036-1.004-2.352-1.118-.316-.116-.546-.172-.776.172-.23.344-.892 1.118-1.094 1.348-.2.23-.402.258-.746.086-.344-.172-1.452-.536-2.766-1.706-1.022-.912-1.712-2.036-1.912-2.38-.2-.344-.022-.53.15-.702.154-.154.344-.402.516-.602.172-.2.23-.344.344-.574.116-.23.058-.43-.028-.602-.086-.172-.776-1.87-1.064-2.562-.28-.674-.564-.582-.776-.594-.2-.01-.43-.012-.66-.012s-.602.086-.918.43c-.316.344-1.204 1.176-1.204 2.868s1.232 3.326 1.404 3.556c.172.23 2.426 3.706 5.878 5.198.822.354 1.464.566 1.964.724.826.262 1.578.226 2.172.138.662-.1 2.036-.832 2.322-1.634.288-.802.288-1.49.202-1.634-.086-.144-.316-.23-.66-.402z"/></svg>
+      Consultar pedido
+    </a>`;
+  }
+
+  return `
+    <div class="pedido-card pedido-card-${estado}">
+      <div class="pedido-header">
+        <div class="pedido-header-left">
+          <span class="pedido-id">#${idCorto}</span>
+          <span class="pedido-fecha">${fecha}</span>
+          ${metodoBadge}
+        </div>
+        <span class="pedido-estado ${estado}">${estadoLabel}</span>
+      </div>
+      ${thumbnails}
+      <p class="pedido-items">${resumen}</p>
+      <div class="pedido-footer">
+        <span class="pedido-total">$${total} <small>CLP</small></span>
+        ${accion}
+      </div>
+    </div>`;
 }
 
 /* ── Favoritos ────────────────────────────── */
