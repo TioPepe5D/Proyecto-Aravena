@@ -206,7 +206,7 @@ img { max-width: 100%; display: block; }
   font-size: 1.3rem;
   font-weight: 600;
   letter-spacing: 2px;
-  color: var(--color-acento);
+  color: var(--color-texto);
   text-decoration: none;
   transition: var(--transicion);
 }
@@ -346,11 +346,6 @@ img { max-width: 100%; display: block; }
    ============================================= */
 .hero {
   position: relative;
-  background: var(--color-hero-bg);
-  background-image: url('../img/hero-bg.jpg');
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
   min-height: 70vh;
   display: flex;
   align-items: center;
@@ -360,14 +355,17 @@ img { max-width: 100%; display: block; }
   overflow: hidden;
 }
 
+/* Fondo con blur — se extiende para que los bordes no se vean */
 .hero::before {
   content: '';
   position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.52);
+  inset: -8%;
+  background-image: url('../img/hero-bg.jpg');
+  background-size: cover;
+  background-position: center center;
+  filter: blur(10px) brightness(0.45);
   pointer-events: none;
-  transform: translateY(var(--parallax-y, 0));
-  will-change: transform;
+  z-index: 0;
 }
 
 .hero::after {
