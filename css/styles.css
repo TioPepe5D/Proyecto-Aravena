@@ -1,7 +1,7 @@
 /* =============================================
    VARIABLES GLOBALES — TEMA OSCURO
    ============================================= */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Georgia&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Georgia&display=swap');
 
 /* Canvas de efectos escarcha/estrellas */
 #stars-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
@@ -9,27 +9,51 @@
 
 
 :root {
-  --color-primario: #1e9df1;
-  --color-primario-oscuro: #0d7ec4;
-  --color-primario-claro: #0a1f33;
-  --color-texto: #e7e9ea;
-  --color-texto-suave: #8899a6;
-  --color-fondo: #050508;
-  --color-fondo-secundario: #0d1117;
-  --color-card: #0f1923;
-  --color-borde: #1a2d3d;
-  --color-footer: #020305;
-  --color-plata: #8fa8b8;
-  --color-plata-oscuro: #1e9df1;
-  --color-plata-claro: #1a2d3d;
-  --fuente-principal: 'Montserrat', sans-serif;
-  --fuente-secundaria: 'Montserrat', system-ui, sans-serif;
-  --sombra: 0 0 20px rgba(30, 157, 241, 0.15), 0 4px 16px rgba(0,0,0,0.4);
-  --sombra-glow: 0 0 30px rgba(30, 157, 241, 0.3);
-  --color-header: rgba(5, 5, 8, 0.92);
-  --color-hero-bg: radial-gradient(ellipse at center, #0a1f33 0%, #050508 70%);
-  --transicion: all 0.3s ease;
-  --radio: 0.5rem;
+  /* ── Paleta principal ── */
+  --color-primario:        #1c9cf0;
+  --color-primario-oscuro: #1581c9;
+  --color-primario-claro:  #061622;
+
+  /* ── Texto ── */
+  --color-texto:       #e7e9ea;
+  --color-texto-suave: #71767b;
+
+  /* ── Fondos ── */
+  --color-fondo:           #000000;
+  --color-fondo-secundario:#181818;
+  --color-card:            #17171c;
+  --color-footer:          #000000;
+
+  /* ── Bordes / inputs ── */
+  --color-borde:  #2f3336;
+  --color-input:  #22303c;
+
+  /* ── Acento / muted ── */
+  --color-acento:         #061622;
+  --color-acento-texto:   #1c9cf0;
+  --color-muted:          #181818;
+  --color-muted-texto:    #e7e9ea;
+
+  /* ── Plata (mantener compatibilidad) ── */
+  --color-plata:        #8fa8b8;
+  --color-plata-oscuro: #1c9cf0;
+  --color-plata-claro:  #061622;
+
+  /* ── Tipografía ── */
+  --fuente-principal:  'Open Sans', 'Montserrat', sans-serif;
+  --fuente-secundaria: 'Open Sans', system-ui, sans-serif;
+
+  /* ── Sombras ── */
+  --sombra:      0 0 20px rgba(29,161,242,0.25), 0 4px 16px rgba(0,0,0,0.6);
+  --sombra-glow: 0 0 30px rgba(29,161,242,0.35);
+
+  /* ── Header / Hero ── */
+  --color-header:   rgba(0, 0, 0, 0.92);
+  --color-hero-bg:  radial-gradient(ellipse at center, #061622 0%, #000000 70%);
+
+  /* ── Misc ── */
+  --transicion:     all 0.3s ease;
+  --radio:          1.3rem;
   --tracking-normal: 0em;
 }
 
