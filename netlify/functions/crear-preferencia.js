@@ -9,13 +9,16 @@ exports.handler = async (event) => {
     accessToken: process.env.MP_ACCESS_TOKEN
   });
 
-  let items;
+  let items, pedidoId;
   try {
-    ({ items } = JSON.parse(event.body));
+    ({ items, pedidoId } = JSON.parse(event.body));
     if (!Array.isArray(items) || items.length === 0) throw new Error();
   } catch {
     return { statusCode: 400, body: JSON.stringify({ error: "Items inválidos" }) };
   }
+
+  const siteUrl = process.env.SITE_URL || process.env.URL;
+  const netlifyUrl = process.env.URL;
 
   try {
     const preference = new Preference(client);
@@ -29,12 +32,16 @@ exports.handler = async (event) => {
           currency_id: "CLP"
         })),
         back_urls: {
-          success: `${process.env.URL}/carrito.html?pago=ok`,
-          failure: `${process.env.URL}/carrito.html?pago=error`,
-          pending: `${process.env.URL}/carrito.html?pago=pendiente`
+          success: `${siteUrl}/carrito.html?pago=ok`,
+          failure: `${siteUrl}/carrito.html?pago=error`,
+          pending: `${siteUrl}/carrito.html?pago=pendiente`
         },
         auto_return: "approved",
-        statement_descriptor: "Joyería Aravena"
+        statement_descriptor: "Joyería Aravena",
+        // ID del pedido → MP lo incluye en el webhook para que sepamos cuál actualizar
+        external_reference: pedidoId || "",
+        // URL que MP llama automáticamente cuando el pago cambia de estado
+        notification_url: `${netlifyUrl}/.netlify/functions/mp-webhook`
       }
     });
 

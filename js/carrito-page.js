@@ -70,15 +70,29 @@ function renderizarCarritoPage() {
 }
 
 function habilitarBotonPago() {
-  const btn = document.getElementById("btn-pagar");
-  if (!btn) return;
-  btn.disabled = carrito.length === 0;
+  const btn   = document.getElementById("btn-pagar");
+  const btnTr = document.getElementById("btn-transferencia");
+  if (btn)   btn.disabled   = carrito.length === 0;
+  if (btnTr) btnTr.disabled = carrito.length === 0;
 }
 
 async function iniciarPago() {
   const btn = document.getElementById("btn-pagar");
   const estado = document.getElementById("btn-mp-estado");
   if (carrito.length === 0) return;
+
+  // Verificar sesión antes de proceder al pago
+  if (typeof db === 'undefined' || !db) return;
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) {
+    document.getElementById('auth-overlay')?.classList.add('activo');
+    document.getElementById('auth-panel')?.classList.add('activo');
+    if (estado) {
+      estado.textContent = "⚠ Debes iniciar sesión para completar tu compra.";
+      estado.style.color = "#f59e0b";
+    }
+    return;
+  }
 
   btn.disabled = true;
   btn.textContent = "Procesando...";
@@ -108,12 +122,13 @@ async function iniciarPago() {
 
   // ── Guardar pedido pendiente en Supabase ──
   await guardarPedidoPendiente(totalFinal);
+  const pedidoId = localStorage.getItem('pedido_pendiente_id') || "";
 
   try {
-    const res = await fetch("/.netlify/functions/crear-preferencia", {
+    const res = await fetch("/api/crear-preferencia", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ items })
+      body: JSON.stringify({ items, pedidoId })
     });
 
     if (!res.ok) throw new Error("Error del servidor");
@@ -247,9 +262,140 @@ function mostrarBannerPago(texto, tipo, linkTexto = '', linkUrl = '') {
   main.prepend(banner);
 }
 
+/* ══════════════════════════════════════════
+   TRANSFERENCIA BANCARIA
+   ══════════════════════════════════════════ */
+
+// ── Datos bancarios (actualizar con los datos reales) ──
+const DATOS_BANCO = {
+  banco:   'TU BANCO',            // ← reemplazar
+  nombre:  'NOMBRE TITULAR',      // ← reemplazar
+  rut:     'XX.XXX.XXX-X',        // ← reemplazar
+  tipo:    'Cuenta Corriente',    // ← reemplazar
+  numero:  'XXXXXXXXXX',          // ← reemplazar
+  email:   'TU@EMAIL.CL'          // ← reemplazar
+};
+
+async function iniciarTransferencia() {
+  // 1. Verificar sesión
+  if (typeof db === 'undefined' || !db) return;
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) {
+    document.getElementById('auth-overlay')?.classList.add('activo');
+    document.getElementById('auth-panel')?.classList.add('activo');
+    const estado = document.getElementById("btn-mp-estado");
+    if (estado) {
+      estado.textContent = "⚠ Debes iniciar sesión para continuar.";
+      estado.style.color = "#f59e0b";
+    }
+    return;
+  }
+
+  // 2. Calcular total
+  const subtotal  = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
+  const comision  = Math.round(subtotal * 0.05);
+  const total     = subtotal + comision;
+
+  // 3. Guardar pedido en Supabase con estado transferencia_pendiente
+  try {
+    const itemsGuardar = carrito.map(i => ({
+      id: i.id, nombre: i.nombre, cantidad: i.cantidad,
+      precio: i.precio, imagen: i.imagen || ''
+    }));
+    const { data: pedido, error } = await db
+      .from('pedidos')
+      .insert({ user_id: session.user.id, items: itemsGuardar,
+                total, estado: 'transferencia_pendiente' })
+      .select('id').single();
+    if (!error && pedido) localStorage.setItem('pedido_pendiente_id', pedido.id);
+  } catch (e) {
+    console.warn('[Transferencia] No se pudo guardar el pedido:', e);
+  }
+
+  // 4. Notificar al dueño por WhatsApp (silencioso, no bloquea el flujo)
+  try {
+    fetch('/api/notificar-pedido', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tipo:     'transferencia',
+        pedidoId: localStorage.getItem('pedido_pendiente_id') || '',
+        total,
+        items:    carrito.map(i => ({ nombre: i.nombre, cantidad: i.cantidad })),
+        email:    session.user.email || 'N/A'
+      })
+    });
+  } catch (_) {}
+
+  // 5. Mostrar modal con datos bancarios
+  abrirModalTransferencia(total);
+}
+
+function abrirModalTransferencia(total) {
+  // Rellenar datos en el modal
+  document.getElementById('modal-total-valor').textContent =
+    '$' + total.toLocaleString('es-CL') + ' CLP';
+  document.getElementById('dato-banco').textContent  = DATOS_BANCO.banco;
+  document.getElementById('dato-nombre').textContent = DATOS_BANCO.nombre;
+  document.getElementById('dato-rut').textContent    = DATOS_BANCO.rut;
+  document.getElementById('dato-tipo').textContent   = DATOS_BANCO.tipo;
+  document.getElementById('dato-numero').textContent = DATOS_BANCO.numero;
+  document.getElementById('dato-email').textContent  = DATOS_BANCO.email;
+
+  // Link de WhatsApp con el comprobante
+  const resumen = carrito.map(i => `• ${i.nombre} x${i.cantidad}`).join('%0A');
+  const msg = encodeURIComponent(
+    `Hola! Acabo de hacer una transferencia por $${total.toLocaleString('es-CL')} CLP.\n\nPedido:\n${carrito.map(i=>`• ${i.nombre} x${i.cantidad}`).join('\n')}\n\nAdjunto el comprobante.`
+  );
+  document.getElementById('btn-confirmar-transferencia').href =
+    `https://wa.me/56966497904?text=${msg}`;
+
+  // Abrir modal
+  document.getElementById('modal-transferencia-overlay')?.classList.add('activo');
+}
+
+function cerrarModalTransferencia() {
+  document.getElementById('modal-transferencia-overlay')?.classList.remove('activo');
+}
+
+function copiarDatosBancarios() {
+  const total = document.getElementById('modal-total-valor').textContent;
+  const texto =
+    `Datos de transferencia — Joyería Aravena\n` +
+    `Total: ${total}\n` +
+    `Banco: ${DATOS_BANCO.banco}\n` +
+    `Nombre: ${DATOS_BANCO.nombre}\n` +
+    `RUT: ${DATOS_BANCO.rut}\n` +
+    `Tipo de cuenta: ${DATOS_BANCO.tipo}\n` +
+    `N° de cuenta: ${DATOS_BANCO.numero}\n` +
+    `Email: ${DATOS_BANCO.email}`;
+  navigator.clipboard.writeText(texto).then(() => {
+    const btn = document.getElementById('btn-copiar-datos');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✓ ¡Copiado!';
+    btn.style.color = '#10b981';
+    btn.style.borderColor = '#10b981';
+    setTimeout(() => { btn.innerHTML = orig; btn.style.color = ''; btn.style.borderColor = ''; }, 2000);
+  }).catch(() => {
+    alert('No se pudo copiar. Por favor copia los datos manualmente.');
+  });
+}
+
+/* ── Configurar botones ── */
 function configurarPago() {
-  const btn = document.getElementById("btn-pagar");
-  if (btn) btn.addEventListener("click", iniciarPago);
+  const btn   = document.getElementById("btn-pagar");
+  const btnTr = document.getElementById("btn-transferencia");
+  const btnCerrar   = document.getElementById("modal-transferencia-cerrar");
+  const overlay     = document.getElementById("modal-transferencia-overlay");
+  const btnCopiar   = document.getElementById("btn-copiar-datos");
+
+  if (btn)        btn.addEventListener("click", iniciarPago);
+  if (btnTr)      btnTr.addEventListener("click", iniciarTransferencia);
+  if (btnCerrar)  btnCerrar.addEventListener("click", cerrarModalTransferencia);
+  if (overlay)    overlay.addEventListener("click", e => {
+    if (e.target === overlay) cerrarModalTransferencia();
+  });
+  if (btnCopiar)  btnCopiar.addEventListener("click", copiarDatosBancarios);
 }
 
 actualizarContador();

@@ -54,6 +54,7 @@ function initAuth() {
     if (session) {
       usuarioActual = session.user;
       actualizarHeaderUsuario(session.user);
+      if (typeof inicializarFavoritos === 'function') inicializarFavoritos(session.user.id);
     }
   }).catch(e => console.warn('[Auth] getSession:', e));
 
@@ -65,12 +66,18 @@ function initAuth() {
       cerrarAuthPanel();
       const nombre = usuarioActual?.user_metadata?.nombre || usuarioActual?.email?.split('@')[0] || 'Usuario';
       mostrarToastAuth(`¡Bienvenido, ${nombre.split(' ')[0]}!`);
+      if (typeof inicializarFavoritos === 'function') inicializarFavoritos(usuarioActual.id);
     }
     if (event === 'SIGNED_OUT') {
       mostrarToastAuth('Sesión cerrada correctamente');
+      // Limpiar favoritos al cerrar sesión
+      if (typeof favoritosSet !== 'undefined') { favoritosSet.clear(); favoritosMap = {}; }
+      if (typeof renderizarProductos === 'function') renderizarProductos();
     }
   });
 }
+
+const ADMIN_EMAILS_AUTH = ['diegoaravenavera@gmail.com'];
 
 /* ── Header ──────────────────────────────── */
 function actualizarHeaderUsuario(user) {
@@ -89,11 +96,46 @@ function actualizarHeaderUsuario(user) {
       nombreEl.textContent = inicial;
       nombreEl.style.display = 'flex';
     }
+    // Mostrar acceso rápido al admin si es administrador
+    mostrarBtnAdmin(ADMIN_EMAILS_AUTH.includes(user.email));
   } else {
     btn.classList.remove('cuenta-activa');
     btn.title = 'Mi cuenta';
     if (icono) icono.style.display = 'block';
     if (nombreEl) nombreEl.style.display = 'none';
+    mostrarBtnAdmin(false);
+  }
+}
+
+function mostrarBtnAdmin(mostrar) {
+  // No mostrar en admin.html (ya está ahí)
+  if (window.location.pathname.includes('admin.html')) return;
+
+  let btnAdmin = document.getElementById('btn-acceso-admin');
+  if (mostrar) {
+    if (!btnAdmin) {
+      btnAdmin = document.createElement('a');
+      btnAdmin.id = 'btn-acceso-admin';
+      btnAdmin.href = 'admin.html';
+      btnAdmin.className = 'btn-acceso-admin';
+      btnAdmin.title = 'Panel de administración';
+      btnAdmin.innerHTML = `
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        Admin
+      `;
+      // Insertar antes del botón de cuenta
+      const headerIconos = document.querySelector('.header-iconos');
+      const cuentaBtn = document.getElementById('cuenta-btn');
+      if (headerIconos && cuentaBtn) {
+        headerIconos.insertBefore(btnAdmin, cuentaBtn);
+      }
+    }
+    btnAdmin.style.display = 'inline-flex';
+  } else if (btnAdmin) {
+    btnAdmin.style.display = 'none';
   }
 }
 

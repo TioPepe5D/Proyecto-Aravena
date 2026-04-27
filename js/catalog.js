@@ -1,26 +1,30 @@
-let materialActivo = "todos";
+let categoriaActiva = "todos";
 
-const nombresMaterial = {
-  "plata-nacional": "Plata Nacional SL 925",
-  "plata-italiana": "Plata Italiana",
-  "oro-goldfit": "Oro GoldFit 18K"
+const nombresCategoria = {
+  "collares":    "Collares",
+  "pulseras":    "Pulseras & Tobilleras",
+  "aros":        "Aros & Argollas",
+  "colgantes":   "Colgantes",
+  "conjuntos":   "Conjuntos",
+  "anillos":     "Anillos",
+  "exhibidores": "Exhibidores & Accesorios"
 };
 
-function renderizarProductos(material = materialActivo) {
-  materialActivo = material;
+function renderizarProductos(categoria = categoriaActiva) {
+  categoriaActiva = categoria;
 
   const grid = document.getElementById("productos-grid");
   const titulo = document.getElementById("catalogo-titulo");
   const busqueda = (document.getElementById("filtro-nombre")?.value || "").toLowerCase();
   const orden = document.getElementById("filtro-precio")?.value || "";
 
-  let filtrados = material === "todos" ? productos : productos.filter(p => p.material === material);
+  let filtrados = categoria === "todos" ? productos : productos.filter(p => p.categoria === categoria);
 
   if (busqueda) filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(busqueda));
   if (orden === "asc") filtrados = [...filtrados].sort((a, b) => a.precio - b.precio);
   if (orden === "desc") filtrados = [...filtrados].sort((a, b) => b.precio - a.precio);
 
-  titulo.textContent = material !== "todos" ? nombresMaterial[material] : "Nuestra Colección";
+  titulo.textContent = categoria !== "todos" ? nombresCategoria[categoria] : "Nuestra Colección";
 
   if (filtrados.length === 0) {
     grid.innerHTML = "<p style='text-align:center;color:#888;'>No hay productos en esta categoría.</p>";
@@ -35,6 +39,7 @@ function renderizarProductos(material = materialActivo) {
       <div class="producto-card-img-wrap">
         <img src="${producto.imagen}" alt="${producto.nombre}">
         ${cantidad > 0 ? `<span class="badge-en-carrito">${cantidad}</span>` : ''}
+        ${typeof iconCorazon === 'function' ? iconCorazon(producto.id) : ''}
       </div>
       <div class="producto-info">
         <p class="producto-categoria">${producto.categoria}</p>
@@ -84,6 +89,9 @@ function abrirDetalleProducto(id) {
   const overlay = document.getElementById("producto-detalle-overlay");
   const contenido = document.getElementById("producto-detalle-contenido");
 
+  const msgWsp = encodeURIComponent(`Hola! Me interesa el *${producto.nombre}* ($${producto.precio.toLocaleString("es-CL")} CLP). ¿Tiene disponibilidad?`);
+  const linkWsp = `https://wa.me/56966497904?text=${msgWsp}`;
+
   contenido.innerHTML = `
     <img src="${producto.imagen}" alt="${producto.nombre}" class="detalle-imagen">
     <div class="detalle-info">
@@ -99,18 +107,32 @@ function abrirDetalleProducto(id) {
           <button onclick="detalleCambiarCantidad(1)">+</button>
         </div>
       </div>
-      <button class="btn-detalle-agregar" id="btn-detalle-agregar" onclick="detalleAgregarAlCarrito(${producto.id})">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-          <line x1="3" y1="6" x2="21" y2="6"/>
-          <path d="M16 10a4 4 0 0 1-8 0"/>
+      <div class="detalle-acciones">
+        <button class="btn-detalle-agregar" id="btn-detalle-agregar" onclick="detalleAgregarAlCarrito(${producto.id})">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          Agregar al carrito
+        </button>
+        ${typeof iconCorazon === 'function' ? `
+        <button class="btn-detalle-favorito${favoritosSet.has(String(producto.id)) ? ' favorito-activo' : ''}" data-fav-id="${producto.id}" onclick="toggleFavorito(${producto.id})" title="${favoritosSet.has(String(producto.id)) ? 'Quitar de favoritos' : 'Guardar en favoritos'}">
+          <svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="${favoritosSet.has(String(producto.id)) ? 'currentColor' : 'none'}">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </button>` : ''}
+      </div>
+      <a class="btn-detalle-wsp" href="${linkWsp}" target="_blank" rel="noopener">
+        <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.678 4.797 1.856 6.785L2 30l7.43-1.82A13.94 13.94 0 0 0 16 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.5a11.44 11.44 0 0 1-5.826-1.594l-.418-.248-4.33 1.062 1.094-4.212-.272-.432A11.467 11.467 0 0 1 4.5 16C4.5 9.596 9.596 4.5 16 4.5S27.5 9.596 27.5 16 22.404 27.5 16 27.5zm6.29-8.634c-.344-.172-2.036-1.004-2.352-1.118-.316-.116-.546-.172-.776.172-.23.344-.892 1.118-1.094 1.348-.2.23-.402.258-.746.086-.344-.172-1.452-.536-2.766-1.706-1.022-.912-1.712-2.036-1.912-2.38-.2-.344-.022-.53.15-.702.154-.154.344-.402.516-.602.172-.2.23-.344.344-.574.116-.23.058-.43-.028-.602-.086-.172-.776-1.87-1.064-2.562-.28-.674-.564-.582-.776-.594-.2-.01-.43-.012-.66-.012s-.602.086-.918.43c-.316.344-1.204 1.176-1.204 2.868s1.232 3.326 1.404 3.556c.172.23 2.426 3.706 5.878 5.198.822.354 1.464.566 1.964.724.826.262 1.578.226 2.172.138.662-.1 2.036-.832 2.322-1.634.288-.802.288-1.49.202-1.634-.086-.144-.316-.23-.66-.402z"/>
         </svg>
-        Agregar al carrito
-      </button>
+        Consultar por WhatsApp
+      </a>
       <div class="detalle-badges">
         <span>🚚 Envíos a todo Chile</span>
-        <span>🔒 Plata 925 certificada</span>
-        <span>✦ Pieza artesanal única</span>
+        <span>💎 Joyería mayorista</span>
+        <span>📦 Precio de lote</span>
       </div>
     </div>
   `;
@@ -147,32 +169,23 @@ function detalleAgregarAlCarrito(id) {
 }
 
 function inicializarFiltros() {
-  const botonesMat = document.querySelectorAll(".material-btn");
+  const botonesCat = document.querySelectorAll(".material-btn");
   const filtroBarra = document.getElementById("filtro-barra");
-  const plataNacionalExtra = document.getElementById("plata-nacional-extra");
 
-  botonesMat.forEach(boton => {
+  botonesCat.forEach(boton => {
     boton.addEventListener("click", () => {
-      botonesMat.forEach(b => b.classList.remove("activo"));
+      botonesCat.forEach(b => b.classList.remove("activo"));
       boton.classList.add("activo");
-      const mat = boton.dataset.material;
-      filtroBarra.classList.toggle("visible", mat !== "todos");
-      plataNacionalExtra.classList.toggle("visible", mat === "plata-nacional");
+      const cat = boton.dataset.material;
+      filtroBarra.classList.toggle("visible", cat !== "todos");
       document.getElementById("filtro-nombre").value = "";
       document.getElementById("filtro-precio").value = "";
-      renderizarProductos(mat);
+      renderizarProductos(cat);
     });
   });
 
   document.getElementById("filtro-nombre").addEventListener("input", () => renderizarProductos());
   document.getElementById("filtro-precio").addEventListener("change", () => renderizarProductos());
-
-  document.getElementById("btn-lotes").addEventListener("click", () => {
-    alert("Función Lotes por mayor: próximamente disponible.");
-  });
-  document.getElementById("btn-lote-personalizado").addEventListener("click", () => {
-    alert("Función Arma tu lote personalizado: próximamente disponible.");
-  });
 }
 
 function inicializarCatalogo() {

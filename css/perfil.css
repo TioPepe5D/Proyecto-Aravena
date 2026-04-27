@@ -2,6 +2,16 @@
    PERFIL — Joyería Aravena
    ============================================= */
 
+/* Sticky footer: el contenido empuja el footer hacia abajo */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+#perfil-contenedor {
+  flex: 1;
+}
+
 .perfil-hero {
   background: var(--color-fondo-secundario);
   border-bottom: 1px solid var(--color-borde);
@@ -85,6 +95,7 @@
   max-width: 900px;
   margin: 0 auto;
   padding: 40px 24px 80px;
+  min-height: 50vh;
 }
 
 .perfil-seccion { display: none; }

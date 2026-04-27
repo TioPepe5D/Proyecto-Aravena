@@ -115,12 +115,14 @@ async function cargarPedidos(userId) {
   contenedor.innerHTML = '<div class="perfil-loading">Cargando pedidos…</div>';
 
   try {
+    console.log('[Pedidos] Consultando pedidos para userId:', userId);
     const { data, error } = await db
       .from('pedidos')
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
+    console.log('[Pedidos] Resultado:', { data, error });
     if (error) throw error;
 
     if (!data || data.length === 0) {
@@ -144,7 +146,7 @@ async function cargarPedidos(userId) {
         <div class="pedido-card">
           <div class="pedido-header">
             <div>
-              <p class="pedido-id">#${p.id.slice(0, 8).toUpperCase()}</p>
+              <p class="pedido-id">#${String(p.id).slice(0, 8).toUpperCase()}</p>
               <p class="pedido-fecha">${fecha}</p>
             </div>
             <span class="pedido-estado ${estado}">${estado.charAt(0).toUpperCase() + estado.slice(1)}</span>
@@ -155,7 +157,8 @@ async function cargarPedidos(userId) {
     }).join('');
 
   } catch (e) {
-    contenedor.innerHTML = `<p style="color:#f4212e;font-size:.85rem">Error al cargar pedidos.</p>`;
+    console.error('[Pedidos] Error real:', e);
+    contenedor.innerHTML = `<p style="color:#f4212e;font-size:.85rem">Error al cargar pedidos: ${e?.message || JSON.stringify(e)}</p>`;
   }
 }
 
@@ -229,20 +232,20 @@ async function quitarFavorito(favId, userId) {
 /* ── Datos de envío ───────────────────────── */
 async function cargarDireccion(userId) {
   try {
-    const { data } = await db
+    const { data, error } = await db
       .from('direcciones')
       .select('*')
       .eq('user_id', userId)
-      .limit(1)
-      .single();
+      .limit(1);
 
-    if (!data) return;
+    if (error || !data || data.length === 0) return;
+    const fila = data[0];
 
     // Rellenar campos
     const campos = ['nombre', 'apellido', 'telefono', 'direccion', 'ciudad', 'codigo_postal', 'region'];
     campos.forEach(c => {
       const el = document.getElementById(`env-${c}`);
-      if (el && data[c]) el.value = data[c];
+      if (el && fila[c]) el.value = fila[c];
     });
   } catch (e) {
     // No hay dirección guardada, está bien
