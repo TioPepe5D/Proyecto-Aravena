@@ -1,6 +1,16 @@
-let categoriaActiva = "todos";
+let materialActivo    = "todos";
+let subcategoriaActiva = "todos";
+
+const nombresMaterial = {
+  "todos":          "Nuestra Colección",
+  "plata-nacional": "Plata Nacional SL 925",
+  "plata-italiana": "Plata Italiana",
+  "oro-goldfit":    "Oro Gold Fit 18K",
+  "accesorio":      "Exhibidores & Accesorios"
+};
 
 const nombresCategoria = {
+  "todos":       "Todos",
   "collares":    "Collares",
   "pulseras":    "Pulseras & Tobilleras",
   "aros":        "Aros & Argollas",
@@ -10,30 +20,50 @@ const nombresCategoria = {
   "exhibidores": "Exhibidores & Accesorios"
 };
 
-function renderizarProductos(categoria = categoriaActiva) {
-  categoriaActiva = categoria;
-
-  const grid = document.getElementById("productos-grid");
-  const titulo = document.getElementById("catalogo-titulo");
+function renderizarProductos() {
+  const grid    = document.getElementById("productos-grid");
+  const titulo  = document.getElementById("catalogo-titulo");
   const busqueda = (document.getElementById("filtro-nombre")?.value || "").toLowerCase();
-  const orden = document.getElementById("filtro-precio")?.value || "";
+  const orden    = document.getElementById("filtro-precio")?.value || "";
 
-  let filtrados = categoria === "todos" ? productos : productos.filter(p => p.categoria === categoria);
+  // ── Filtro nivel 1: material ──
+  let filtrados = materialActivo === "todos"
+    ? productos
+    : productos.filter(p => p.material === materialActivo);
 
-  if (busqueda) filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(busqueda));
-  if (orden === "asc") filtrados = [...filtrados].sort((a, b) => a.precio - b.precio);
+  // ── Filtro nivel 2: subcategoría ──
+  if (subcategoriaActiva !== "todos") {
+    filtrados = filtrados.filter(p => p.categoria === subcategoriaActiva);
+  }
+
+  // ── Búsqueda por nombre ──
+  if (busqueda) {
+    filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(busqueda));
+  }
+
+  // ── Orden por precio ──
+  if (orden === "asc")  filtrados = [...filtrados].sort((a, b) => a.precio - b.precio);
   if (orden === "desc") filtrados = [...filtrados].sort((a, b) => b.precio - a.precio);
 
-  titulo.textContent = categoria !== "todos" ? nombresCategoria[categoria] : "Nuestra Colección";
+  // ── Título dinámico ──
+  if (materialActivo !== "todos") {
+    const matLabel  = nombresMaterial[materialActivo] || materialActivo;
+    const subcatLabel = subcategoriaActiva !== "todos"
+      ? " — " + (nombresCategoria[subcategoriaActiva] || subcategoriaActiva)
+      : "";
+    titulo.textContent = matLabel + subcatLabel;
+  } else {
+    titulo.textContent = "Nuestra Colección";
+  }
 
   if (filtrados.length === 0) {
-    grid.innerHTML = "<p style='text-align:center;color:#888;'>No hay productos en esta categoría.</p>";
+    grid.innerHTML = "<p style='text-align:center;color:#888;padding:3rem 0'>No hay productos en esta categoría.</p>";
     return;
   }
 
   grid.innerHTML = filtrados.map((producto, i) => {
     const enCarrito = (typeof carrito !== "undefined") ? carrito.find(p => p.id === producto.id) : null;
-    const cantidad = enCarrito ? enCarrito.cantidad : 0;
+    const cantidad  = enCarrito ? enCarrito.cantidad : 0;
     return `
     <div class="producto-card animar${cantidad > 0 ? ' en-carrito' : ''}" style="transition-delay: ${i * 60}ms" data-id="${producto.id}">
       <div class="producto-card-img-wrap">
@@ -85,8 +115,8 @@ function abrirDetalleProducto(id) {
   const producto = productos.find(p => p.id === id);
   if (!producto) return;
 
-  const panel = document.getElementById("producto-detalle-panel");
-  const overlay = document.getElementById("producto-detalle-overlay");
+  const panel    = document.getElementById("producto-detalle-panel");
+  const overlay  = document.getElementById("producto-detalle-overlay");
   const contenido = document.getElementById("producto-detalle-contenido");
 
   const precioTexto = producto.precio > 0 ? `$${producto.precio.toLocaleString("es-CL")} CLP` : 'Consultar precio';
@@ -169,23 +199,70 @@ function detalleAgregarAlCarrito(id) {
   }, 1800);
 }
 
-function inicializarFiltros() {
-  const botonesCat = document.querySelectorAll(".material-btn");
-  const filtroBarra = document.getElementById("filtro-barra");
+/* ── Mostrar / ocultar subcategorías según material seleccionado ── */
+function actualizarSubcategorias() {
+  const subcatWrap = document.getElementById("subcategorias");
+  if (!subcatWrap) return;
 
-  botonesCat.forEach(boton => {
+  if (materialActivo === "todos" || materialActivo === "accesorio") {
+    subcatWrap.classList.remove("visible");
+  } else {
+    subcatWrap.classList.add("visible");
+
+    // Mostrar sólo las subcategorías con productos en el material activo
+    const subcatBtns = subcatWrap.querySelectorAll(".subcat-btn");
+    subcatBtns.forEach(btn => {
+      const subcat = btn.dataset.subcat;
+      if (subcat === "todos") {
+        btn.style.display = "";
+        return;
+      }
+      const hay = productos.some(p => p.material === materialActivo && p.categoria === subcat);
+      btn.style.display = hay ? "" : "none";
+    });
+  }
+}
+
+function inicializarFiltros() {
+  // ── Nivel 1: botones de material ──
+  const botonesMateria = document.querySelectorAll(".material-btn");
+  botonesMateria.forEach(boton => {
     boton.addEventListener("click", () => {
-      botonesCat.forEach(b => b.classList.remove("activo"));
+      botonesMateria.forEach(b => b.classList.remove("activo"));
       boton.classList.add("activo");
-      const cat = boton.dataset.material;
-      filtroBarra.classList.toggle("visible", cat !== "todos");
+      materialActivo    = boton.dataset.material;
+      subcategoriaActiva = "todos";
+
+      // Resetear selección de subcategoría
+      document.querySelectorAll(".subcat-btn").forEach(b => b.classList.remove("activo"));
+      const todosSubcat = document.querySelector(".subcat-btn[data-subcat='todos']");
+      if (todosSubcat) todosSubcat.classList.add("activo");
+
+      // Mostrar/ocultar barra de filtros
+      const filtroBarra = document.getElementById("filtro-barra");
+      if (filtroBarra) filtroBarra.classList.toggle("visible", materialActivo !== "todos");
+
       document.getElementById("filtro-nombre").value = "";
       document.getElementById("filtro-precio").value = "";
-      renderizarProductos(cat);
+
+      actualizarSubcategorias();
+      renderizarProductos();
     });
   });
 
-  document.getElementById("filtro-nombre").addEventListener("input", () => renderizarProductos());
+  // ── Nivel 2: botones de subcategoría ──
+  const botonesSubcat = document.querySelectorAll(".subcat-btn");
+  botonesSubcat.forEach(boton => {
+    boton.addEventListener("click", () => {
+      botonesSubcat.forEach(b => b.classList.remove("activo"));
+      boton.classList.add("activo");
+      subcategoriaActiva = boton.dataset.subcat;
+      renderizarProductos();
+    });
+  });
+
+  // ── Búsqueda y orden ──
+  document.getElementById("filtro-nombre").addEventListener("input",  () => renderizarProductos());
   document.getElementById("filtro-precio").addEventListener("change", () => renderizarProductos());
 }
 
@@ -195,5 +272,5 @@ function inicializarCatalogo() {
   inicializarAnimaciones();
 
   document.getElementById("producto-detalle-overlay").addEventListener("click", cerrarDetalleProducto);
-  document.getElementById("producto-detalle-cerrar").addEventListener("click", cerrarDetalleProducto);
+  document.getElementById("producto-detalle-cerrar").addEventListener("click",  cerrarDetalleProducto);
 }
