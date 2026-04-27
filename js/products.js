@@ -315,24 +315,6 @@ const productos = [
   },
 
   // ── CONJUNTOS ────────────────────────────────────────────────────────────
-  {
-    id: 35,
-    nombre: "Lote Conjuntos Plata Nacional SL 925",
-    categoria: "conjuntos",
-    material: "plata-nacional",
-    precio: 0,
-    imagen: "img/0f34b29d-e760-4b8b-b2b3-e4aba61eb70d.jpg",
-    descripcion: "Lote de conjuntos en Plata Nacional SL 925. Incluye collar + pulsera + aros a juego. Consultar disponibilidad y precio."
-  },
-  {
-    id: 49,
-    nombre: "Lote Conjuntos Oro Gold Fit 18K",
-    categoria: "conjuntos",
-    material: "oro-goldfit",
-    precio: 0,
-    imagen: "img/0f34b29d-e760-4b8b-b2b3-e4aba61eb70d.jpg",
-    descripcion: "Lote de conjuntos en Oro Gold Fit 18K italiano. Incluye collar + pulsera + aros a juego. Consultar disponibilidad y precio."
-  },
 
   // ── ANILLOS ───────────────────────────────────────────────────────────────
   {
