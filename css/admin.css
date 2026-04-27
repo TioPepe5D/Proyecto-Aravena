@@ -526,6 +526,11 @@
   color: var(--admin-rojo);
 }
 
+.estado-transferencia_pendiente {
+  background: rgba(139, 92, 246, 0.12);
+  color: #8b5cf6;
+}
+
 /* Acciones */
 .tabla-acciones {
   display: flex;
@@ -563,6 +568,16 @@
   border-color: var(--admin-rojo);
   color: var(--admin-rojo);
   background: var(--admin-rojo-suave);
+}
+
+.btn-accion-transferencia {
+  border-color: #8b5cf6;
+  color: #8b5cf6;
+}
+.btn-accion-transferencia:hover {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: #7c3aed;
+  color: #7c3aed;
 }
 
 /* ── Modal detalle ──────────────────────── */

@@ -162,7 +162,9 @@ async function cargarPedidos() {
 function calcularStats() {
   const total = todosLosPedidos.length;
   const pagados = todosLosPedidos.filter(p => p.estado === 'pagado');
-  const pendientes = todosLosPedidos.filter(p => p.estado === 'pendiente').length;
+  const pendientes = todosLosPedidos.filter(p =>
+    p.estado === 'pendiente' || p.estado === 'transferencia_pendiente'
+  ).length;
   const revenue = pagados.reduce((s, p) => s + (Number(p.total) || 0), 0);
 
   animarContador('stat-total', total);
@@ -236,7 +238,9 @@ function renderizarTabla() {
     const total = Number(p.total) || 0;
 
     const acciones = [];
-    if (p.estado !== 'pagado') {
+    if (p.estado === 'transferencia_pendiente') {
+      acciones.push(`<button class="btn-accion btn-accion-transferencia" onclick="cambiarEstado('${p.id}', 'pagado')" title="Confirmar que la transferencia fue recibida">✓ Confirmar transferencia</button>`);
+    } else if (p.estado !== 'pagado') {
       acciones.push(`<button class="btn-accion btn-accion-pagar" onclick="cambiarEstado('${p.id}', 'pagado')">Marcar pagado</button>`);
     }
     if (p.estado !== 'fallido') {
@@ -346,8 +350,18 @@ function verDetalle(pedidoId) {
         <p class="modal-info-label">Estado</p>
         <p class="modal-info-valor"><span class="estado-badge estado-${pedido.estado}">${pedido.estado}</span></p>
       </div>
+      <div class="modal-info-bloque">
+        <p class="modal-info-label">Método de pago</p>
+        <p class="modal-info-valor">
+          ${pedido.estado === 'transferencia_pendiente'
+            ? '🏦 Transferencia bancaria'
+            : pedido.mp_payment_id
+              ? '💳 MercadoPago'
+              : '—'}
+        </p>
+      </div>
       ${pedido.mp_payment_id ? `
-      <div class="modal-info-bloque" style="grid-column:1/-1">
+      <div class="modal-info-bloque">
         <p class="modal-info-label">MercadoPago ID</p>
         <p class="modal-info-valor mono">${pedido.mp_payment_id}</p>
       </div>` : ''}
