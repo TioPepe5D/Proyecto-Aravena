@@ -1069,7 +1069,7 @@ const productos = [
     id: 117,
     nombre: "Charms Variados",
     categoria: "colgantes",
-    material: "plata-nacional",
+    material: "plata-italiana",
     precio: 0,
     imagen: "img/13F72768-0222-4C7D-818F-6EF8CB9FEBB1.jpg",
     descripcion: "Gran colección de charms variados: logos de marcas, personajes animados, Batman, Minnie y más. Consultar precio."
@@ -1078,7 +1078,7 @@ const productos = [
     id: 118,
     nombre: "Charms Religiosos y Corazones",
     categoria: "colgantes",
-    material: "plata-nacional",
+    material: "plata-italiana",
     precio: 0,
     imagen: "img/174FCCEA-A231-4B1E-B5CB-EFB796BB8021.jpg",
     descripcion: "Charms religiosos y de corazones: ángeles, santos, corazones y símbolos de protección. Consultar precio."
@@ -1087,7 +1087,7 @@ const productos = [
     id: 119,
     nombre: "Charms Premium",
     categoria: "colgantes",
-    material: "plata-nacional",
+    material: "plata-italiana",
     precio: 0,
     imagen: "img/4953C287-502C-47D1-8BEF-94FF7C0ABF8A.jpg",
     descripcion: "Charms premium en plata y dorado: hámsa, animales, minnie, corazones y símbolos variados. Consultar precio."
