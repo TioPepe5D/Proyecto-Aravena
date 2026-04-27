@@ -9,16 +9,90 @@
   const W     = CELL * COLS;
   const H     = CELL * ROWS;
 
-  let snake, dir, nextDir, food, score, hiScore, loop, running, hueOffset;
+  let snake, dir, nextDir, food, score, hiScore, loop, running, hueOffset, couponShown;
+
+  const CUPON_META   = 50;
+  const CUPON_CODIGO = 'SNAKE50';
+
+  /* ── Mostrar cupón ganado ── */
+  function mostrarCupon() {
+    clearInterval(loop);
+    running = false;
+    const canvas = document.getElementById('snake-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    // Fondo festivo
+    ctx.fillStyle = 'rgba(0,0,0,0.82)';
+    ctx.fillRect(0, 0, W, H);
+
+    // Confeti simple
+    for (let i=0; i<60; i++) {
+      ctx.fillStyle = `hsl(${Math.random()*360},100%,60%)`;
+      ctx.fillRect(
+        Math.random()*W, Math.random()*H,
+        6 + Math.random()*6, 6 + Math.random()*6
+      );
+    }
+
+    ctx.textAlign = 'center';
+
+    // Título
+    ctx.font = 'bold 1.7rem "Open Sans", sans-serif';
+    ctx.shadowColor = '#c9a227';
+    ctx.shadowBlur  = 28;
+    ctx.fillStyle   = '#ffe066';
+    ctx.fillText('🏆 ¡FELICITACIONES!', W/2, H/2 - 80);
+
+    // Subtítulo
+    ctx.shadowBlur = 0;
+    ctx.font = '0.95rem "Open Sans", sans-serif';
+    ctx.fillStyle = '#e7e9ea';
+    ctx.fillText('Juntaste 50 diamantes — ¡Eres increíble!', W/2, H/2 - 46);
+
+    // Caja cupón
+    const boxW = 280, boxH = 62;
+    const bx = W/2 - boxW/2, by = H/2 - 20;
+    ctx.fillStyle = 'rgba(30,157,241,0.18)';
+    ctx.strokeStyle = '#1e9df1';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(bx, by, boxW, boxH, 12);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.font = 'bold 0.78rem "Open Sans", sans-serif';
+    ctx.fillStyle = '#8aa8c0';
+    ctx.fillText('TU CUPÓN DE DESCUENTO', W/2, H/2 + 8);
+
+    ctx.font = 'bold 2.1rem "Menlo", "Courier New", monospace';
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = '#1e9df1';
+    ctx.shadowBlur  = 16;
+    ctx.fillText(CUPON_CODIGO, W/2, H/2 + 45);
+
+    ctx.shadowBlur = 0;
+    ctx.font = '0.8rem "Open Sans", sans-serif';
+    ctx.fillStyle = '#71767b';
+    ctx.fillText('Úsalo al finalizar tu compra • Válido por tiempo limitado', W/2, H/2 + 84);
+
+    ctx.font = '0.78rem "Open Sans", sans-serif';
+    ctx.fillStyle = '#1e9df1';
+    ctx.fillText('Presiona R para jugar de nuevo', W/2, H/2 + 114);
+
+    // Guardar en localStorage
+    localStorage.setItem('snakeCupon', CUPON_CODIGO);
+  }
 
   /* ── Inicializar / reiniciar ── */
   function init() {
     snake     = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
     dir       = {x:1, y:0};
     nextDir   = {x:1, y:0};
-    score     = 0;
-    running   = true;
-    hueOffset = 0;
+    score       = 0;
+    running     = true;
+    hueOffset   = 0;
+    couponShown = false;
     hiScore   = parseInt(localStorage.getItem('snakeHi') || '0');
     spawnFood();
     updateScore();
@@ -53,6 +127,14 @@
       score++;
       if (score > hiScore) { hiScore = score; localStorage.setItem('snakeHi', hiScore); }
       spawnFood();
+      // Cupón al llegar a 50 diamantes
+      if (score >= CUPON_META && !couponShown) {
+        couponShown = true;
+        updateScore();
+        draw();
+        setTimeout(mostrarCupon, 200);
+        return;
+      }
       // Acelerar suavemente
       if (score % 5 === 0) {
         clearInterval(loop);
@@ -167,10 +249,12 @@
   }
 
   function updateScore() {
-    const el   = document.getElementById('snake-score');
-    const hi   = document.getElementById('snake-hi');
-    if (el) el.textContent = score;
-    if (hi) hi.textContent = hiScore;
+    const el  = document.getElementById('snake-score');
+    const hi  = document.getElementById('snake-hi');
+    const bar = document.getElementById('snake-progress-bar');
+    if (el)  el.textContent = score;
+    if (hi)  hi.textContent = hiScore;
+    if (bar) bar.style.width = Math.min(100, (score / CUPON_META) * 100) + '%';
   }
 
   /* ── Game Over ── */
