@@ -44,7 +44,7 @@ function renderizarProductos(categoria = categoriaActiva) {
       <div class="producto-info">
         <p class="producto-categoria">${producto.categoria}</p>
         <h3 class="producto-nombre">${producto.nombre}</h3>
-        <p class="producto-precio">$${producto.precio.toLocaleString("es-CL")}</p>
+        <p class="producto-precio">${producto.precio > 0 ? '$' + producto.precio.toLocaleString("es-CL") : '<span class="precio-consultar">Consultar precio</span>'}</p>
       </div>
       <div class="producto-card-btn-wrap">
         ${cantidad === 0 ? `
@@ -89,7 +89,8 @@ function abrirDetalleProducto(id) {
   const overlay = document.getElementById("producto-detalle-overlay");
   const contenido = document.getElementById("producto-detalle-contenido");
 
-  const msgWsp = encodeURIComponent(`Hola! Me interesa el *${producto.nombre}* ($${producto.precio.toLocaleString("es-CL")} CLP). ¿Tiene disponibilidad?`);
+  const precioTexto = producto.precio > 0 ? `$${producto.precio.toLocaleString("es-CL")} CLP` : 'Consultar precio';
+  const msgWsp = encodeURIComponent(`Hola! Me interesa el *${producto.nombre}* (${precioTexto}). ¿Tiene disponibilidad?`);
   const linkWsp = `https://wa.me/56966497904?text=${msgWsp}`;
 
   contenido.innerHTML = `
@@ -97,7 +98,7 @@ function abrirDetalleProducto(id) {
     <div class="detalle-info">
       <p class="detalle-categoria">${producto.categoria}</p>
       <h2 class="detalle-nombre">${producto.nombre}</h2>
-      <p class="detalle-precio">$${producto.precio.toLocaleString("es-CL")} CLP</p>
+      <p class="detalle-precio">${producto.precio > 0 ? '$' + producto.precio.toLocaleString("es-CL") + ' CLP' : '<span class="precio-consultar">Consultar precio</span>'}</p>
       <p class="detalle-descripcion">${producto.descripcion}</p>
       <div class="detalle-cantidad-wrap">
         <span class="detalle-cantidad-label">Cantidad</span>
