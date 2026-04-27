@@ -17,7 +17,7 @@
       el.textContent = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
 
       const dur  = (Math.random() * 2 + 1.4).toFixed(2);
-      const size = (Math.random() * 16 + 10).toFixed(0);
+      const size = (Math.random() * 9 + 5).toFixed(0);
 
       el.style.cssText = `
         left: ${Math.random() * 90 + 5}%;
