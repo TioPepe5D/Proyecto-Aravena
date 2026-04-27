@@ -325,15 +325,6 @@ const productos = [
     descripcion: "Lote de conjuntos en Plata Nacional SL 925. Incluye collar + pulsera + aros a juego. Consultar disponibilidad y precio."
   },
   {
-    id: 48,
-    nombre: "Lote Conjuntos Plata Italiana",
-    categoria: "conjuntos",
-    material: "plata-italiana",
-    precio: 0,
-    imagen: "img/0f34b29d-e760-4b8b-b2b3-e4aba61eb70d.jpg",
-    descripcion: "Lote de conjuntos en Plata Italiana de alta calidad. Incluye collar + pulsera + aros a juego. Consultar disponibilidad y precio."
-  },
-  {
     id: 49,
     nombre: "Lote Conjuntos Oro Gold Fit 18K",
     categoria: "conjuntos",
