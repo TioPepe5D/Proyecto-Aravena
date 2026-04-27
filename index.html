@@ -446,10 +446,15 @@
           <span class="snake-diamond">◆</span> Colorful Snake
         </div>
         <div class="snake-stats">
-          <span>Puntos: <strong id="snake-score">0</strong></span>
-          <span>Récord: <strong id="snake-hi">0</strong></span>
+          <span>◆ <strong id="snake-score">0</strong> / 50</span>
+          <span>🏆 <strong id="snake-hi">0</strong></span>
         </div>
         <button class="snake-close-btn" onclick="cerrarSnake()" title="Cerrar">✕</button>
+      </div>
+      <!-- Barra de progreso cupón -->
+      <div class="snake-progress-wrap">
+        <div class="snake-progress-bar" id="snake-progress-bar"></div>
+        <span class="snake-progress-label">Junta 50 ◆ y gana un <strong>cupón de descuento</strong></span>
       </div>
       <canvas id="snake-canvas"></canvas>
       <!-- D-Pad táctil -->
