@@ -85,7 +85,7 @@
     return Array.from({ length: n }, () => ({
       x: rand(0, W),
       y: rand(0, H),
-      r: rand(0.8, 3.2),           // más grandes
+      r: rand(0.4, 1.6),
       alpha: rand(0.3, 1),
       speed: rand(0.003, 0.012),
       phase: rand(0, Math.PI * 2),
@@ -105,7 +105,7 @@
     return {
       x: rand(0, W),
       y: rand(0, H),
-      size: rand(2.5, 6),           // más grandes
+      size: rand(1.2, 3),
       alpha: 0,
       targetAlpha: rand(0.35, 0.9),
       vx: rand(-0.18, 0.18),
