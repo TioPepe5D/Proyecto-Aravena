@@ -98,42 +98,26 @@ async function iniciarPago() {
   btn.textContent = "Procesando...";
   if (estado) estado.textContent = "";
 
-  const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
-  const comision = Math.round(subtotal * 0.05);
-  const totalFinal = subtotal + comision;
-
+  // El servidor valida precios reales y crea el pedido — el cliente solo manda id+cantidad
   const items = carrito.map(i => ({
     id: String(i.id),
-    title: i.nombre,
-    quantity: i.cantidad,
-    unit_price: i.precio,
-    currency_id: "CLP"
+    quantity: i.cantidad
   }));
-
-  if (comision > 0) {
-    items.push({
-      id: "comision-bancaria",
-      title: "Comisión Bancaria impuesto",
-      quantity: 1,
-      unit_price: comision,
-      currency_id: "CLP"
-    });
-  }
-
-  // ── Guardar pedido pendiente en Supabase ──
-  await guardarPedidoPendiente(totalFinal);
-  const pedidoId = localStorage.getItem('pedido_pendiente_id') || "";
 
   try {
     const res = await fetch("/api/crear-preferencia", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ items, pedidoId })
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${session.access_token}`
+      },
+      body: JSON.stringify({ items })
     });
 
     if (!res.ok) throw new Error("Error del servidor");
 
     const data = await res.json();
+    if (data.pedidoId) localStorage.setItem('pedido_pendiente_id', data.pedidoId);
     window.location.href = data.init_point;
   } catch (err) {
     if (estado) {
@@ -142,40 +126,6 @@ async function iniciarPago() {
     }
     btn.disabled = false;
     btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="24" fill="#009EE3"/><path d="M13 24c0-6.075 4.925-11 11-11s11 4.925 11 11-4.925 11-11 11S13 30.075 13 24z" fill="white"/><path d="M20 24l3 3 6-6" stroke="#009EE3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Pagar con MercadoPago`;
-  }
-}
-
-/* ── Guardar pedido en Supabase ───────────── */
-async function guardarPedidoPendiente(total) {
-  if (typeof db === 'undefined' || !db) return;
-  try {
-    const { data: { session } } = await db.auth.getSession();
-    if (!session) return;
-
-    const itemsGuardar = carrito.map(i => ({
-      id: i.id,
-      nombre: i.nombre,
-      cantidad: i.cantidad,
-      precio: i.precio,
-      imagen: i.imagen || ''
-    }));
-
-    const { data: pedido, error } = await db
-      .from('pedidos')
-      .insert({
-        user_id: session.user.id,
-        items: itemsGuardar,
-        total: total,
-        estado: 'pendiente'
-      })
-      .select('id')
-      .single();
-
-    if (!error && pedido) {
-      localStorage.setItem('pedido_pendiente_id', pedido.id);
-    }
-  } catch (e) {
-    console.warn('[Pedidos] No se pudo guardar el pedido:', e);
   }
 }
 
@@ -190,22 +140,10 @@ async function manejarRetornoPago() {
 
   const pedidoId = localStorage.getItem('pedido_pendiente_id');
 
+  // El estado del pedido lo confirma el webhook de MercadoPago en el servidor.
+  // El cliente solo limpia su carrito y muestra el mensaje correspondiente.
   if (pago === 'ok') {
-    // Actualizar estado en Supabase
-    if (pedidoId && typeof db !== 'undefined' && db) {
-      try {
-        const { data: { session } } = await db.auth.getSession();
-        if (session) {
-          await db.from('pedidos')
-            .update({ estado: 'pagado' })
-            .eq('id', pedidoId)
-            .eq('user_id', session.user.id);
-          localStorage.removeItem('pedido_pendiente_id');
-        }
-      } catch (e) { console.warn('[Pedidos] Error al actualizar estado:', e); }
-    }
-
-    // Vaciar carrito
+    localStorage.removeItem('pedido_pendiente_id');
     carrito = [];
     guardarCarrito();
     actualizarContador();
@@ -226,20 +164,6 @@ async function manejarRetornoPago() {
     );
 
   } else if (pago === 'error') {
-    // Marcar pedido como fallido
-    if (pedidoId && typeof db !== 'undefined' && db) {
-      try {
-        const { data: { session } } = await db.auth.getSession();
-        if (session) {
-          await db.from('pedidos')
-            .update({ estado: 'fallido' })
-            .eq('id', pedidoId)
-            .eq('user_id', session.user.id);
-          localStorage.removeItem('pedido_pendiente_id');
-        }
-      } catch (e) {}
-    }
-
     mostrarBannerPago(
       'Hubo un problema con el pago. Puedes intentarlo de nuevo.',
       'error'
