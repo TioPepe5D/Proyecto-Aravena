@@ -180,18 +180,21 @@ img { max-width: 100%; display: block; }
   margin: 0 auto;
   padding: 0 32px;
   height: 64px;
-  display: flex;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  position: relative;
 }
 
-.header-container .logo { text-align: center; }
+.header-container .logo {
+  grid-column: 2;
+  text-align: center;
+}
 .header-container .header-iconos {
-  position: absolute;
-  right: 32px;
+  grid-column: 3;
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
 }
 
 .logo a {
@@ -1554,22 +1557,14 @@ img { max-width: 100%; display: block; }
   .beneficios-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
   .hero-logo { width: 120px; height: 120px; }
 
-  /* Header móvil: grid 3 columnas para centrar el logo sin solapamientos */
+  /* Header móvil */
   .header-container {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
+    grid-template-columns: 1fr auto 1fr;
     padding: 0 12px;
-    gap: 4px;
   }
-  .header-container .nav { display: none; }
-  .header-container .logo {
-    position: static;
-    transform: none;
-    text-align: center;
-  }
+  .header-container .logo { grid-column: 2; }
+  .header-container .header-iconos { grid-column: 3; }
   .logo-texto { font-size: 1.05rem; letter-spacing: 1.5px; }
-  .header-iconos { gap: 2px; justify-self: end; }
   .icono-btn { padding: 6px; }
 
   /* Catálogo móvil */
