@@ -1399,7 +1399,7 @@ img { max-width: 100%; display: block; }
 .btn-mp {
   width: 100%;
   padding: 15px;
-  background-color: #009EE3;
+  background-color: var(--color-primario);
   color: #fff;
   border: none;
   border-radius: 999px;
@@ -1411,11 +1411,13 @@ img { max-width: 100%; display: block; }
   align-items: center;
   justify-content: center;
   gap: 10px;
+  text-decoration: none;
 }
-.btn-mp:hover:not(:disabled) {
-  background-color: #0082bf;
+.btn-mp:hover {
+  background-color: var(--color-primario-oscuro);
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(0,158,227,0.35);
+  box-shadow: 0 6px 20px rgba(30,157,241,0.35);
+  color: #fff;
 }
 .btn-mp:disabled { opacity: 0.35; cursor: not-allowed; }
 .btn-mp-estado { font-size: 0.8rem; text-align: center; min-height: 16px; color: var(--color-texto-suave); }
