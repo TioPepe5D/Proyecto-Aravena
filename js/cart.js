@@ -12,8 +12,7 @@ function inicializarCarrito() {
   document.getElementById("carrito-cerrar").addEventListener("click", cerrarCarrito);
   document.getElementById("carrito-overlay").addEventListener("click", cerrarCarrito);
 
-  const btnPagar = document.getElementById("btn-pagar-sidebar");
-  if (btnPagar) btnPagar.addEventListener("click", iniciarPago);
+  // El botón sidebar ahora es un enlace a carrito.html — no necesita listener
 }
 
 function agregarAlCarrito(id) {
@@ -58,11 +57,9 @@ function renderizarCarrito() {
   const contenedor = document.getElementById("carrito-items");
   const totalEl = document.getElementById("carrito-total");
   const badge = document.getElementById("carrito-header-badge");
-  const btnPagar = document.getElementById("btn-pagar-sidebar");
 
   const totalItems = carrito.reduce((s, i) => s + i.cantidad, 0);
   if (badge) badge.textContent = totalItems;
-  if (btnPagar) btnPagar.disabled = carrito.length === 0;
 
   if (carrito.length === 0) {
     contenedor.innerHTML = "<p class='carrito-vacio'>Tu carrito está vacío</p>";
