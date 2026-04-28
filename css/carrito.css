@@ -1,8 +1,17 @@
+/* Body ocupa toda la altura — footer siempre al fondo */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+body > .footer { margin-top: auto; }
+
 .carrito-page {
   max-width: 1100px;
   margin: 0 auto;
   padding: 48px 24px 80px;
-  min-height: 60vh;
+  flex: 1;
+  width: 100%;
 }
 
 .carrito-page-header {
@@ -143,6 +152,7 @@
   border-right: 1px solid rgba(255,255,255,0.25);
   padding: 7px 0;
   color: #fff;
+  background: transparent;
 }
 
 /* Eliminar */
