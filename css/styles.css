@@ -176,8 +176,7 @@ img { max-width: 100%; display: block; }
 }
 
 .header-container {
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
   padding: 0 32px;
   height: 64px;
   display: grid;
@@ -194,6 +193,7 @@ img { max-width: 100%; display: block; }
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  justify-self: end;
   gap: 2px;
 }
 
