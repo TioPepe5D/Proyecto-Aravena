@@ -1024,7 +1024,8 @@ img { max-width: 100%; display: block; }
 }
 .cantidad-selector-card .cantidad-valor {
   flex: 1;
-  color: var(--color-texto);
+  color: #fff;
+  background: transparent;
   font-size: 0.95rem;
   font-weight: 700;
   border-left: 1px solid rgba(255,255,255,0.25);
@@ -1347,7 +1348,7 @@ img { max-width: 100%; display: block; }
   border-right: 1px solid var(--color-borde);
   padding: 6px 0;
   color: var(--color-texto);
-  background: var(--color-fondo-secundario);
+  background: var(--color-card);
 }
 
 .carrito-item-eliminar {
