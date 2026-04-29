@@ -84,8 +84,18 @@ function renderizarCarritoPage() {
     </div>
   `).join("");
 
-  const total = carrito.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
-  if (totalEl) totalEl.textContent = "$" + total.toLocaleString("es-CL") + " CLP";
+  const subtotal  = carrito.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
+  const comision  = Math.round(subtotal * 0.05);
+  const total     = subtotal + comision;
+
+  const subtotalEl  = document.getElementById("carrito-aside-subtotal");
+  const comisionEl  = document.getElementById("carrito-aside-comision");
+  const comisionRow = document.getElementById("carrito-aside-comision-row");
+
+  if (subtotalEl)  subtotalEl.textContent  = "$" + subtotal.toLocaleString("es-CL") + " CLP";
+  if (comisionEl)  comisionEl.textContent  = "$" + comision.toLocaleString("es-CL") + " CLP";
+  if (comisionRow) comisionRow.style.display = subtotal > 0 ? "flex" : "none";
+  if (totalEl)     totalEl.textContent = "$" + total.toLocaleString("es-CL") + " CLP";
 }
 
 function habilitarBotonPago() {
