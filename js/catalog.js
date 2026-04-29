@@ -120,7 +120,9 @@ function abrirDetalleProducto(id) {
   const contenido = document.getElementById("producto-detalle-contenido");
 
   const precioTexto = producto.precio > 0 ? `$${producto.precio.toLocaleString("es-CL")} CLP` : 'Consultar precio';
-  const msgWsp = encodeURIComponent(`Hola! Me interesa el *${producto.nombre}* (${precioTexto}). ¿Tiene disponibilidad?`);
+  const msgWsp = encodeURIComponent(
+    `Hola! Me interesa el *${producto.nombre}* (${precioTexto}). ¿Tiene disponibilidad?\n\n📸 ${producto.imagen}`
+  );
   const linkWsp = `https://wa.me/56966497904?text=${msgWsp}`;
 
   contenido.innerHTML = `
