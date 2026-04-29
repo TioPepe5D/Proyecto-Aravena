@@ -885,11 +885,46 @@
   border-top: 1px solid var(--color-borde);
   padding-top: 1.2rem;
 }
+.modal-envio-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+}
+.modal-envio-header h3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-texto);
+  margin: 0;
+}
 .modal-envio-section h3 {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--color-texto);
   margin: 0 0 0.8rem;
+}
+.btn-copiar-envio {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid var(--admin-dorado);
+  color: var(--admin-dorado);
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.btn-copiar-envio:hover {
+  background: var(--admin-dorado);
+  color: #000;
+}
+.btn-copiar-envio.copiado {
+  background: #2a7a4b;
+  border-color: #2a7a4b;
+  color: #fff;
 }
 .modal-envio-section .modal-info-grid {
   margin-bottom: 0;

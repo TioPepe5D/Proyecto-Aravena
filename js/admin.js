@@ -457,7 +457,12 @@ function verDetalle(pedidoId) {
   const de = pedido.datos_envio || null;
   const datosEnvioHtml = de ? `
     <div class="modal-envio-section">
-      <h3>🚚 Datos de envío</h3>
+      <div class="modal-envio-header">
+        <h3>🚚 Datos de envío</h3>
+        <button class="btn-copiar-envio" onclick="copiarDatosEnvio('${pedido.id}')" title="Copiar datos de envío">
+          📋 Copiar
+        </button>
+      </div>
       <div class="modal-info-grid">
         ${de.nombre    ? `<div class="modal-info-bloque"><p class="modal-info-label">Nombre</p><p class="modal-info-valor">${de.nombre}</p></div>` : ''}
         ${de.correo    ? `<div class="modal-info-bloque"><p class="modal-info-label">Correo</p><p class="modal-info-valor">${de.correo}</p></div>` : ''}
@@ -535,6 +540,54 @@ window.verDetalle = verDetalle;
 function cerrarModal() {
   document.getElementById('modal-overlay').classList.remove('activo');
   document.getElementById('modal-detalle').classList.remove('activo');
+}
+
+/* ── Copiar datos de envío ──────────────── */
+function copiarDatosEnvio(pedidoId) {
+  const pedido = todosLosPedidos.find(p => String(p.id) === String(pedidoId));
+  if (!pedido || !pedido.datos_envio) return;
+
+  const d = pedido.datos_envio;
+  const lineas = [
+    d.nombre     ? `Nombre: ${d.nombre}`           : null,
+    d.rut        ? `RUT: ${d.rut}`                 : null,
+    d.telefono   ? `Teléfono: ${d.telefono}`        : null,
+    d.correo     ? `Correo: ${d.correo}`            : null,
+    d.empresa    ? `Empresa: ${d.empresa}`          : null,
+    d.preferencia? `Preferencia: ${d.preferencia}` : null,
+    d.sucursal   ? `Sucursal: ${d.sucursal}`        : null,
+    d.ciudad     ? `Ciudad: ${d.ciudad}`            : null,
+    d.domicilio  ? `Dirección: ${d.domicilio}`      : null,
+  ].filter(Boolean);
+
+  const texto = lineas.join('\n');
+
+  navigator.clipboard.writeText(texto).then(() => {
+    const btn = document.querySelector('.btn-copiar-envio');
+    if (btn) {
+      btn.textContent = '✅ Copiado';
+      btn.classList.add('copiado');
+      setTimeout(() => {
+        btn.textContent = '📋 Copiar';
+        btn.classList.remove('copiado');
+      }, 2000);
+    }
+  }).catch(() => {
+    // Fallback para navegadores sin clipboard API
+    const ta = document.createElement('textarea');
+    ta.value = texto;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const btn = document.querySelector('.btn-copiar-envio');
+    if (btn) {
+      btn.textContent = '✅ Copiado';
+      setTimeout(() => { btn.textContent = '📋 Copiar'; }, 2000);
+    }
+  });
 }
 
 /* ── Exportar CSV ───────────────────────── */
