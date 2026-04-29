@@ -329,6 +329,20 @@
     </div>
   </div>
 
+  <!-- Modal confirmar eliminar pedido -->
+  <div class="admin-confirm-overlay" id="admin-confirm-overlay">
+    <div class="admin-confirm-box">
+      <div class="admin-confirm-icono">🗑️</div>
+      <p class="admin-confirm-titulo">¿Eliminar pedido?</p>
+      <p class="admin-confirm-detalle" id="admin-confirm-detalle"></p>
+      <p class="admin-confirm-aviso">Esta acción no se puede deshacer.</p>
+      <div class="admin-confirm-botones">
+        <button class="admin-confirm-btn admin-confirm-si" id="admin-confirm-si">Sí, eliminar</button>
+        <button class="admin-confirm-btn admin-confirm-no" id="admin-confirm-no">No, cancelar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Contenedor de notificaciones -->
   <div id="admin-toasts" class="admin-toasts"></div>
 

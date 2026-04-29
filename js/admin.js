@@ -106,7 +106,14 @@ function configurarEventos() {
   document.getElementById('modal-cerrar').addEventListener('click', cerrarModal);
   document.getElementById('modal-overlay').addEventListener('click', cerrarModal);
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') { cerrarModal(); cerrarCalculadora(); }
+    if (e.key === 'Escape') { cerrarModal(); cerrarCalculadora(); cerrarAdminConfirm(); }
+  });
+
+  // Modal confirmar eliminar pedido
+  document.getElementById('admin-confirm-si').addEventListener('click', confirmarEliminarPedido);
+  document.getElementById('admin-confirm-no').addEventListener('click', cerrarAdminConfirm);
+  document.getElementById('admin-confirm-overlay').addEventListener('click', e => {
+    if (e.target.id === 'admin-confirm-overlay') cerrarAdminConfirm();
   });
 
   // Calculadora de lote
@@ -320,14 +327,32 @@ async function cambiarEstado(pedidoId, nuevoEstado) {
 }
 window.cambiarEstado = cambiarEstado;
 
-/* ── Eliminar pedido ─────────────────────── */
-async function eliminarPedido(pedidoId) {
+/* ── Eliminar pedido (con modal de confirmación) ──────── */
+let _pedidoAEliminar = null;
+
+function eliminarPedido(pedidoId) {
   const pedido = todosLosPedidos.find(p => String(p.id) === String(pedidoId));
   const idCorto = String(pedidoId).slice(0, 8).toUpperCase();
-  const estado = pedido?.estado || '';
-  const total  = pedido?.total  ? `$${Number(pedido.total).toLocaleString('es-CL')}` : '';
+  const estado  = pedido?.estado || '';
+  const total   = pedido?.total ? `$${Number(pedido.total).toLocaleString('es-CL')}` : '';
 
-  if (!confirm(`¿Eliminar el pedido #${idCorto} (${estado} · ${total})?\n\nEsta acción no se puede deshacer.`)) return;
+  _pedidoAEliminar = pedidoId;
+  document.getElementById('admin-confirm-detalle').textContent =
+    `Pedido #${idCorto} · ${estado}${total ? ' · ' + total : ''}`;
+  document.getElementById('admin-confirm-overlay').classList.add('activo');
+}
+window.eliminarPedido = eliminarPedido;
+
+function cerrarAdminConfirm() {
+  _pedidoAEliminar = null;
+  document.getElementById('admin-confirm-overlay').classList.remove('activo');
+}
+
+async function confirmarEliminarPedido() {
+  if (!_pedidoAEliminar) return;
+  const pedidoId = _pedidoAEliminar;
+  const idCorto  = String(pedidoId).slice(0, 8).toUpperCase();
+  cerrarAdminConfirm();
 
   try {
     const { error } = await db
@@ -340,7 +365,6 @@ async function eliminarPedido(pedidoId) {
       return;
     }
 
-    // Quitar de la lista local y refrescar
     todosLosPedidos = todosLosPedidos.filter(p => String(p.id) !== String(pedidoId));
     calcularStats();
     aplicarFiltros();
@@ -353,7 +377,6 @@ async function eliminarPedido(pedidoId) {
     mostrarToast('Error', 'Error inesperado al eliminar.', 'error');
   }
 }
-window.eliminarPedido = eliminarPedido;
 
 /* ── Ver detalle (modal) ─────────────────── */
 function verDetalle(pedidoId) {
