@@ -601,7 +601,7 @@
 
 .btn-accion-eliminar {
   border-color: transparent;
-  color: var(--admin-texto-suave);
+  color: var(--color-texto-suave);
   padding: 4px 7px;
   font-size: 0.95rem;
   opacity: 0.55;
@@ -633,8 +633,8 @@
   pointer-events: all;
 }
 .admin-confirm-box {
-  background: var(--admin-card);
-  border: 1px solid var(--admin-borde);
+  background: var(--color-card, #1c1c24);
+  border: 1px solid var(--color-plata-claro, #2a2a35);
   border-radius: 18px;
   padding: 32px 28px 26px;
   width: min(360px, 90vw);
@@ -649,7 +649,7 @@
 .admin-confirm-titulo {
   font-size: 1.1rem;
   font-weight: 700;
-  color: var(--admin-texto);
+  color: var(--color-texto);
   margin-bottom: 6px;
 }
 .admin-confirm-detalle {
@@ -664,7 +664,7 @@
 }
 .admin-confirm-aviso {
   font-size: 0.78rem;
-  color: var(--admin-texto-suave);
+  color: var(--color-texto-suave);
   margin-bottom: 22px;
 }
 .admin-confirm-botones {
@@ -679,7 +679,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
-  border: 1px solid var(--admin-borde);
+  border: 1px solid var(--color-plata-claro);
 }
 .admin-confirm-si {
   background: var(--admin-rojo);
@@ -693,11 +693,11 @@
 }
 .admin-confirm-no {
   background: transparent;
-  color: var(--admin-texto-suave);
+  color: var(--color-texto-suave);
 }
 .admin-confirm-no:hover {
-  background: var(--admin-borde);
-  color: var(--admin-texto);
+  background: var(--color-plata-claro);
+  color: var(--color-texto);
 }
 
 /* ── Modal detalle ──────────────────────── */
