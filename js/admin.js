@@ -355,13 +355,26 @@ async function confirmarEliminarPedido() {
   cerrarAdminConfirm();
 
   try {
-    const { error } = await db
-      .from('pedidos')
-      .delete()
-      .eq('id', pedidoId);
+    // Obtener el token de sesión del admin para el endpoint server-side
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) {
+      mostrarToast('Error', 'Sesión expirada. Recarga la página.', 'error');
+      return;
+    }
 
-    if (error) {
-      mostrarToast('Error', 'No se pudo eliminar: ' + error.message, 'error');
+    const res = await fetch('/api/admin-delete-pedido', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        pedidoId,
+        adminToken: session.access_token
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      mostrarToast('Error', data.error || 'No se pudo eliminar', 'error');
       return;
     }
 
