@@ -113,22 +113,41 @@ function abrirFormularioEnvio(tipo) {
   if (carrito.length === 0) return;
   _tipoPagoEnvio = tipo;
 
-  // Pre-rellenar si hay sesión y datos guardados en perfil
+  // 1. Pre-rellenar desde localStorage (funciona para todos)
+  const guardados = JSON.parse(localStorage.getItem('checkout_datos') || 'null');
+  if (guardados) {
+    const set = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+    set('env-nombre-pago',      guardados.nombre);
+    set('env-telefono-pago',    guardados.telefono);
+    set('env-rut-pago',         guardados.rut);
+    set('env-ciudad-pago',      guardados.ciudad);
+    set('env-correo-pago',      guardados.correo);
+    set('env-empresa-pago',     guardados.empresa);
+    set('env-preferencia-pago', guardados.preferencia);
+    set('env-sucursal-pago',    guardados.sucursal);
+    set('env-domicilio-pago',   guardados.domicilio);
+  }
+
+  // 2. Si hay sesión, sobreescribir con datos de Supabase (más confiables)
   if (typeof db !== 'undefined' && db) {
     db.auth.getSession().then(({ data: { session } }) => {
       if (session) {
+        // Email del usuario autenticado
+        const correoEl = document.getElementById('env-correo-pago');
+        if (correoEl && !correoEl.value) correoEl.value = session.user.email || '';
+
+        // Datos de direcciones guardados en perfil
         db.from('direcciones').select('*').eq('user_id', session.user.id).limit(1)
           .then(({ data }) => {
             if (data && data[0]) {
               const d = data[0];
-              if (d.nombre)    document.getElementById('env-nombre-pago').value    = d.nombre + (d.apellido ? ' ' + d.apellido : '');
-              if (d.telefono)  document.getElementById('env-telefono-pago').value  = d.telefono;
-              if (d.ciudad)    document.getElementById('env-ciudad-pago').value    = d.ciudad;
-              if (d.direccion) document.getElementById('env-domicilio-pago').value = d.direccion;
+              const set = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+              if (d.nombre)    set('env-nombre-pago',   d.nombre + (d.apellido ? ' ' + d.apellido : ''));
+              if (d.telefono)  set('env-telefono-pago', d.telefono);
+              if (d.ciudad)    set('env-ciudad-pago',   d.ciudad);
+              if (d.direccion) set('env-domicilio-pago',d.direccion);
             }
           });
-        // Pre-rellenar email
-        document.getElementById('env-correo-pago').value = session.user.email || '';
       }
     });
   }
@@ -160,6 +179,27 @@ function confirmarEnvioYPagar() {
   errEl.style.display = 'none';
 
   _datosEnvio = { nombre, telefono, rut, ciudad, correo, empresa, preferencia, sucursal, domicilio };
+
+  // Guardar en localStorage para próximas compras (funciona para todos)
+  localStorage.setItem('checkout_datos', JSON.stringify(_datosEnvio));
+
+  // Si hay sesión, guardar también en tabla direcciones de Supabase
+  if (typeof db !== 'undefined' && db) {
+    db.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        db.from('direcciones').upsert({
+          user_id:  session.user.id,
+          nombre:   nombre.split(' ')[0] || nombre,
+          apellido: nombre.split(' ').slice(1).join(' ') || '',
+          telefono,
+          ciudad,
+          direccion: domicilio || '',
+        }, { onConflict: 'user_id' }).then(({ error }) => {
+          if (error) console.warn('[Envío] No se pudo guardar en Supabase:', error.message);
+        });
+      }
+    });
+  }
 
   cerrarFormularioEnvio();
 
