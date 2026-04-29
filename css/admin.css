@@ -488,6 +488,51 @@
   color: var(--color-texto-suave);
 }
 
+/* Columna datos de envío */
+.td-envio-col {
+  min-width: 160px;
+  max-width: 200px;
+}
+
+.td-envio {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.td-envio-empresa {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--admin-dorado);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.td-envio-linea {
+  font-size: 0.8rem;
+  color: var(--color-texto);
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 195px;
+}
+
+.td-envio-pref {
+  font-size: 0.75rem;
+  color: var(--color-texto-suave);
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 195px;
+}
+
+.td-envio-vacio {
+  color: var(--color-texto-suave);
+  font-size: 0.85rem;
+}
+
 .td-total {
   font-weight: 600;
   color: var(--admin-dorado);

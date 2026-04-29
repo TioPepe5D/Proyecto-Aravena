@@ -247,7 +247,7 @@ function renderizarTabla() {
   const tbody = document.getElementById('tabla-pedidos');
 
   if (pedidosFiltrados.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" class="tabla-vacia">No hay pedidos que coincidan con los filtros.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="tabla-vacia">No hay pedidos que coincidan con los filtros.</td></tr>';
     return;
   }
 
@@ -294,11 +294,26 @@ function renderizarTabla() {
       clienteHtml = `<span class="td-cliente-email">${envioNombre || 'Invitado'}</span><span class="td-cliente-id" style="color:var(--color-texto-suave)">sin sesión</span>`;
     }
 
+    // Columna datos de envío
+    const de = p.datos_envio || null;
+    let envioHtml;
+    if (de) {
+      const empresa = de.empresa ? `<span class="td-envio-empresa">${de.empresa}</span>` : '';
+      const nombre  = de.nombre  ? `<span class="td-envio-linea">${de.nombre}</span>` : '';
+      const tel     = de.telefono? `<span class="td-envio-linea">📞 ${de.telefono}</span>` : '';
+      const ciudad  = de.ciudad  ? `<span class="td-envio-linea">📍 ${de.ciudad}</span>` : '';
+      const pref    = de.preferencia ? `<span class="td-envio-pref">${de.preferencia}${de.sucursal ? ' · ' + de.sucursal : ''}</span>` : '';
+      envioHtml = `<div class="td-envio">${empresa}${nombre}${tel}${ciudad}${pref}</div>`;
+    } else {
+      envioHtml = `<span class="td-envio-vacio">—</span>`;
+    }
+
     return `
       <tr data-id="${p.id}">
         <td class="td-id">${idCorto}…</td>
         <td>${fecha}</td>
         <td class="td-cliente">${clienteHtml}</td>
+        <td class="td-envio-col">${envioHtml}</td>
         <td>${itemsCount} ${itemsCount === 1 ? 'item' : 'items'}</td>
         <td class="td-total">$${total.toLocaleString('es-CL')}</td>
         <td><span class="estado-badge estado-${p.estado}">${p.estado}</span></td>
