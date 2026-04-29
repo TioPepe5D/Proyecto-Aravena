@@ -33,11 +33,11 @@ function agregarAlCarrito(id) {
 }
 
 function cambiarCantidad(id, delta) {
-  const item = carrito.find(p => p.id === id);
+  const item = carrito.find(p => String(p.id) === String(id));
   if (!item) return;
   item.cantidad += delta;
   if (item.cantidad <= 0) {
-    carrito = carrito.filter(p => p.id !== id);
+    carrito = carrito.filter(p => String(p.id) !== String(id));
   }
   guardarCarrito();
   actualizarContador();
@@ -46,7 +46,7 @@ function cambiarCantidad(id, delta) {
 }
 
 function eliminarDelCarrito(id) {
-  carrito = carrito.filter(p => p.id !== id);
+  carrito = carrito.filter(p => String(p.id) !== String(id));
   guardarCarrito();
   actualizarContador();
   renderizarCarrito();

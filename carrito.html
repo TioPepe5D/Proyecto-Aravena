@@ -146,6 +146,19 @@
     </svg>
   </a>
 
+  <!-- MODAL: Confirmar eliminar producto del carrito -->
+  <div class="modal-confirm-overlay" id="modal-confirm-overlay">
+    <div class="modal-confirm">
+      <div class="modal-confirm-icono">🗑️</div>
+      <p class="modal-confirm-titulo">¿Eliminar producto?</p>
+      <p class="modal-confirm-nombre" id="confirm-eliminar-nombre"></p>
+      <div class="modal-confirm-botones">
+        <button class="modal-confirm-btn modal-confirm-si" id="btn-confirm-si">Sí, eliminar</button>
+        <button class="modal-confirm-btn modal-confirm-no" id="btn-confirm-no">No, cancelar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: Datos de envío (aparece antes de cualquier pago) -->
   <div class="modal-transferencia-overlay" id="modal-envio-overlay">
     <div class="modal-transferencia modal-envio">

@@ -13,22 +13,41 @@ function actualizarContador() {
 }
 
 function cambiarCantidad(id, delta) {
-  const item = carrito.find(p => p.id === id);
+  const item = carrito.find(p => String(p.id) === String(id));
   if (!item) return;
   item.cantidad += delta;
   if (item.cantidad <= 0) {
-    carrito = carrito.filter(p => p.id !== id);
+    carrito = carrito.filter(p => String(p.id) !== String(id));
   }
   guardarCarrito();
   actualizarContador();
   renderizarCarritoPage();
+  habilitarBotonPago();
 }
 
-function eliminarItem(id) {
-  carrito = carrito.filter(p => p.id !== id);
+let _pendienteEliminarId = null;
+
+function pedirConfirmacionEliminar(id) {
+  const item = carrito.find(p => String(p.id) === String(id));
+  if (!item) return;
+  _pendienteEliminarId = id;
+  document.getElementById('confirm-eliminar-nombre').textContent = item.nombre;
+  document.getElementById('modal-confirm-overlay').classList.add('activo');
+}
+
+function cerrarConfirmEliminar() {
+  _pendienteEliminarId = null;
+  document.getElementById('modal-confirm-overlay').classList.remove('activo');
+}
+
+function confirmarEliminar() {
+  if (_pendienteEliminarId === null) return;
+  carrito = carrito.filter(p => String(p.id) !== String(_pendienteEliminarId));
   guardarCarrito();
+  cerrarConfirmEliminar();
   actualizarContador();
   renderizarCarritoPage();
+  habilitarBotonPago();
 }
 
 function renderizarCarritoPage() {
@@ -54,7 +73,7 @@ function renderizarCarritoPage() {
         <span class="cantidad-valor">${item.cantidad}</span>
         <button onclick="cambiarCantidad(${item.id}, 1)">+</button>
       </div>
-      <button class="carrito-page-item-eliminar" onclick="eliminarItem(${item.id})" title="Eliminar">
+      <button class="carrito-page-item-eliminar" onclick="pedirConfirmacionEliminar(${item.id})" title="Eliminar">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="3 6 5 6 21 6"/>
           <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
@@ -468,6 +487,13 @@ function configurarPago() {
   if (btnCerrarEnvio)  btnCerrarEnvio.addEventListener("click", cerrarFormularioEnvio);
   if (overlayEnvio)    overlayEnvio.addEventListener("click", e => {
     if (e.target === overlayEnvio) cerrarFormularioEnvio();
+  });
+
+  // Modal confirmar eliminar
+  document.getElementById("btn-confirm-si")?.addEventListener("click", confirmarEliminar);
+  document.getElementById("btn-confirm-no")?.addEventListener("click", cerrarConfirmEliminar);
+  document.getElementById("modal-confirm-overlay")?.addEventListener("click", e => {
+    if (e.target.id === "modal-confirm-overlay") cerrarConfirmEliminar();
   });
 }
 
