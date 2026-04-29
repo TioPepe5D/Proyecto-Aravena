@@ -458,9 +458,13 @@ function abrirModalTransferencia(total) {
   document.getElementById('dato-email').textContent  = DATOS_BANCO.email;
 
   // Link de WhatsApp con carrito + datos de envío (formato Diego)
-  const resumenItems = carrito.map(i =>
-    `* $${i.precio.toLocaleString('es-CL')} | ${i.nombre} x${i.cantidad}`
-  ).join('\n');
+  const resumenItems = carrito.map(i => {
+    const imagenUrl = i.imagen
+      ? (i.imagen.startsWith('http') ? i.imagen : `https://joyasaravena.cl/${i.imagen.replace(/^\//, '')}`)
+      : '';
+    return `* $${i.precio.toLocaleString('es-CL')} | ${i.nombre} x${i.cantidad}` +
+           (imagenUrl ? `\n  📸 ${imagenUrl}` : '');
+  }).join('\n');
 
   let msgEnvio = '';
   if (_datosEnvio) {
