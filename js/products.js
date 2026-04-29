@@ -1394,6 +1394,16 @@ const productos = [
     precio: 10000,
     imagen: "img/E9F857B6-E451-4839-A981-6C2F021FFF4B.jpg",
     descripcion: "Taco exhibidor en forma de zapato de taco para anillos y aros. $10.000 c/u | 2x$17.900. Diseño único."
+  },
+
+  {
+    id: 999,
+    nombre: "Prueba puto",
+    categoria: "collares",
+    material: "plata-nacional",
+    precio: 990,
+    imagen: "https://placehold.co/400x400/17171c/1c9cf0?text=Prueba+puto",
+    descripcion: "Producto de prueba. No comprar."
   }
 
 ];
