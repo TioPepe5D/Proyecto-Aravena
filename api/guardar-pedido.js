@@ -14,16 +14,6 @@ module.exports = async (req, res) => {
     return res.status(400).json({ error: 'Faltan datos requeridos (items, total, estado)' });
   }
 
-  // Intentar obtener user_id si hay token de sesión
-  let userId = null;
-  if (userToken) {
-    try {
-      const supabaseAnon = createClient(SUPA_URL, SUPA_ANON);
-      const { data: { user } } = await supabaseAnon.auth.getUser(userToken);
-      if (user) userId = user.id;
-    } catch (_) {}
-  }
-
   // Usar service key para bypass RLS (funciona tanto para sesión como para invitados)
   const serviceKey = process.env.SUPABASE_SERVICE_KEY;
   if (!serviceKey) {
@@ -31,6 +21,15 @@ module.exports = async (req, res) => {
   }
 
   const supabaseAdmin = createClient(SUPA_URL, serviceKey);
+
+  // Intentar obtener user_id usando el cliente admin (más confiable que el anon)
+  let userId = null;
+  if (userToken) {
+    try {
+      const { data: { user } } = await supabaseAdmin.auth.getUser(userToken);
+      if (user && user.id) userId = user.id;
+    } catch (_) {}
+  }
 
   const payload = {
     items,

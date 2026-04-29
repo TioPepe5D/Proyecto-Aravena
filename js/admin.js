@@ -281,11 +281,18 @@ function renderizarTabla() {
     const envioNombre = p.datos_envio?.nombre || '';
     const envioEmail  = p.datos_envio?.correo  || '';
     const displayEmail = email || envioEmail || '';
-    const displayNombre = envioNombre || (clienteId ? clienteId + '…' : 'Invitado');
+    const tieneUsuario = !!p.user_id;
 
-    const clienteHtml = displayEmail
-      ? `<span class="td-cliente-email" title="${displayEmail}">${displayEmail}</span><span class="td-cliente-id">${envioNombre || clienteId + '…'}</span>`
-      : `<span class="td-cliente-email">${displayNombre}</span><span class="td-cliente-id" style="color:var(--color-texto-suave)">sin sesión</span>`;
+    let clienteHtml;
+    if (displayEmail) {
+      clienteHtml = `<span class="td-cliente-email" title="${displayEmail}">${displayEmail}</span><span class="td-cliente-id">${envioNombre || clienteId + '…'}</span>`;
+    } else if (tieneUsuario) {
+      // Usuario con sesión pero email no disponible (RPC no retornó email)
+      clienteHtml = `<span class="td-cliente-email" style="color:var(--color-texto-suave)">Usuario registrado</span><span class="td-cliente-id">${clienteId}…</span>`;
+    } else {
+      // Pedido de invitado sin sesión
+      clienteHtml = `<span class="td-cliente-email">${envioNombre || 'Invitado'}</span><span class="td-cliente-id" style="color:var(--color-texto-suave)">sin sesión</span>`;
+    }
 
     return `
       <tr data-id="${p.id}">
