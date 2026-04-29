@@ -562,3 +562,91 @@ body > .footer { margin-top: auto; }
   white-space: nowrap;
   font-size: 0.82rem;
 }
+
+/* ── Modal Datos de Envío ─────────────────── */
+.modal-envio {
+  max-height: 92vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.modal-envio-subtitulo {
+  font-size: 0.85rem;
+  color: var(--color-texto-suave);
+  margin-bottom: 20px;
+  margin-top: -12px;
+}
+
+.modal-envio-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.envio-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.envio-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.envio-field.campo-completo {
+  grid-column: 1 / -1;
+}
+
+.envio-field label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.envio-field input,
+.envio-field select {
+  background: var(--color-fondo);
+  border: 1px solid var(--color-plata-claro);
+  border-radius: 10px;
+  padding: 10px 13px;
+  font-size: 0.88rem;
+  color: var(--color-texto);
+  transition: border-color 0.2s;
+  width: 100%;
+}
+
+.envio-field input:focus,
+.envio-field select:focus {
+  outline: none;
+  border-color: var(--color-primario);
+}
+
+.envio-field select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 34px;
+}
+
+.envio-form-error {
+  font-size: 0.8rem;
+  color: #f4212e;
+  background: rgba(244,33,46,0.08);
+  border: 1px solid rgba(244,33,46,0.2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 480px) {
+  .envio-form-grid {
+    grid-template-columns: 1fr;
+  }
+}

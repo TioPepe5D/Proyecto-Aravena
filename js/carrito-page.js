@@ -76,23 +76,75 @@ function habilitarBotonPago() {
   if (btnTr) btnTr.disabled = carrito.length === 0;
 }
 
-async function iniciarPago() {
+// ── Datos de envío temporales (guest checkout) ──
+let _datosEnvio = null;
+let _tipoPagoEnvio = null; // 'mp' | 'transferencia'
+
+function abrirFormularioEnvio(tipo) {
+  if (carrito.length === 0) return;
+  _tipoPagoEnvio = tipo;
+
+  // Pre-rellenar si hay sesión y datos guardados en perfil
+  if (typeof db !== 'undefined' && db) {
+    db.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        db.from('direcciones').select('*').eq('user_id', session.user.id).limit(1)
+          .then(({ data }) => {
+            if (data && data[0]) {
+              const d = data[0];
+              if (d.nombre)    document.getElementById('env-nombre-pago').value    = d.nombre + (d.apellido ? ' ' + d.apellido : '');
+              if (d.telefono)  document.getElementById('env-telefono-pago').value  = d.telefono;
+              if (d.ciudad)    document.getElementById('env-ciudad-pago').value    = d.ciudad;
+              if (d.direccion) document.getElementById('env-domicilio-pago').value = d.direccion;
+            }
+          });
+        // Pre-rellenar email
+        document.getElementById('env-correo-pago').value = session.user.email || '';
+      }
+    });
+  }
+
+  document.getElementById('modal-envio-overlay').classList.add('activo');
+}
+
+function cerrarFormularioEnvio() {
+  document.getElementById('modal-envio-overlay').classList.remove('activo');
+}
+
+function confirmarEnvioYPagar() {
+  const nombre    = document.getElementById('env-nombre-pago').value.trim();
+  const telefono  = document.getElementById('env-telefono-pago').value.trim();
+  const rut       = document.getElementById('env-rut-pago').value.trim();
+  const ciudad    = document.getElementById('env-ciudad-pago').value.trim();
+  const correo    = document.getElementById('env-correo-pago').value.trim();
+  const empresa   = document.getElementById('env-empresa-pago').value;
+  const preferencia = document.getElementById('env-preferencia-pago').value;
+  const sucursal  = document.getElementById('env-sucursal-pago').value.trim();
+  const domicilio = document.getElementById('env-domicilio-pago').value.trim();
+
+  const errEl = document.getElementById('env-form-error');
+  if (!nombre || !telefono || !rut || !ciudad || !correo || !empresa) {
+    errEl.textContent = 'Por favor completa todos los campos obligatorios (*)';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  _datosEnvio = { nombre, telefono, rut, ciudad, correo, empresa, preferencia, sucursal, domicilio };
+
+  cerrarFormularioEnvio();
+
+  if (_tipoPagoEnvio === 'mp') {
+    _iniciarPagoMP();
+  } else if (_tipoPagoEnvio === 'transferencia') {
+    _iniciarTransferencia();
+  }
+}
+
+async function _iniciarPagoMP() {
   const btn = document.getElementById("btn-pagar");
   const estado = document.getElementById("btn-mp-estado");
   if (carrito.length === 0) return;
-
-  // Verificar sesión antes de proceder al pago
-  if (typeof db === 'undefined' || !db) return;
-  const { data: { session } } = await db.auth.getSession();
-  if (!session) {
-    document.getElementById('auth-overlay')?.classList.add('activo');
-    document.getElementById('auth-panel')?.classList.add('activo');
-    if (estado) {
-      estado.textContent = "⚠ Debes iniciar sesión para completar tu compra.";
-      estado.style.color = "#f59e0b";
-    }
-    return;
-  }
 
   btn.disabled = true;
   btn.textContent = "Procesando...";
@@ -120,7 +172,7 @@ async function iniciarPago() {
     });
   }
 
-  // ── Guardar pedido pendiente en Supabase ──
+  // ── Guardar pedido (solo si hay sesión activa) ──
   await guardarPedidoPendiente(totalFinal);
   const pedidoId = localStorage.getItem('pedido_pendiente_id') || "";
 
@@ -145,12 +197,17 @@ async function iniciarPago() {
   }
 }
 
-/* ── Guardar pedido en Supabase ───────────── */
-async function guardarPedidoPendiente(total) {
+// Wrapper que abre el formulario de envío primero
+function iniciarPago() {
+  abrirFormularioEnvio('mp');
+}
+
+/* ── Guardar pedido en Supabase (solo si hay sesión) ────── */
+async function guardarPedidoPendiente(total, estadoInicial = 'pendiente') {
   if (typeof db === 'undefined' || !db) return;
   try {
     const { data: { session } } = await db.auth.getSession();
-    if (!session) return;
+    if (!session) return; // guest: no se guarda en Supabase
 
     const itemsGuardar = carrito.map(i => ({
       id: i.id,
@@ -160,14 +217,18 @@ async function guardarPedidoPendiente(total) {
       imagen: i.imagen || ''
     }));
 
+    const payload = {
+      user_id: session.user.id,
+      items: itemsGuardar,
+      total: total,
+      estado: estadoInicial
+    };
+    // Guardar datos de envío junto al pedido si los tenemos
+    if (_datosEnvio) payload.datos_envio = _datosEnvio;
+
     const { data: pedido, error } = await db
       .from('pedidos')
-      .insert({
-        user_id: session.user.id,
-        items: itemsGuardar,
-        total: total,
-        estado: 'pendiente'
-      })
+      .insert(payload)
       .select('id')
       .single();
 
@@ -276,43 +337,16 @@ const DATOS_BANCO = {
   email:   'diegoaravenavera@gmail.com'
 };
 
-async function iniciarTransferencia() {
-  // 1. Verificar sesión
-  if (typeof db === 'undefined' || !db) return;
-  const { data: { session } } = await db.auth.getSession();
-  if (!session) {
-    document.getElementById('auth-overlay')?.classList.add('activo');
-    document.getElementById('auth-panel')?.classList.add('activo');
-    const estado = document.getElementById("btn-mp-estado");
-    if (estado) {
-      estado.textContent = "⚠ Debes iniciar sesión para continuar.";
-      estado.style.color = "#f59e0b";
-    }
-    return;
-  }
+async function _iniciarTransferencia() {
+  // 1. Calcular total
+  const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
+  const comision = Math.round(subtotal * 0.05);
+  const total    = subtotal + comision;
 
-  // 2. Calcular total
-  const subtotal  = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
-  const comision  = Math.round(subtotal * 0.05);
-  const total     = subtotal + comision;
+  // 2. Guardar pedido en Supabase si hay sesión (guest: se omite)
+  await guardarPedidoPendiente(total, 'transferencia_pendiente');
 
-  // 3. Guardar pedido en Supabase con estado transferencia_pendiente
-  try {
-    const itemsGuardar = carrito.map(i => ({
-      id: i.id, nombre: i.nombre, cantidad: i.cantidad,
-      precio: i.precio, imagen: i.imagen || ''
-    }));
-    const { data: pedido, error } = await db
-      .from('pedidos')
-      .insert({ user_id: session.user.id, items: itemsGuardar,
-                total, estado: 'transferencia_pendiente' })
-      .select('id').single();
-    if (!error && pedido) localStorage.setItem('pedido_pendiente_id', pedido.id);
-  } catch (e) {
-    console.warn('[Transferencia] No se pudo guardar el pedido:', e);
-  }
-
-  // 4. Notificar al dueño por WhatsApp (silencioso, no bloquea el flujo)
+  // 3. Notificar al dueño (silencioso)
   try {
     fetch('/api/notificar-pedido', {
       method: 'POST',
@@ -322,13 +356,18 @@ async function iniciarTransferencia() {
         pedidoId: localStorage.getItem('pedido_pendiente_id') || '',
         total,
         items:    carrito.map(i => ({ nombre: i.nombre, cantidad: i.cantidad })),
-        email:    session.user.email || 'N/A'
+        datosEnvio: _datosEnvio || {}
       })
     });
   } catch (_) {}
 
-  // 5. Mostrar modal con datos bancarios
+  // 4. Mostrar modal con datos bancarios
   abrirModalTransferencia(total);
+}
+
+// Wrapper que abre formulario de envío primero
+function iniciarTransferencia() {
+  abrirFormularioEnvio('transferencia');
 }
 
 function abrirModalTransferencia(total) {
@@ -342,10 +381,33 @@ function abrirModalTransferencia(total) {
   document.getElementById('dato-numero').textContent = DATOS_BANCO.numero;
   document.getElementById('dato-email').textContent  = DATOS_BANCO.email;
 
-  // Link de WhatsApp con el comprobante
-  const resumen = carrito.map(i => `• ${i.nombre} x${i.cantidad}`).join('%0A');
+  // Link de WhatsApp con carrito + datos de envío (formato Diego)
+  const resumenItems = carrito.map(i =>
+    `* $${i.precio.toLocaleString('es-CL')} | ${i.nombre} x${i.cantidad}`
+  ).join('\n');
+
+  let msgEnvio = '';
+  if (_datosEnvio) {
+    const d = _datosEnvio;
+    msgEnvio =
+      `\n\nDATOS DE ENVÍO 🚚\n` +
+      `——————————————————\n` +
+      `* Empresa de Envío: ${d.empresa}\n` +
+      `* Nombre Completo: ${d.nombre}\n` +
+      `* Número De Teléfono: ${d.telefono}\n` +
+      `* RUT: ${d.rut}\n` +
+      `* Ciudad: ${d.ciudad}\n` +
+      `* Correo: ${d.correo}\n` +
+      `* Preferencia: ${d.preferencia}\n` +
+      (d.sucursal ? `* Sucursal Más Cercana: ${d.sucursal}\n` : '') +
+      (d.domicilio ? `* Domicilio: ${d.domicilio}\n` : '') +
+      `——————————————————`;
+  }
+
   const msg = encodeURIComponent(
-    `Hola! Acabo de hacer una transferencia por $${total.toLocaleString('es-CL')} CLP.\n\nPedido:\n${carrito.map(i=>`• ${i.nombre} x${i.cantidad}`).join('\n')}\n\nAdjunto el comprobante.`
+    `CARRITO WEB 🌐\n${resumenItems}\nTotal: $${total.toLocaleString('es-CL')} CLP` +
+    msgEnvio +
+    `\n\nAdjunto el comprobante de transferencia.`
   );
   document.getElementById('btn-confirmar-transferencia').href =
     `https://wa.me/56966497904?text=${msg}`;
@@ -385,17 +447,28 @@ function copiarDatosBancarios() {
 function configurarPago() {
   const btn   = document.getElementById("btn-pagar");
   const btnTr = document.getElementById("btn-transferencia");
-  const btnCerrar   = document.getElementById("modal-transferencia-cerrar");
-  const overlay     = document.getElementById("modal-transferencia-overlay");
-  const btnCopiar   = document.getElementById("btn-copiar-datos");
+  const btnCerrar        = document.getElementById("modal-transferencia-cerrar");
+  const overlayTransf    = document.getElementById("modal-transferencia-overlay");
+  const btnCopiar        = document.getElementById("btn-copiar-datos");
 
-  if (btn)        btn.addEventListener("click", iniciarPago);
-  if (btnTr)      btnTr.addEventListener("click", iniciarTransferencia);
-  if (btnCerrar)  btnCerrar.addEventListener("click", cerrarModalTransferencia);
-  if (overlay)    overlay.addEventListener("click", e => {
-    if (e.target === overlay) cerrarModalTransferencia();
+  // Modal de envío
+  const btnConfEnvio     = document.getElementById("btn-confirmar-envio");
+  const btnCerrarEnvio   = document.getElementById("modal-envio-cerrar");
+  const overlayEnvio     = document.getElementById("modal-envio-overlay");
+
+  if (btn)             btn.addEventListener("click", iniciarPago);
+  if (btnTr)           btnTr.addEventListener("click", iniciarTransferencia);
+  if (btnCerrar)       btnCerrar.addEventListener("click", cerrarModalTransferencia);
+  if (overlayTransf)   overlayTransf.addEventListener("click", e => {
+    if (e.target === overlayTransf) cerrarModalTransferencia();
   });
-  if (btnCopiar)  btnCopiar.addEventListener("click", copiarDatosBancarios);
+  if (btnCopiar)       btnCopiar.addEventListener("click", copiarDatosBancarios);
+
+  if (btnConfEnvio)    btnConfEnvio.addEventListener("click", confirmarEnvioYPagar);
+  if (btnCerrarEnvio)  btnCerrarEnvio.addEventListener("click", cerrarFormularioEnvio);
+  if (overlayEnvio)    overlayEnvio.addEventListener("click", e => {
+    if (e.target === overlayEnvio) cerrarFormularioEnvio();
+  });
 }
 
 actualizarContador();

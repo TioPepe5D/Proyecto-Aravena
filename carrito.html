@@ -132,7 +132,6 @@
         <h4>Contacto</h4>
         <p>📧 contacto@joyasaravena.cl</p>
         <p>📱 +56 9 6649 7904</p>
-        <p>📦 Envíos a todo Chile</p>
       </div>
     </div>
     <div class="footer-bottom">
@@ -146,6 +145,87 @@
       <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.678 4.797 1.856 6.785L2 30l7.43-1.82A13.94 13.94 0 0 0 16 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.5a11.44 11.44 0 0 1-5.826-1.594l-.418-.248-4.33 1.062 1.094-4.212-.272-.432A11.467 11.467 0 0 1 4.5 16C4.5 9.596 9.596 4.5 16 4.5S27.5 9.596 27.5 16 22.404 27.5 16 27.5zm6.29-8.634c-.344-.172-2.036-1.004-2.352-1.118-.316-.116-.546-.172-.776.172-.23.344-.892 1.118-1.094 1.348-.2.23-.402.258-.746.086-.344-.172-1.452-.536-2.766-1.706-1.022-.912-1.712-2.036-1.912-2.38-.2-.344-.022-.53.15-.702.154-.154.344-.402.516-.602.172-.2.23-.344.344-.574.116-.23.058-.43-.028-.602-.086-.172-.776-1.87-1.064-2.562-.28-.674-.564-.582-.776-.594-.2-.01-.43-.012-.66-.012s-.602.086-.918.43c-.316.344-1.204 1.176-1.204 2.868s1.232 3.326 1.404 3.556c.172.23 2.426 3.706 5.878 5.198.822.354 1.464.566 1.964.724.826.262 1.578.226 2.172.138.662-.1 2.036-.832 2.322-1.634.288-.802.288-1.49.202-1.634-.086-.144-.316-.23-.66-.402z"/>
     </svg>
   </a>
+
+  <!-- MODAL: Datos de envío (aparece antes de cualquier pago) -->
+  <div class="modal-transferencia-overlay" id="modal-envio-overlay">
+    <div class="modal-transferencia modal-envio">
+      <div class="modal-transferencia-header">
+        <div class="modal-transferencia-titulo">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+          Datos de Envío
+        </div>
+        <button class="modal-transferencia-cerrar" id="modal-envio-cerrar">&times;</button>
+      </div>
+
+      <p class="modal-envio-subtitulo">Completa tus datos para que podamos enviarte tu pedido 📦</p>
+
+      <form class="modal-envio-form" id="form-datos-envio" autocomplete="on" onsubmit="return false">
+        <div class="envio-form-grid">
+
+          <div class="envio-field campo-completo">
+            <label>Empresa de Envío *</label>
+            <select id="env-empresa-pago" required>
+              <option value="">Selecciona una empresa</option>
+              <option value="Starken">🍀 Starken</option>
+              <option value="Blue Express">🦋 Blue Express</option>
+              <option value="Chilexpress">🌻 Chilexpress</option>
+              <option value="Correos de Chile">🎒 Correos de Chile</option>
+            </select>
+          </div>
+
+          <div class="envio-field campo-completo">
+            <label>Preferencia de entrega *</label>
+            <select id="env-preferencia-pago" required>
+              <option value="Domicilio">🏠 A domicilio</option>
+              <option value="Sucursal">🏪 Sucursal más cercana</option>
+            </select>
+          </div>
+
+          <div class="envio-field">
+            <label>Nombre Completo *</label>
+            <input type="text" id="env-nombre-pago" placeholder="Nombre y apellido" autocomplete="name" required>
+          </div>
+
+          <div class="envio-field">
+            <label>Número de Teléfono *</label>
+            <input type="tel" id="env-telefono-pago" placeholder="+56 9 XXXX XXXX" autocomplete="tel" required>
+          </div>
+
+          <div class="envio-field">
+            <label>RUT *</label>
+            <input type="text" id="env-rut-pago" placeholder="12.345.678-9" autocomplete="off" required>
+          </div>
+
+          <div class="envio-field">
+            <label>Ciudad *</label>
+            <input type="text" id="env-ciudad-pago" placeholder="Ej: Santiago" autocomplete="address-level2" required>
+          </div>
+
+          <div class="envio-field campo-completo">
+            <label>Correo Electrónico *</label>
+            <input type="email" id="env-correo-pago" placeholder="tu@correo.cl" autocomplete="email" required>
+          </div>
+
+          <div class="envio-field campo-completo">
+            <label>Domicilio</label>
+            <input type="text" id="env-domicilio-pago" placeholder="Calle, número, depto (si es a domicilio)" autocomplete="street-address">
+          </div>
+
+          <div class="envio-field campo-completo">
+            <label>Sucursal Más Cercana</label>
+            <input type="text" id="env-sucursal-pago" placeholder="Ej: Sucursal Providencia (si es a sucursal)">
+          </div>
+
+        </div>
+
+        <p class="envio-form-error" id="env-form-error" style="display:none"></p>
+
+        <button type="button" class="btn-mp" id="btn-confirmar-envio" style="margin-top:8px">
+          Continuar al pago →
+        </button>
+      </form>
+    </div>
+  </div>
 
   <!-- MODAL: Transferencia bancaria -->
   <div class="modal-transferencia-overlay" id="modal-transferencia-overlay">
