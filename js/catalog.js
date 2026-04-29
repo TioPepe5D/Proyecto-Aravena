@@ -120,8 +120,12 @@ function abrirDetalleProducto(id) {
   const contenido = document.getElementById("producto-detalle-contenido");
 
   const precioTexto = producto.precio > 0 ? `$${producto.precio.toLocaleString("es-CL")} CLP` : 'Consultar precio';
+  // Construir URL absoluta de la imagen (por si es ruta relativa)
+  const imagenUrl = producto.imagen.startsWith('http')
+    ? producto.imagen
+    : `https://joyasaravena.cl/${producto.imagen.replace(/^\//, '')}`;
   const msgWsp = encodeURIComponent(
-    `Hola! Me interesa el *${producto.nombre}* (${precioTexto}). ¿Tiene disponibilidad?\n\n📸 ${producto.imagen}`
+    `Hola! Me interesa el *${producto.nombre}* (${precioTexto}). ¿Tiene disponibilidad?\n\n📸 ${imagenUrl}`
   );
   const linkWsp = `https://wa.me/56966497904?text=${msgWsp}`;
 
