@@ -599,6 +599,21 @@
   color: #0891b2;
 }
 
+.btn-accion-eliminar {
+  border-color: transparent;
+  color: var(--admin-texto-suave);
+  padding: 4px 7px;
+  font-size: 0.95rem;
+  opacity: 0.55;
+  transition: opacity 0.15s, color 0.15s, background 0.15s;
+}
+.btn-accion-eliminar:hover {
+  opacity: 1;
+  color: var(--admin-rojo);
+  background: rgba(244, 33, 46, 0.08);
+  border-color: rgba(244, 33, 46, 0.25);
+}
+
 /* ── Modal detalle ──────────────────────── */
 .modal-overlay {
   display: none;

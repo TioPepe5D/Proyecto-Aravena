@@ -268,6 +268,7 @@ function renderizarTabla() {
       acciones.push(`<button class="btn-accion btn-accion-fallar" onclick="cambiarEstado('${p.id}', 'fallido')">Fallido</button>`);
     }
     acciones.push(`<button class="btn-accion" onclick="verDetalle('${p.id}')">Ver</button>`);
+    acciones.push(`<button class="btn-accion btn-accion-eliminar" onclick="eliminarPedido('${p.id}')" title="Eliminar pedido">🗑</button>`);
 
     const clienteHtml = email
       ? `<span class="td-cliente-email" title="${email}">${email}</span><span class="td-cliente-id">${clienteId}…</span>`
@@ -318,6 +319,41 @@ async function cambiarEstado(pedidoId, nuevoEstado) {
   }
 }
 window.cambiarEstado = cambiarEstado;
+
+/* ── Eliminar pedido ─────────────────────── */
+async function eliminarPedido(pedidoId) {
+  const pedido = todosLosPedidos.find(p => String(p.id) === String(pedidoId));
+  const idCorto = String(pedidoId).slice(0, 8).toUpperCase();
+  const estado = pedido?.estado || '';
+  const total  = pedido?.total  ? `$${Number(pedido.total).toLocaleString('es-CL')}` : '';
+
+  if (!confirm(`¿Eliminar el pedido #${idCorto} (${estado} · ${total})?\n\nEsta acción no se puede deshacer.`)) return;
+
+  try {
+    const { error } = await db
+      .from('pedidos')
+      .delete()
+      .eq('id', pedidoId);
+
+    if (error) {
+      mostrarToast('Error', 'No se pudo eliminar: ' + error.message, 'error');
+      return;
+    }
+
+    // Quitar de la lista local y refrescar
+    todosLosPedidos = todosLosPedidos.filter(p => String(p.id) !== String(pedidoId));
+    calcularStats();
+    aplicarFiltros();
+    renderizarGrafico();
+
+    mostrarToast('Pedido eliminado', `#${idCorto} eliminado correctamente`, 'ok');
+
+  } catch (e) {
+    console.error('[Admin] Error eliminando:', e);
+    mostrarToast('Error', 'Error inesperado al eliminar.', 'error');
+  }
+}
+window.eliminarPedido = eliminarPedido;
 
 /* ── Ver detalle (modal) ─────────────────── */
 function verDetalle(pedidoId) {
