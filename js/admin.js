@@ -312,13 +312,13 @@ function renderizarTabla() {
 
     return `
       <tr data-id="${p.id}">
-        <td class="td-id">${idCorto}…</td>
-        <td>${fecha}</td>
-        <td class="td-cliente">${clienteHtml}</td>
-        <td class="td-envio-col">${envioHtml}</td>
-        <td>${itemsCount} ${itemsCount === 1 ? 'item' : 'items'}</td>
-        <td class="td-total">$${total.toLocaleString('es-CL')}</td>
-        <td><span class="estado-badge estado-${p.estado}">${p.estado}</span></td>
+        <td class="td-id" data-label="ID">${idCorto}…</td>
+        <td data-label="Fecha">${fecha}</td>
+        <td class="td-cliente" data-label="Cliente">${clienteHtml}</td>
+        <td class="td-envio-col" data-label="Envío">${envioHtml}</td>
+        <td data-label="Items">${itemsCount} ${itemsCount === 1 ? 'item' : 'items'}</td>
+        <td class="td-total" data-label="Total">$${total.toLocaleString('es-CL')}</td>
+        <td data-label="Estado"><span class="estado-badge estado-${p.estado}">${p.estado}</span></td>
         <td><div class="tabla-acciones">${acciones.join('')}</div></td>
       </tr>
     `;
