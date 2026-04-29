@@ -490,8 +490,8 @@
 
 /* Columna datos de envío */
 .td-envio-col {
-  min-width: 160px;
-  max-width: 200px;
+  min-width: 180px;
+  max-width: 240px;
 }
 
 .td-envio {
@@ -519,6 +519,16 @@
 }
 
 .td-envio-pref {
+  font-size: 0.75rem;
+  color: var(--color-texto-suave);
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 195px;
+}
+
+.td-envio-domicilio {
   font-size: 0.75rem;
   color: var(--color-texto-suave);
   display: block;

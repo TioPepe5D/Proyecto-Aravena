@@ -298,12 +298,13 @@ function renderizarTabla() {
     const de = p.datos_envio || null;
     let envioHtml;
     if (de) {
-      const empresa = de.empresa ? `<span class="td-envio-empresa">${de.empresa}</span>` : '';
-      const nombre  = de.nombre  ? `<span class="td-envio-linea">${de.nombre}</span>` : '';
-      const tel     = de.telefono? `<span class="td-envio-linea">📞 ${de.telefono}</span>` : '';
-      const ciudad  = de.ciudad  ? `<span class="td-envio-linea">📍 ${de.ciudad}</span>` : '';
-      const pref    = de.preferencia ? `<span class="td-envio-pref">${de.preferencia}${de.sucursal ? ' · ' + de.sucursal : ''}</span>` : '';
-      envioHtml = `<div class="td-envio">${empresa}${nombre}${tel}${ciudad}${pref}</div>`;
+      const empresa   = de.empresa    ? `<span class="td-envio-empresa">${de.empresa}</span>` : '';
+      const nombre    = de.nombre     ? `<span class="td-envio-linea">${de.nombre}</span>` : '';
+      const tel       = de.telefono   ? `<span class="td-envio-linea">📞 ${de.telefono}</span>` : '';
+      const ciudad    = de.ciudad     ? `<span class="td-envio-linea">📍 ${de.ciudad}</span>` : '';
+      const pref      = de.preferencia ? `<span class="td-envio-pref">${de.preferencia}${de.sucursal ? ' · ' + de.sucursal : ''}</span>` : '';
+      const domicilio = de.domicilio  ? `<span class="td-envio-domicilio">🏠 ${de.domicilio}</span>` : '';
+      envioHtml = `<div class="td-envio">${empresa}${nombre}${tel}${ciudad}${pref}${domicilio}</div>`;
     } else {
       envioHtml = `<span class="td-envio-vacio">—</span>`;
     }
