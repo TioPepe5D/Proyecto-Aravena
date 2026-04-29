@@ -38,6 +38,32 @@ function initLoader() {
 function initScrollReveal() {
   const elementos = document.querySelectorAll(".animar");
   if (!elementos.length) return;
+
+  // Detectar scroll rápido: si el usuario está scrolleando muy rápido,
+  // mostrar todas las tarjetas inmediatamente sin animación.
+  let scrollRapido = false;
+  let ultimoY = window.scrollY;
+  let ultimoT = performance.now();
+  const onScroll = () => {
+    const ahora = performance.now();
+    const dy = Math.abs(window.scrollY - ultimoY);
+    const dt = ahora - ultimoT;
+    if (dt > 0 && dy / dt > 2.0) { // > 2 px/ms ≈ scroll muy rápido
+      if (!scrollRapido) {
+        scrollRapido = true;
+        document.querySelectorAll(".animar:not(.visible)").forEach(el => {
+          el.style.transitionDelay = "0ms";
+          el.classList.add("visible");
+        });
+      }
+    }
+    ultimoY = window.scrollY;
+    ultimoT = ahora;
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
+
+  // Observer con rootMargin grande para que las cards aparezcan
+  // ANTES de llegar al viewport (300px de adelanto)
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
@@ -45,7 +71,7 @@ function initScrollReveal() {
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+  }, { threshold: 0, rootMargin: "300px 0px 300px 0px" });
   elementos.forEach((el) => observer.observe(el));
 }
 

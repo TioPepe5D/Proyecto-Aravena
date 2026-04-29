@@ -64,10 +64,15 @@ function renderizarProductos() {
   grid.innerHTML = filtrados.map((producto, i) => {
     const enCarrito = (typeof carrito !== "undefined") ? carrito.find(p => p.id === producto.id) : null;
     const cantidad  = enCarrito ? enCarrito.cantidad : 0;
+    // Solo escalonar la animación de las primeras 8 tarjetas (las demás aparecen sin delay)
+    const delay = i < 8 ? i * 60 : 0;
+    // Cargar las primeras 6 imágenes con prioridad alta (LCP), el resto lazy
+    const lazyAttr = i < 6 ? '' : 'loading="lazy" decoding="async"';
+    const fetchPriority = i < 3 ? 'fetchpriority="high"' : '';
     return `
-    <div class="producto-card animar${cantidad > 0 ? ' en-carrito' : ''}" style="transition-delay: ${i * 60}ms" data-id="${producto.id}">
+    <div class="producto-card animar${cantidad > 0 ? ' en-carrito' : ''}" style="transition-delay: ${delay}ms" data-id="${producto.id}">
       <div class="producto-card-img-wrap">
-        <img src="${producto.imagen}" alt="${producto.nombre}">
+        <img src="${producto.imagen}" alt="${producto.nombre}" ${lazyAttr} ${fetchPriority}>
         ${cantidad > 0 ? `<span class="badge-en-carrito">${cantidad}</span>` : ''}
         ${typeof iconCorazon === 'function' ? iconCorazon(producto.id) : ''}
       </div>
