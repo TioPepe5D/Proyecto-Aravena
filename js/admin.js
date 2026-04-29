@@ -277,9 +277,15 @@ function renderizarTabla() {
     acciones.push(`<button class="btn-accion" onclick="verDetalle('${p.id}')">Ver</button>`);
     acciones.push(`<button class="btn-accion btn-accion-eliminar" onclick="eliminarPedido('${p.id}')" title="Eliminar pedido">🗑</button>`);
 
-    const clienteHtml = email
-      ? `<span class="td-cliente-email" title="${email}">${email}</span><span class="td-cliente-id">${clienteId}…</span>`
-      : `<span class="td-cliente-email">Cliente</span><span class="td-cliente-id" title="${p.user_id || ''}">${clienteId}…</span>`;
+    // Intentar mostrar nombre de datos_envio si es pedido de invitado
+    const envioNombre = p.datos_envio?.nombre || '';
+    const envioEmail  = p.datos_envio?.correo  || '';
+    const displayEmail = email || envioEmail || '';
+    const displayNombre = envioNombre || (clienteId ? clienteId + '…' : 'Invitado');
+
+    const clienteHtml = displayEmail
+      ? `<span class="td-cliente-email" title="${displayEmail}">${displayEmail}</span><span class="td-cliente-id">${envioNombre || clienteId + '…'}</span>`
+      : `<span class="td-cliente-email">${displayNombre}</span><span class="td-cliente-id" style="color:var(--color-texto-suave)">sin sesión</span>`;
 
     return `
       <tr data-id="${p.id}">
@@ -424,6 +430,24 @@ function verDetalle(pedidoId) {
     </div>`;
   }).join('');
 
+  // Datos de envío (si existen)
+  const de = pedido.datos_envio || null;
+  const datosEnvioHtml = de ? `
+    <div class="modal-envio-section">
+      <h3>🚚 Datos de envío</h3>
+      <div class="modal-info-grid">
+        ${de.nombre    ? `<div class="modal-info-bloque"><p class="modal-info-label">Nombre</p><p class="modal-info-valor">${de.nombre}</p></div>` : ''}
+        ${de.correo    ? `<div class="modal-info-bloque"><p class="modal-info-label">Correo</p><p class="modal-info-valor">${de.correo}</p></div>` : ''}
+        ${de.telefono  ? `<div class="modal-info-bloque"><p class="modal-info-label">Teléfono</p><p class="modal-info-valor">${de.telefono}</p></div>` : ''}
+        ${de.rut       ? `<div class="modal-info-bloque"><p class="modal-info-label">RUT</p><p class="modal-info-valor">${de.rut}</p></div>` : ''}
+        ${de.ciudad    ? `<div class="modal-info-bloque"><p class="modal-info-label">Ciudad</p><p class="modal-info-valor">${de.ciudad}</p></div>` : ''}
+        ${de.empresa   ? `<div class="modal-info-bloque"><p class="modal-info-label">Empresa envío</p><p class="modal-info-valor">${de.empresa}</p></div>` : ''}
+        ${de.preferencia ? `<div class="modal-info-bloque"><p class="modal-info-label">Preferencia</p><p class="modal-info-valor">${de.preferencia}</p></div>` : ''}
+        ${de.sucursal  ? `<div class="modal-info-bloque"><p class="modal-info-label">Sucursal</p><p class="modal-info-valor">${de.sucursal}</p></div>` : ''}
+        ${de.domicilio ? `<div class="modal-info-bloque modal-info-full"><p class="modal-info-label">Domicilio</p><p class="modal-info-valor">${de.domicilio}</p></div>` : ''}
+      </div>
+    </div>` : '';
+
   document.getElementById('modal-body').innerHTML = `
     <!-- Info del pedido -->
     <div class="modal-info-grid">
@@ -437,7 +461,7 @@ function verDetalle(pedidoId) {
       </div>
       <div class="modal-info-bloque">
         <p class="modal-info-label">Cliente</p>
-        <p class="modal-info-valor">${email !== '—' ? email : '<span style="color:var(--color-texto-suave)">Sin email</span>'}</p>
+        <p class="modal-info-valor">${email !== '—' ? email : (de?.correo || '<span style="color:var(--color-texto-suave)">Invitado</span>')}</p>
       </div>
       <div class="modal-info-bloque">
         <p class="modal-info-label">Estado</p>
@@ -461,6 +485,9 @@ function verDetalle(pedidoId) {
         <p class="modal-info-valor mono">${pedido.mp_payment_id}</p>
       </div>` : ''}
     </div>
+
+    <!-- Datos de envío -->
+    ${datosEnvioHtml}
 
     <!-- Productos -->
     <div class="modal-items">

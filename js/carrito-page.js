@@ -221,38 +221,45 @@ function iniciarPago() {
   abrirFormularioEnvio('mp');
 }
 
-/* ── Guardar pedido en Supabase (solo si hay sesión) ────── */
+/* ── Guardar pedido vía API (funciona para sesión Y para invitados) ── */
 async function guardarPedidoPendiente(total, estadoInicial = 'pendiente') {
-  if (typeof db === 'undefined' || !db) return;
   try {
-    const { data: { session } } = await db.auth.getSession();
-    if (!session) return; // guest: no se guarda en Supabase
-
     const itemsGuardar = carrito.map(i => ({
       id: i.id,
       nombre: i.nombre,
       cantidad: i.cantidad,
       precio: i.precio,
-      imagen: i.imagen || ''
+      imagen: i.imagen || '',
+      categoria: i.categoria || ''
     }));
 
-    const payload = {
-      user_id: session.user.id,
-      items: itemsGuardar,
-      total: total,
-      estado: estadoInicial
-    };
-    // Guardar datos de envío junto al pedido si los tenemos
-    if (_datosEnvio) payload.datos_envio = _datosEnvio;
+    // Obtener token de sesión si existe (para asociar el pedido al usuario)
+    let userToken = null;
+    if (typeof db !== 'undefined' && db) {
+      try {
+        const { data: { session } } = await db.auth.getSession();
+        if (session) userToken = session.access_token;
+      } catch (_) {}
+    }
 
-    const { data: pedido, error } = await db
-      .from('pedidos')
-      .insert(payload)
-      .select('id')
-      .single();
+    const res = await fetch('/api/guardar-pedido', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        items: itemsGuardar,
+        total: total,
+        estado: estadoInicial,
+        datosEnvio: _datosEnvio || null,
+        userToken
+      })
+    });
 
-    if (!error && pedido) {
-      localStorage.setItem('pedido_pendiente_id', pedido.id);
+    const data = await res.json();
+
+    if (res.ok && data.id) {
+      localStorage.setItem('pedido_pendiente_id', data.id);
+    } else {
+      console.warn('[Pedidos] Error al guardar pedido:', data.error);
     }
   } catch (e) {
     console.warn('[Pedidos] No se pudo guardar el pedido:', e);
