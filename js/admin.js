@@ -8,6 +8,7 @@ const ADMIN_EMAILS = [
 ];
 
 let todosLosPedidos = [];
+let pedidoActual = null;
 let pedidosFiltrados = [];
 let emailsUsuarios = {};      // { user_id: email }
 let graficoVentas = null;
@@ -425,6 +426,7 @@ function verDetalle(pedidoId) {
   // Comparar como strings para evitar fallo con IDs numéricos vs string
   const pedido = todosLosPedidos.find(p => String(p.id) === String(pedidoId));
   if (!pedido) return;
+  pedidoActual = pedido;
 
   const fecha = new Date(pedido.created_at).toLocaleString('es-CL');
   const items = Array.isArray(pedido.items) ? pedido.items : [];
@@ -459,7 +461,7 @@ function verDetalle(pedidoId) {
     <div class="modal-envio-section">
       <div class="modal-envio-header">
         <h3>🚚 Datos de envío</h3>
-        <button class="btn-copiar-envio" onclick="copiarDatosEnvio('${pedido.id}')" title="Copiar datos de envío">
+        <button class="btn-copiar-envio" onclick="copiarDatosEnvio()" title="Copiar datos de envío">
           📋 Copiar
         </button>
       </div>
@@ -543,51 +545,56 @@ function cerrarModal() {
 }
 
 /* ── Copiar datos de envío ──────────────── */
-function copiarDatosEnvio(pedidoId) {
-  const pedido = todosLosPedidos.find(p => String(p.id) === String(pedidoId));
-  if (!pedido || !pedido.datos_envio) return;
+function copiarDatosEnvio() {
+  if (!pedidoActual || !pedidoActual.datos_envio) return;
 
-  const d = pedido.datos_envio;
-  const lineas = [
-    d.nombre     ? `Nombre: ${d.nombre}`           : null,
-    d.rut        ? `RUT: ${d.rut}`                 : null,
-    d.telefono   ? `Teléfono: ${d.telefono}`        : null,
-    d.correo     ? `Correo: ${d.correo}`            : null,
-    d.empresa    ? `Empresa: ${d.empresa}`          : null,
-    d.preferencia? `Preferencia: ${d.preferencia}` : null,
-    d.sucursal   ? `Sucursal: ${d.sucursal}`        : null,
-    d.ciudad     ? `Ciudad: ${d.ciudad}`            : null,
-    d.domicilio  ? `Dirección: ${d.domicilio}`      : null,
-  ].filter(Boolean);
+  const d = pedidoActual.datos_envio;
+  const texto = [
+    d.nombre      ? `Nombre: ${d.nombre}`           : null,
+    d.rut         ? `RUT: ${d.rut}`                 : null,
+    d.telefono    ? `Teléfono: ${d.telefono}`        : null,
+    d.correo      ? `Correo: ${d.correo}`            : null,
+    d.empresa     ? `Empresa: ${d.empresa}`          : null,
+    d.preferencia ? `Preferencia: ${d.preferencia}` : null,
+    d.sucursal    ? `Sucursal: ${d.sucursal}`        : null,
+    d.ciudad      ? `Ciudad: ${d.ciudad}`            : null,
+    d.domicilio   ? `Dirección: ${d.domicilio}`      : null,
+  ].filter(Boolean).join('\n');
 
-  const texto = lineas.join('\n');
+  const btn = document.querySelector('.btn-copiar-envio');
 
-  navigator.clipboard.writeText(texto).then(() => {
-    const btn = document.querySelector('.btn-copiar-envio');
-    if (btn) {
-      btn.textContent = '✅ Copiado';
-      btn.classList.add('copiado');
-      setTimeout(() => {
-        btn.textContent = '📋 Copiar';
-        btn.classList.remove('copiado');
-      }, 2000);
-    }
-  }).catch(() => {
-    // Fallback para navegadores sin clipboard API
-    const ta = document.createElement('textarea');
-    ta.value = texto;
-    ta.style.position = 'fixed';
-    ta.style.opacity = '0';
-    document.body.appendChild(ta);
-    ta.select();
+  function mostrarCopiado() {
+    if (!btn) return;
+    btn.textContent = '✅ Copiado';
+    btn.classList.add('copiado');
+    setTimeout(() => {
+      btn.textContent = '📋 Copiar';
+      btn.classList.remove('copiado');
+    }, 2000);
+  }
+
+  // Método moderno
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(texto).then(mostrarCopiado).catch(() => copiarFallback(texto, mostrarCopiado));
+  } else {
+    copiarFallback(texto, mostrarCopiado);
+  }
+}
+
+function copiarFallback(texto, callback) {
+  const ta = document.createElement('textarea');
+  ta.value = texto;
+  ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {
     document.execCommand('copy');
-    document.body.removeChild(ta);
-    const btn = document.querySelector('.btn-copiar-envio');
-    if (btn) {
-      btn.textContent = '✅ Copiado';
-      setTimeout(() => { btn.textContent = '📋 Copiar'; }, 2000);
-    }
-  });
+    callback();
+  } catch (e) {
+    alert('No se pudo copiar automáticamente.\n\n' + texto);
+  }
+  document.body.removeChild(ta);
 }
 
 /* ── Exportar CSV ───────────────────────── */
