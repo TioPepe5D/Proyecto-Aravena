@@ -62,6 +62,60 @@
   color: var(--admin-rojo);
 }
 
+/* ── Visitantes en tiempo real ───────────── */
+.realtime-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  background: var(--admin-tarjeta, #18181f);
+  border: 1px solid var(--color-borde);
+  border-radius: 10px;
+  padding: 0.65rem 1.1rem;
+  margin-bottom: 1.4rem;
+  font-size: 0.85rem;
+}
+.realtime-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 0 rgba(34,197,94,0.6);
+  animation: pulso-verde 1.6s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes pulso-verde {
+  0%   { box-shadow: 0 0 0 0 rgba(34,197,94,0.6); }
+  70%  { box-shadow: 0 0 0 7px rgba(34,197,94,0); }
+  100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+}
+.realtime-label { color: var(--color-texto-suave); }
+.realtime-count {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--admin-dorado);
+  min-width: 1.5ch;
+}
+.realtime-paginas {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-left: 0.4rem;
+}
+.realtime-pag {
+  background: var(--color-fondo-suave);
+  border: 1px solid var(--color-borde);
+  border-radius: 20px;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.75rem;
+  color: var(--color-texto-suave);
+}
+.realtime-pag b {
+  color: var(--color-texto);
+  font-weight: 700;
+  margin-left: 0.2rem;
+}
+
 /* ── Main ────────────────────────────────── */
 .admin-main {
   max-width: 1400px;

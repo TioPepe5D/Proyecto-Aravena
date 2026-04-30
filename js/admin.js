@@ -58,6 +58,9 @@ async function inicializar() {
     // Suscripción realtime para nuevos pedidos
     suscribirseANuevosPedidos();
 
+    // Analíticas: visitantes en tiempo real
+    iniciarPresenciaRealtime();
+
   } catch (e) {
     console.error('[Admin] Error inicial:', e);
     mostrarDenegado('Error al verificar permisos.');
@@ -1034,4 +1037,53 @@ function copiarCotizacion() {
       btn.classList.remove('copiado');
     }, 1800);
   }).catch(() => mostrarToast('Error', 'No se pudo copiar', 'error'));
+}
+
+/* ── Visitantes en tiempo real ──────────────────────── */
+function iniciarPresenciaRealtime() {
+  const countEl  = document.getElementById('realtime-count');
+  const paginasEl = document.getElementById('realtime-paginas');
+  if (!countEl) return;
+
+  async function actualizarConteo() {
+    try {
+      const hace2min = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+      const { data } = await db
+        .from('presencia')
+        .select('pagina')
+        .gte('updated_at', hace2min);
+
+      if (!data) return;
+
+      // Excluir al propio admin del conteo
+      const visitantes = data.filter(r => r.pagina !== 'Admin');
+      countEl.textContent = visitantes.length;
+
+      // Agrupar por página
+      const grupos = {};
+      visitantes.forEach(r => {
+        grupos[r.pagina] = (grupos[r.pagina] || 0) + 1;
+      });
+
+      paginasEl.innerHTML = Object.entries(grupos)
+        .map(([pag, n]) => `<span class="realtime-pag">${pag} <b>${n}</b></span>`)
+        .join('');
+
+    } catch (_) {}
+  }
+
+  // Cargar al iniciar
+  actualizarConteo();
+
+  // Suscribirse a cambios en tiempo real
+  db.channel('presencia-admin')
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'presencia'
+    }, actualizarConteo)
+    .subscribe();
+
+  // Fallback: refrescar cada 30s igual
+  setInterval(actualizarConteo, 30_000);
 }
