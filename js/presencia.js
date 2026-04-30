@@ -5,30 +5,33 @@
    ============================================= */
 
 (function () {
-  const INTERVALO = 30_000; // heartbeat cada 30s
+  const INTERVALO = 30_000;
   const PAGINAS = {
-    'index.html':       'Inicio',
-    'producto.html':    'Producto',
-    'carrito.html':     'Carrito',
-    'perfil.html':      'Mi perfil',
-    'contacto.html':    'Contacto',
-    'nosotros.html':    'Nosotros',
-    'pago-exitoso.html':'Pago exitoso',
-    'pago-fallido.html':'Pago fallido',
+    'index.html':        'Inicio',
+    'producto.html':     'Producto',
+    'carrito.html':      'Carrito',
+    'perfil.html':       'Mi perfil',
+    'contacto.html':     'Contacto',
+    'nosotros.html':     'Nosotros',
+    'pago-exitoso.html': 'Pago exitoso',
+    'pago-fallido.html': 'Pago fallido',
     'pago-pendiente.html':'Pago pendiente',
-    'admin.html':       'Admin',
+    'admin.html':        'Admin',
   };
 
-  // Nombre amigable de la página actual
-  const ruta = window.location.pathname.split('/').pop() || 'index.html';
-  const pagina = PAGINAS[ruta] || ruta || 'Inicio';
+  const ruta    = window.location.pathname.split('/').pop() || 'index.html';
+  const pagina  = PAGINAS[ruta] || ruta || 'Inicio';
 
-  // ID único por pestaña (no persiste entre cierres)
+  // ID único por pestaña
   let sessionId = sessionStorage.getItem('_presencia_id');
   if (!sessionId) {
-    sessionId = crypto.randomUUID?.() || Math.random().toString(36).slice(2) + Date.now();
+    sessionId = (crypto.randomUUID?.() || Math.random().toString(36).slice(2) + Date.now());
     sessionStorage.setItem('_presencia_id', sessionId);
   }
+
+  // Marcar que ya registramos la visita hoy (para no duplicar)
+  const claveVisita = '_visita_' + new Date().toISOString().slice(0, 10);
+  const visitaYaRegistrada = sessionStorage.getItem(claveVisita);
 
   async function ping() {
     if (typeof db === 'undefined' || !db) return;
@@ -40,6 +43,18 @@
     } catch (_) {}
   }
 
+  async function registrarVisita() {
+    if (typeof db === 'undefined' || !db) return;
+    if (visitaYaRegistrada) return; // ya contada hoy
+    try {
+      await db.from('visitas').upsert(
+        { session_id: sessionId, fecha: new Date().toISOString().slice(0, 10), pagina },
+        { onConflict: 'session_id,fecha' }
+      );
+      sessionStorage.setItem(claveVisita, '1');
+    } catch (_) {}
+  }
+
   async function salir() {
     if (typeof db === 'undefined' || !db) return;
     try {
@@ -47,7 +62,6 @@
     } catch (_) {}
   }
 
-  // Limpiar registros viejos (> 2 min) al entrar
   async function limpiarViejos() {
     if (typeof db === 'undefined' || !db) return;
     try {
@@ -56,14 +70,11 @@
     } catch (_) {}
   }
 
-  // Iniciar cuando Supabase esté listo
   function iniciar() {
-    if (typeof db === 'undefined' || !db) {
-      setTimeout(iniciar, 500);
-      return;
-    }
+    if (typeof db === 'undefined' || !db) { setTimeout(iniciar, 500); return; }
     limpiarViejos();
     ping();
+    registrarVisita();
     setInterval(ping, INTERVALO);
     window.addEventListener('beforeunload', salir);
     document.addEventListener('visibilitychange', () => {
