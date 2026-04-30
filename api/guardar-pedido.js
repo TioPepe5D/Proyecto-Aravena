@@ -1,67 +1,64 @@
 const { createClient } = require('@supabase/supabase-js');
+const productos = require('../js/products.js');
 
-const SUPA_URL  = 'https://qcaxddxxmrwfihnyepbo.supabase.co';
-const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjYXhkZHh4bXJ3ZmlobnllcGJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MzE5NDgsImV4cCI6MjA5MjQwNzk0OH0.0WtrOUK3_SDCkpVBTPg_aMz8rUk1sJ_ms6Ak5p5Xi08';
+// Catálogo de precios en el servidor
+const porId = new Map(productos.map(p => [String(p.id), p]));
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { items, total, estado, datosEnvio, userToken } = req.body || {};
+  const { items: itemsInput, estado, datosEnvio, userToken } = req.body || {};
 
-  if (!items || !total || !estado) {
-    return res.status(400).json({ error: 'Faltan datos requeridos (items, total, estado)' });
+  if (!Array.isArray(itemsInput) || !itemsInput.length || !estado) {
+    return res.status(400).json({ error: 'Faltan datos requeridos' });
   }
 
-  // Usar service key para bypass RLS (funciona tanto para sesión como para invitados)
   const serviceKey = process.env.SUPABASE_SERVICE_KEY;
   if (!serviceKey) {
     return res.status(500).json({ error: 'Configuración del servidor incompleta' });
   }
 
-  const supabaseAdmin = createClient(SUPA_URL, serviceKey);
+  const supabaseAdmin = createClient(process.env.SUPABASE_URL, serviceKey);
 
-  // Intentar obtener user_id usando el cliente admin (más confiable que el anon)
+  // Autenticación opcional
   let userId = null;
   if (userToken) {
     try {
       const { data: { user } } = await supabaseAdmin.auth.getUser(userToken);
-      if (user && user.id) userId = user.id;
+      if (user?.id) userId = user.id;
     } catch (_) {}
   }
 
-  const payload = {
-    items,
-    total: Number(total),
-    estado,
-  };
+  // ── Validar precios SERVER-SIDE ──
+  const itemsValidados = [];
+  for (const it of itemsInput) {
+    const p = porId.get(String(it.id));
+    if (!p) return res.status(400).json({ error: `Producto no encontrado: ${it.id}` });
+    const qty = Math.max(1, Math.min(99, parseInt(it.quantity ?? it.cantidad, 10) || 0));
+    itemsValidados.push({
+      id:       String(p.id),
+      nombre:   p.nombre,
+      cantidad: qty,
+      precio:   Number(p.precio),
+      imagen:   p.imagen || ""
+    });
+  }
 
-  // Solo incluir user_id si el usuario está autenticado
-  if (userId) payload.user_id = userId;
+  const subtotal = itemsValidados.reduce((s, i) => s + i.precio * i.cantidad, 0);
+  const comision = Math.round(subtotal * 0.05);
+  const total    = subtotal + comision;
 
-  // Intentar con datos_envio primero
+  const payload = { items: itemsValidados, total, estado };
+  if (userId)     payload.user_id     = userId;
   if (datosEnvio) payload.datos_envio = datosEnvio;
 
-  let { data: pedido, error } = await supabaseAdmin
+  const { data: pedido, error } = await supabaseAdmin
     .from('pedidos')
     .insert(payload)
     .select('id')
     .single();
-
-  // Si falló por columna datos_envio inexistente, reintentar sin ella
-  if (error && error.message && error.message.includes('datos_envio')) {
-    console.warn('[guardar-pedido] Columna datos_envio no existe, reintentando sin ella...');
-    const payloadSinEnvio = { ...payload };
-    delete payloadSinEnvio.datos_envio;
-    const res2 = await supabaseAdmin
-      .from('pedidos')
-      .insert(payloadSinEnvio)
-      .select('id')
-      .single();
-    pedido = res2.data;
-    error  = res2.error;
-  }
 
   if (error) {
     console.error('[guardar-pedido] Error Supabase:', error);

@@ -219,42 +219,33 @@ async function _iniciarPagoMP() {
   btn.textContent = "Procesando...";
   if (estado) estado.textContent = "";
 
-  const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
-  const comision = Math.round(subtotal * 0.05);
-  const totalFinal = subtotal + comision;
-
+  // Solo enviar id y quantity — el servidor calcula los precios reales
   const items = carrito.map(i => ({
-    id: String(i.id),
-    title: i.nombre,
-    quantity: i.cantidad,
-    unit_price: i.precio,
-    currency_id: "CLP"
+    id:       String(i.id),
+    quantity: i.cantidad
   }));
 
-  if (comision > 0) {
-    items.push({
-      id: "comision-bancaria",
-      title: "Comisión Bancaria impuesto",
-      quantity: 1,
-      unit_price: comision,
-      currency_id: "CLP"
-    });
-  }
-
-  // ── Guardar pedido (solo si hay sesión activa) ──
-  await guardarPedidoPendiente(totalFinal);
-  const pedidoId = localStorage.getItem('pedido_pendiente_id') || "";
+  // Token de sesión para asociar el pedido al usuario (opcional)
+  let token = null;
+  try {
+    const { data: { session } } = await db.auth.getSession();
+    if (session) token = session.access_token;
+  } catch (_) {}
 
   try {
     const res = await fetch("/api/crear-preferencia", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ items, pedidoId })
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { "Authorization": `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify({ items, datosEnvio: _datosEnvio || null })
     });
 
     if (!res.ok) throw new Error("Error del servidor");
 
     const data = await res.json();
+    if (data.pedidoId) localStorage.setItem('pedido_pendiente_id', data.pedidoId);
     window.location.href = data.init_point;
   } catch (err) {
     if (estado) {
@@ -271,19 +262,12 @@ function iniciarPago() {
   abrirFormularioEnvio('mp');
 }
 
-/* ── Guardar pedido vía API (funciona para sesión Y para invitados) ── */
-async function guardarPedidoPendiente(total, estadoInicial = 'pendiente') {
+/* ── Guardar pedido vía API — solo {id, quantity}, precios calculados server-side ── */
+async function guardarPedidoPendiente(estadoInicial = 'pendiente') {
   try {
-    const itemsGuardar = carrito.map(i => ({
-      id: i.id,
-      nombre: i.nombre,
-      cantidad: i.cantidad,
-      precio: i.precio,
-      imagen: i.imagen || '',
-      categoria: i.categoria || ''
-    }));
+    // Solo enviar id y quantity — el servidor calcula precios reales
+    const itemsInput = carrito.map(i => ({ id: String(i.id), quantity: i.cantidad }));
 
-    // Obtener token de sesión si existe (para asociar el pedido al usuario)
     let userToken = null;
     if (typeof db !== 'undefined' && db) {
       try {
@@ -296,16 +280,14 @@ async function guardarPedidoPendiente(total, estadoInicial = 'pendiente') {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        items: itemsGuardar,
-        total: total,
-        estado: estadoInicial,
+        items:      itemsInput,
+        estado:     estadoInicial,
         datosEnvio: _datosEnvio || null,
         userToken
       })
     });
 
     const data = await res.json();
-
     if (res.ok && data.id) {
       localStorage.setItem('pedido_pendiente_id', data.id);
     } else {
@@ -420,7 +402,7 @@ async function _iniciarTransferencia() {
   const total    = subtotal + comision;
 
   // 2. Guardar pedido en Supabase si hay sesión (guest: se omite)
-  await guardarPedidoPendiente(total, 'transferencia_pendiente');
+  await guardarPedidoPendiente('transferencia_pendiente');
 
   // 3. Notificar al dueño (silencioso)
   try {
