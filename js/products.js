@@ -1397,3 +1397,8 @@ const productos = [
   }
 
 ];
+
+// Exportar para Node.js (APIs de Vercel) sin romper el navegador
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = productos;
+}
