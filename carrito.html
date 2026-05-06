@@ -143,7 +143,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p class="footer-copy">© 2025 Joyería Aravena · Todos los derechos reservados</p>
+      <p class="footer-copy">©2026 Joyería Aravena · Todos los derechos reservados</p>
     </div>
   </footer>
 
@@ -204,37 +204,37 @@
 
           <div class="envio-field">
             <label>Nombre Completo *</label>
-            <input type="text" id="env-nombre-pago" placeholder="Nombre y apellido" autocomplete="name" required>
+            <input type="text" id="env-nombre-pago" placeholder="Nombre y apellido" autocomplete="name" maxlength="60" minlength="3" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" title="Solo letras y espacios" required>
           </div>
 
           <div class="envio-field">
             <label>Número de Teléfono *</label>
-            <input type="tel" id="env-telefono-pago" placeholder="+56 9 XXXX XXXX" autocomplete="tel" required>
+            <input type="tel" id="env-telefono-pago" placeholder="+56 9 XXXX XXXX" autocomplete="tel" maxlength="15" minlength="8" pattern="[0-9+\s]{8,15}" inputmode="tel" title="8 a 15 dígitos. Solo números, + y espacios" required>
           </div>
 
           <div class="envio-field">
             <label>RUT *</label>
-            <input type="text" id="env-rut-pago" placeholder="12.345.678-9" autocomplete="off" required>
+            <input type="text" id="env-rut-pago" placeholder="12.345.678-9" autocomplete="off" maxlength="12" minlength="9" pattern="[0-9.\-kK]{9,12}" title="Formato: 12.345.678-9" required>
           </div>
 
           <div class="envio-field">
             <label>Ciudad *</label>
-            <input type="text" id="env-ciudad-pago" placeholder="Ej: Santiago" autocomplete="address-level2" required>
+            <input type="text" id="env-ciudad-pago" placeholder="Ej: Santiago" autocomplete="address-level2" maxlength="40" minlength="3" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" title="Solo letras y espacios" required>
           </div>
 
           <div class="envio-field campo-completo">
             <label>Correo Electrónico *</label>
-            <input type="email" id="env-correo-pago" placeholder="tu@correo.cl" autocomplete="email" required>
+            <input type="email" id="env-correo-pago" placeholder="tu@correo.cl" autocomplete="email" maxlength="80" required>
           </div>
 
           <div class="envio-field campo-completo">
             <label>Domicilio</label>
-            <input type="text" id="env-domicilio-pago" placeholder="Calle, número, depto (si es a domicilio)" autocomplete="street-address">
+            <input type="text" id="env-domicilio-pago" placeholder="Calle, número, depto (si es a domicilio)" autocomplete="street-address" maxlength="100">
           </div>
 
           <div class="envio-field campo-completo">
             <label>Sucursal Más Cercana</label>
-            <input type="text" id="env-sucursal-pago" placeholder="Ej: Sucursal Providencia (si es a sucursal)">
+            <input type="text" id="env-sucursal-pago" placeholder="Ej: Sucursal Providencia (si es a sucursal)" maxlength="60">
           </div>
 
         </div>

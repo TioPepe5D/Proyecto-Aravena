@@ -138,9 +138,69 @@ function habilitarBotonPago() {
 let _datosEnvio = null;
 let _tipoPagoEnvio = null; // 'mp' | 'transferencia'
 
+// ── Validadores y formateadores ─────────────────────────────────────────────
+function _formatearRut(rut) {
+  // Limpia y formatea: 12.345.678-9
+  let v = rut.replace(/[^0-9kK]/g, '').toUpperCase();
+  if (v.length < 2) return v;
+  const dv = v.slice(-1);
+  let cuerpo = v.slice(0, -1);
+  cuerpo = cuerpo.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return `${cuerpo}-${dv}`;
+}
+function _validarRut(rut) {
+  const v = rut.replace(/[^0-9kK]/g, '').toUpperCase();
+  if (v.length < 8 || v.length > 9) return false;
+  const cuerpo = v.slice(0, -1);
+  const dv = v.slice(-1);
+  let suma = 0, mul = 2;
+  for (let i = cuerpo.length - 1; i >= 0; i--) {
+    suma += parseInt(cuerpo[i], 10) * mul;
+    mul = mul === 7 ? 2 : mul + 1;
+  }
+  const res = 11 - (suma % 11);
+  const dvCalc = res === 11 ? '0' : res === 10 ? 'K' : String(res);
+  return dv === dvCalc;
+}
+function _validarCorreo(c) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(c);
+}
+function _bindRestricciones() {
+  const get = id => document.getElementById(id);
+  if (get('_restricciones_aplicadas')) return;
+
+  // Solo letras y espacios
+  ['env-nombre-pago', 'env-ciudad-pago'].forEach(id => {
+    const el = get(id);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      el.value = el.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+    });
+  });
+
+  // Teléfono: dígitos, + y espacios
+  const tel = get('env-telefono-pago');
+  if (tel) tel.addEventListener('input', () => {
+    tel.value = tel.value.replace(/[^0-9+\s]/g, '').slice(0, 15);
+  });
+
+  // RUT: formateo automático
+  const rutEl = get('env-rut-pago');
+  if (rutEl) rutEl.addEventListener('input', () => {
+    rutEl.value = _formatearRut(rutEl.value);
+  });
+
+  // Marcador para no aplicar dos veces
+  const flag = document.createElement('input');
+  flag.type = 'hidden';
+  flag.id = '_restricciones_aplicadas';
+  document.body.appendChild(flag);
+}
+
 function abrirFormularioEnvio(tipo) {
   if (carrito.length === 0) return;
   _tipoPagoEnvio = tipo;
+  _bindRestricciones();
 
   // 1. Pre-rellenar desde localStorage (funciona para todos)
   const guardados = JSON.parse(localStorage.getItem('checkout_datos') || 'null');
@@ -200,10 +260,31 @@ function confirmarEnvioYPagar() {
   const domicilio = document.getElementById('env-domicilio-pago').value.trim();
 
   const errEl = document.getElementById('env-form-error');
+  const fail = msg => { errEl.textContent = msg; errEl.style.display = 'block'; };
+
   if (!nombre || !telefono || !rut || !ciudad || !correo || !empresa) {
-    errEl.textContent = 'Por favor completa todos los campos obligatorios (*)';
-    errEl.style.display = 'block';
-    return;
+    return fail('Por favor completa todos los campos obligatorios (*)');
+  }
+  if (nombre.length < 3 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(nombre)) {
+    return fail('Nombre inválido. Solo letras y espacios (mín. 3 caracteres).');
+  }
+  if (!/^[0-9+\s]{8,15}$/.test(telefono)) {
+    return fail('Teléfono inválido. Solo números, debe tener 8 a 15 dígitos.');
+  }
+  if (!_validarRut(rut)) {
+    return fail('RUT inválido. Verifica el dígito verificador (ej: 12.345.678-9).');
+  }
+  if (ciudad.length < 3 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(ciudad)) {
+    return fail('Ciudad inválida. Solo letras y espacios.');
+  }
+  if (!_validarCorreo(correo)) {
+    return fail('Correo electrónico inválido.');
+  }
+  if (preferencia === 'Domicilio' && (!domicilio || domicilio.length < 5)) {
+    return fail('Para envío a domicilio, completa la dirección (mín. 5 caracteres).');
+  }
+  if (preferencia === 'Sucursal' && (!sucursal || sucursal.length < 3)) {
+    return fail('Para envío a sucursal, indica cuál sucursal.');
   }
   errEl.style.display = 'none';
 
