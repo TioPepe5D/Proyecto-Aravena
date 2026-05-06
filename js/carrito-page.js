@@ -1,7 +1,31 @@
 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 
+const MAX_POR_ITEM = 10;
+
+// Sanea cantidades guardadas que excedan el límite (ej. carritos viejos)
+let _saneado = false;
+carrito.forEach(it => {
+  if (it.cantidad > MAX_POR_ITEM) { it.cantidad = MAX_POR_ITEM; _saneado = true; }
+});
+if (_saneado) localStorage.setItem("carrito", JSON.stringify(carrito));
+
 function guardarCarrito() {
   localStorage.setItem("carrito", JSON.stringify(carrito));
+}
+
+function mostrarAvisoLimite(nombre) {
+  const t = document.createElement('div');
+  t.className = 'toast-limite';
+  t.textContent = `Máximo ${MAX_POR_ITEM} unidades de "${nombre}". Para mayoristas escríbenos por WhatsApp.`;
+  Object.assign(t.style, {
+    position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)',
+    background: '#1a1a1a', color: '#ffd700', border: '1px solid #ffd700',
+    padding: '12px 18px', borderRadius: '10px', zIndex: 9999,
+    fontSize: '0.9rem', maxWidth: '90%', textAlign: 'center',
+    boxShadow: '0 8px 24px rgba(0,0,0,0.5)'
+  });
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
 }
 
 function actualizarContador() {
@@ -15,7 +39,12 @@ function actualizarContador() {
 function cambiarCantidad(id, delta) {
   const item = carrito.find(p => String(p.id) === String(id));
   if (!item) return;
+  if (delta > 0 && item.cantidad >= MAX_POR_ITEM) {
+    mostrarAvisoLimite(item.nombre);
+    return;
+  }
   item.cantidad += delta;
+  if (item.cantidad > MAX_POR_ITEM) item.cantidad = MAX_POR_ITEM;
   if (item.cantidad <= 0) {
     carrito = carrito.filter(p => String(p.id) !== String(id));
   }

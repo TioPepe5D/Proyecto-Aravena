@@ -36,7 +36,7 @@ module.exports = async (req, res) => {
   for (const it of itemsInput) {
     const p = porId.get(String(it.id));
     if (!p) return res.status(400).json({ error: `Producto no encontrado: ${it.id}` });
-    const qty = Math.max(1, Math.min(99, parseInt(it.quantity ?? it.cantidad, 10) || 0));
+    const qty = Math.max(1, Math.min(10, parseInt(it.quantity ?? it.cantidad, 10) || 0));
     itemsValidados.push({
       id:       String(p.id),
       nombre:   p.nombre,

@@ -38,7 +38,7 @@ module.exports = async (req, res) => {
     if (!p) {
       return res.status(400).json({ error: `Producto no encontrado: ${it.id}` });
     }
-    const qty = Math.max(1, Math.min(99, parseInt(it.quantity, 10) || 0));
+    const qty = Math.max(1, Math.min(10, parseInt(it.quantity, 10) || 0));
     if (qty < 1) {
       return res.status(400).json({ error: `Cantidad inválida para ${p.nombre}` });
     }
