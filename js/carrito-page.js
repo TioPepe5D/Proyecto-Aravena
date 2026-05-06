@@ -352,14 +352,18 @@ async function _iniciarPagoMP() {
       body: JSON.stringify({ items, datosEnvio: _datosEnvio || null })
     });
 
-    if (!res.ok) throw new Error("Error del servidor");
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.init_point) {
+      console.error("[MP] Error del servidor:", data);
+      throw new Error(data.detail || data.error || "Error del servidor");
+    }
 
-    const data = await res.json();
     if (data.pedidoId) localStorage.setItem('pedido_pendiente_id', data.pedidoId);
     window.location.href = data.init_point;
   } catch (err) {
+    console.error("[MP] Error al iniciar pago:", err);
     if (estado) {
-      estado.textContent = "⚠ Error al conectar con MercadoPago. Intenta de nuevo.";
+      estado.textContent = `⚠ ${err.message || 'Error al conectar con MercadoPago'}. Intenta con transferencia bancaria.`;
       estado.style.color = "#dc2626";
     }
     btn.disabled = false;

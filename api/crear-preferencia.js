@@ -95,28 +95,63 @@ module.exports = async (req, res) => {
     });
   }
 
+  // Validar que tengamos las variables de entorno mínimas
+  if (!process.env.MP_ACCESS_TOKEN) {
+    console.error("[crear-preferencia] Falta MP_ACCESS_TOKEN");
+    return res.status(500).json({ error: "Configuración de pago incompleta" });
+  }
+  if (!siteUrl || !siteUrl.startsWith("https://")) {
+    console.error("[crear-preferencia] SITE_URL inválida o faltante:", siteUrl);
+    return res.status(500).json({ error: "Configuración de URL del sitio incompleta" });
+  }
+
   try {
     const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
     const preference = new Preference(client);
-    const response = await preference.create({
-      body: {
-        items: mpItems,
-        back_urls: {
-          success: `${siteUrl}/pago-exitoso.html`,
-          failure: `${siteUrl}/pago-fallido.html`,
-          pending: `${siteUrl}/pago-pendiente.html`
-        },
-        auto_return:          "approved",
-        statement_descriptor: "Joyería Aravena",
-        external_reference:   String(pedido.id),
-        notification_url:     `${vercelUrl}/api/mp-webhook`
-      }
-    });
 
+    // statement_descriptor: solo ASCII, sin tildes, máx ~22 chars
+    // Algunos flujos de MP rechazan caracteres no-ASCII y devuelven CPT01.
+    const prefBody = {
+      items: mpItems,
+      payer: {
+        // Algunos flujos de MP requieren un payer válido para checkout web
+        // — vacío fuerza al usuario a ingresar sus datos en MP
+      },
+      back_urls: {
+        success: `${siteUrl}/pago-exitoso.html`,
+        failure: `${siteUrl}/pago-fallido.html`,
+        pending: `${siteUrl}/pago-pendiente.html`
+      },
+      auto_return:          "approved",
+      statement_descriptor: "JoyeriaAravena",
+      external_reference:   String(pedido.id),
+      notification_url:     `${vercelUrl}/api/mp-webhook`,
+      binary_mode:          false
+    };
+
+    const response = await preference.create({ body: prefBody });
+
+    if (!response?.init_point) {
+      console.error("[crear-preferencia] MP devolvió respuesta sin init_point:", JSON.stringify(response));
+      return res.status(502).json({ error: "MercadoPago no devolvió URL de pago" });
+    }
+
+    console.log("[crear-preferencia] OK — pedidoId:", pedido.id, "prefId:", response.id);
     return res.status(200).json({ init_point: response.init_point, pedidoId: pedido.id });
 
   } catch (err) {
-    console.error("[crear-preferencia] Error MP:", err.message);
-    return res.status(500).json({ error: "Error al crear preferencia", detail: err.message });
+    // Log detallado para diagnosticar CPT01 y similares
+    console.error("[crear-preferencia] Error MP:", {
+      message: err.message,
+      status: err.status,
+      cause: err.cause,
+      error: err.error,
+      response: err.response?.data || err.response
+    });
+    return res.status(500).json({
+      error: "Error al crear preferencia",
+      detail: err.message,
+      mpError: err.cause || err.error || null
+    });
   }
 };
