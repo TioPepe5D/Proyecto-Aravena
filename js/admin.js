@@ -121,6 +121,9 @@ function configurarEventos() {
     if (e.target.id === 'admin-confirm-overlay') cerrarAdminConfirm();
   });
 
+  // Botón "Eliminar fallidos" — borrado masivo
+  document.getElementById('btn-limpiar-fallidos')?.addEventListener('click', pedirEliminarFallidos);
+
   // Calculadora de lote
   document.getElementById('btn-calculadora').addEventListener('click', abrirCalculadora);
   document.getElementById('calc-cerrar').addEventListener('click', cerrarCalculadora);
@@ -192,9 +195,7 @@ function calcularStats() {
   // "Pagados" incluye también enviados (siguen siendo ingresos confirmados)
   const pagadosYEnviados = todosLosPedidos.filter(p => p.estado === 'pagado' || p.estado === 'enviado');
   const enviados = todosLosPedidos.filter(p => p.estado === 'enviado').length;
-  const pendientes = todosLosPedidos.filter(p =>
-    p.estado === 'pendiente' || p.estado === 'transferencia_pendiente'
-  ).length;
+  const pendientes = todosLosPedidos.filter(p => p.estado === 'pendiente').length;
   const revenue = pagadosYEnviados.reduce((s, p) => s + (Number(p.total) || 0), 0);
 
   animarContador('stat-total', total);
@@ -269,9 +270,7 @@ function renderizarTabla() {
     const total = Number(p.total) || 0;
 
     const acciones = [];
-    if (p.estado === 'transferencia_pendiente') {
-      acciones.push(`<button class="btn-accion btn-accion-transferencia" onclick="cambiarEstado('${p.id}', 'pagado')" title="Confirmar que la transferencia fue recibida">✓ Confirmar pago</button>`);
-    } else if (p.estado === 'pagado') {
+    if (p.estado === 'pagado') {
       acciones.push(`<button class="btn-accion btn-accion-enviar" onclick="cambiarEstado('${p.id}', 'enviado')" title="Marcar como despachado">📦 Marcar enviado</button>`);
     } else if (p.estado !== 'enviado') {
       acciones.push(`<button class="btn-accion btn-accion-pagar" onclick="cambiarEstado('${p.id}', 'pagado')">Marcar pagado</button>`);
@@ -363,6 +362,7 @@ window.cambiarEstado = cambiarEstado;
 
 /* ── Eliminar pedido (con modal de confirmación) ──────── */
 let _pedidoAEliminar = null;
+let _bulkAEliminar   = null; // 'fallido' | null
 
 function eliminarPedido(pedidoId) {
   const pedido = todosLosPedidos.find(p => String(p.id) === String(pedidoId));
@@ -371,53 +371,78 @@ function eliminarPedido(pedidoId) {
   const total   = pedido?.total ? `$${Number(pedido.total).toLocaleString('es-CL')}` : '';
 
   _pedidoAEliminar = pedidoId;
+  _bulkAEliminar   = null;
+  document.querySelector('.admin-confirm-titulo').textContent = '¿Eliminar pedido?';
   document.getElementById('admin-confirm-detalle').textContent =
     `Pedido #${idCorto} · ${estado}${total ? ' · ' + total : ''}`;
   document.getElementById('admin-confirm-overlay').classList.add('activo');
 }
 window.eliminarPedido = eliminarPedido;
 
+function pedirEliminarFallidos() {
+  const fallidos = todosLosPedidos.filter(p => p.estado === 'fallido');
+  if (fallidos.length === 0) {
+    mostrarToast('Sin pedidos', 'No hay pedidos fallidos para eliminar.', 'ok');
+    return;
+  }
+  _pedidoAEliminar = null;
+  _bulkAEliminar   = 'fallido';
+  document.querySelector('.admin-confirm-titulo').textContent = '¿Eliminar pedidos fallidos?';
+  document.getElementById('admin-confirm-detalle').textContent =
+    `Se eliminarán ${fallidos.length} pedido(s) con estado fallido.`;
+  document.getElementById('admin-confirm-overlay').classList.add('activo');
+}
+window.pedirEliminarFallidos = pedirEliminarFallidos;
+
 function cerrarAdminConfirm() {
   _pedidoAEliminar = null;
+  _bulkAEliminar   = null;
   document.getElementById('admin-confirm-overlay').classList.remove('activo');
 }
 
 async function confirmarEliminarPedido() {
-  if (!_pedidoAEliminar) return;
   const pedidoId = _pedidoAEliminar;
-  const idCorto  = String(pedidoId).slice(0, 8).toUpperCase();
+  const bulk     = _bulkAEliminar;
+  if (!pedidoId && !bulk) return;
   cerrarAdminConfirm();
 
   try {
-    // Obtener el token de sesión del admin para el endpoint server-side
     const { data: { session } } = await db.auth.getSession();
     if (!session) {
       mostrarToast('Error', 'Sesión expirada. Recarga la página.', 'error');
       return;
     }
 
+    const body = bulk
+      ? { byStatus: bulk, adminToken: session.access_token }
+      : { pedidoId,        adminToken: session.access_token };
+
     const res = await fetch('/api/admin-delete-pedido', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        pedidoId,
-        adminToken: session.access_token
-      })
+      body: JSON.stringify(body)
     });
 
     const data = await res.json();
-
     if (!res.ok) {
       mostrarToast('Error', data.error || 'No se pudo eliminar', 'error');
       return;
     }
 
-    todosLosPedidos = todosLosPedidos.filter(p => String(p.id) !== String(pedidoId));
+    if (bulk) {
+      const antes = todosLosPedidos.length;
+      todosLosPedidos = todosLosPedidos.filter(p => p.estado !== bulk);
+      const eliminados = data.deleted ?? (antes - todosLosPedidos.length);
+      mostrarToast('Pedidos eliminados', `${eliminados} pedido(s) ${bulk}(s) eliminados`, 'ok');
+    } else {
+      const idCorto = String(pedidoId).slice(0, 8).toUpperCase();
+      todosLosPedidos = todosLosPedidos.filter(p => String(p.id) !== String(pedidoId));
+      mostrarToast('Pedido eliminado', `#${idCorto} eliminado correctamente`, 'ok');
+    }
+
     calcularStats();
     aplicarFiltros();
     renderizarGrafico();
-
-    mostrarToast('Pedido eliminado', `#${idCorto} eliminado correctamente`, 'ok');
 
   } catch (e) {
     console.error('[Admin] Error eliminando:', e);
@@ -504,13 +529,11 @@ function verDetalle(pedidoId) {
       <div class="modal-info-bloque">
         <p class="modal-info-label">Método de pago</p>
         <p class="modal-info-valor">
-          ${pedido.estado === 'transferencia_pendiente'
-            ? '🏦 Transferencia bancaria'
-            : pedido.mp_payment_id
-              ? '💳 MercadoPago'
-              : pedido.estado === 'enviado' || pedido.estado === 'pagado'
-                ? '✓ Pagado'
-                : '—'}
+          ${pedido.mp_payment_id
+            ? '💳 MercadoPago'
+            : pedido.estado === 'enviado' || pedido.estado === 'pagado'
+              ? '✓ Pagado'
+              : '—'}
         </p>
       </div>
       ${pedido.mp_payment_id ? `

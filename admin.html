@@ -94,6 +94,14 @@
             </svg>
             Exportar CSV
           </button>
+          <button id="btn-limpiar-fallidos" class="btn-limpiar-fallidos" title="Eliminar todos los pedidos con estado fallido">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+              <path d="M10 11v6"/><path d="M14 11v6"/>
+            </svg>
+            Eliminar fallidos
+          </button>
         </div>
       </div>
 
@@ -227,7 +235,6 @@
         <select id="filtro-estado" class="admin-select">
           <option value="todos">Todos los estados</option>
           <option value="pendiente">Pendientes</option>
-          <option value="transferencia_pendiente">Transferencia pendiente</option>
           <option value="pagado">Pagados</option>
           <option value="enviado">Enviados</option>
           <option value="fallido">Fallidos</option>

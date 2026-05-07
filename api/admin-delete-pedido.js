@@ -10,10 +10,16 @@ module.exports = async (req, res) => {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { pedidoId, adminToken } = req.body || {};
+  const { pedidoId, byStatus, adminToken } = req.body || {};
 
-  if (!pedidoId) {
-    return res.status(400).json({ error: 'Falta pedidoId' });
+  if (!pedidoId && !byStatus) {
+    return res.status(400).json({ error: 'Falta pedidoId o byStatus' });
+  }
+
+  // Estados permitidos para borrado masivo (evita borrar pagados/enviados por error)
+  const ESTADOS_BORRABLES = ['fallido', 'pendiente', 'transferencia_pendiente'];
+  if (byStatus && !ESTADOS_BORRABLES.includes(byStatus)) {
+    return res.status(400).json({ error: `Estado no permitido para borrado masivo: ${byStatus}` });
   }
 
   // Verificar que el token pertenece a un admin
@@ -39,14 +45,22 @@ module.exports = async (req, res) => {
 
   const supabaseAdmin = createClient(SUPA_URL, serviceKey);
 
+  if (byStatus) {
+    // Borrado masivo por estado
+    const { data, error } = await supabaseAdmin
+      .from('pedidos')
+      .delete()
+      .eq('estado', byStatus)
+      .select('id');
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(200).json({ ok: true, deleted: (data || []).length });
+  }
+
+  // Borrado individual
   const { error } = await supabaseAdmin
     .from('pedidos')
     .delete()
     .eq('id', pedidoId);
-
-  if (error) {
-    return res.status(500).json({ error: error.message });
-  }
-
-  return res.status(200).json({ ok: true });
+  if (error) return res.status(500).json({ error: error.message });
+  return res.status(200).json({ ok: true, deleted: 1 });
 };

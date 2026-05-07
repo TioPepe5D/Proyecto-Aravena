@@ -259,6 +259,31 @@
   transform: translateY(0);
 }
 
+.btn-limpiar-fallidos {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.1rem;
+  background: transparent;
+  border: 1px solid #dc2626;
+  color: #dc2626;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-limpiar-fallidos:hover {
+  background: #dc2626;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(220,38,38,0.35);
+}
+.btn-limpiar-fallidos:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* ── Stats Cards ────────────────────────── */
 .admin-stats {
   display: grid;

@@ -2,23 +2,18 @@ const { MercadoPagoConfig, Payment } = require("mercadopago");
 const { createClient } = require("@supabase/supabase-js");
 
 /* ── Helper: notificación WhatsApp via CallMeBot ── */
-async function enviarNotifWhatsApp({ tipo, pedidoId, total, items, email }) {
+async function enviarNotifWhatsApp({ pedidoId, total, items, email }) {
   const apiKey = process.env.CALLMEBOT_APIKEY;
   const phone  = process.env.NOTIF_PHONE || "56966497904";
   if (!apiKey) return;
-
-  const emoji  = tipo === "transferencia" ? "🏦" : "💳";
-  const metodo = tipo === "transferencia"
-    ? "Transferencia Bancaria (pendiente)"
-    : "MercadoPago ✅";
 
   const resumen = Array.isArray(items) && items.length
     ? items.map(i => `• ${i.nombre} x${i.cantidad}`).join("\n")
     : "Sin detalle";
 
   const mensaje =
-    `🔔 NUEVO PEDIDO — Joyería Aravena\n\n` +
-    `${emoji} Método: ${metodo}\n` +
+    `🔔 NUEVO PEDIDO PAGADO — Joyería Aravena\n\n` +
+    `💳 Método: MercadoPago ✅\n` +
     `📦 ID: ${pedidoId || "N/A"}\n` +
     `💰 Total: $${Number(total).toLocaleString("es-CL")} CLP\n` +
     `👤 Cliente: ${email || "N/A"}\n\n` +
@@ -104,13 +99,7 @@ module.exports = async (req, res) => {
           const total = pedido?.total ?? pago.transaction_amount ?? 0;
           const items = pedido?.items ?? [];
 
-          await enviarNotifWhatsApp({
-            tipo:      "mercadopago",
-            pedidoId,
-            total,
-            items,
-            email
-          });
+          await enviarNotifWhatsApp({ pedidoId, total, items, email });
         } catch (ne) {
           console.warn("[Webhook MP] No se pudo notificar:", ne.message);
         }
