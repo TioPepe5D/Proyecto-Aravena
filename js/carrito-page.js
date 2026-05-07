@@ -160,7 +160,7 @@ function _validarRut(rut) {
   return dv === dvCalc;
 }
 function _validarCorreo(c) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(c);
+  return /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,6}$/.test(c);
 }
 function _bindRestricciones() {
   const get = id => document.getElementById(id);
@@ -175,10 +175,10 @@ function _bindRestricciones() {
     });
   });
 
-  // Teléfono: dígitos, + y espacios
+  // Teléfono: solo +56 seguido de 9 dígitos (máx 12 chars)
   const tel = get('env-telefono-pago');
   if (tel) tel.addEventListener('input', () => {
-    tel.value = tel.value.replace(/[^0-9+\s]/g, '').slice(0, 15);
+    tel.value = tel.value.replace(/[^0-9+]/g, '').slice(0, 12);
   });
 
   // RUT: formateo automático
@@ -264,8 +264,8 @@ function confirmarEnvioYPagar() {
   if (nombre.length < 3 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(nombre)) {
     return fail('Nombre inválido. Solo letras y espacios (mín. 3 caracteres).');
   }
-  if (!/^[0-9+\s]{8,15}$/.test(telefono)) {
-    return fail('Teléfono inválido. Solo números, debe tener 8 a 15 dígitos.');
+  if (!/^\+56[0-9]{9}$/.test(telefono)) {
+    return fail('Teléfono inválido. Formato requerido: +56912345678 (12 caracteres).');
   }
   if (!_validarRut(rut)) {
     return fail('RUT inválido. Verifica el dígito verificador (ej: 12.345.678-9).');
