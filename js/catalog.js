@@ -1,63 +1,29 @@
-let materialActivo    = "todos";
-let subcategoriaActiva = "todos";
-
-const nombresMaterial = {
-  "todos":          "Nuestra Colección",
-  "plata-nacional": "Plata Nacional SL 925",
-  "plata-italiana": "Plata Italiana",
-  "oro-goldfit":    "Oro Gold Fit 18K",
-  "accesorio":      "Exhibidores & Accesorios"
-};
-
-const nombresCategoria = {
-  "todos":       "Todos",
-  "collares":    "Collares",
-  "pulseras":    "Pulseras & Tobilleras",
-  "aros":        "Aros & Argollas",
-  "colgantes":   "Colgantes",
-  "conjuntos":   "Conjuntos",
-  "anillos":     "Anillos",
-  "exhibidores": "Exhibidores & Accesorios"
-};
-
 function renderizarProductos() {
-  const grid    = document.getElementById("productos-grid");
-  const titulo  = document.getElementById("catalogo-titulo");
+  const grid     = document.getElementById("productos-grid");
   const busqueda = (document.getElementById("filtro-nombre")?.value || "").toLowerCase();
   const orden    = document.getElementById("filtro-precio")?.value || "";
+  const minVal   = parseFloat(document.getElementById("filtro-precio-min")?.value) || 0;
+  const maxVal   = parseFloat(document.getElementById("filtro-precio-max")?.value) || Infinity;
 
-  // ── Filtro nivel 1: material ──
-  let filtrados = materialActivo === "todos"
-    ? productos
-    : productos.filter(p => p.material === materialActivo);
-
-  // ── Filtro nivel 2: subcategoría ──
-  if (subcategoriaActiva !== "todos") {
-    filtrados = filtrados.filter(p => p.categoria === subcategoriaActiva);
-  }
+  let filtrados = [...productos];
 
   // ── Búsqueda por nombre ──
   if (busqueda) {
     filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(busqueda));
   }
 
-  // ── Orden por precio ──
-  if (orden === "asc")  filtrados = [...filtrados].sort((a, b) => a.precio - b.precio);
-  if (orden === "desc") filtrados = [...filtrados].sort((a, b) => b.precio - a.precio);
+  // ── Filtro por rango de precio ──
+  filtrados = filtrados.filter(p => {
+    if (p.precio <= 0) return true; // "Consultar precio" siempre visible
+    return p.precio >= minVal && p.precio <= maxVal;
+  });
 
-  // ── Título dinámico ──
-  if (materialActivo !== "todos") {
-    const matLabel  = nombresMaterial[materialActivo] || materialActivo;
-    const subcatLabel = subcategoriaActiva !== "todos"
-      ? " — " + (nombresCategoria[subcategoriaActiva] || subcategoriaActiva)
-      : "";
-    titulo.textContent = matLabel + subcatLabel;
-  } else {
-    titulo.textContent = "Nuestra Colección";
-  }
+  // ── Orden por precio ──
+  if (orden === "asc")  filtrados = filtrados.sort((a, b) => a.precio - b.precio);
+  if (orden === "desc") filtrados = filtrados.sort((a, b) => b.precio - a.precio);
 
   if (filtrados.length === 0) {
-    grid.innerHTML = "<p style='text-align:center;color:#888;padding:3rem 0'>No hay productos en esta categoría.</p>";
+    grid.innerHTML = "<p style='text-align:center;color:#888;padding:3rem 0'>No se encontraron productos con ese filtro.</p>";
     return;
   }
 
@@ -210,71 +176,12 @@ function detalleAgregarAlCarrito(id) {
   }, 1800);
 }
 
-/* ── Mostrar / ocultar subcategorías según material seleccionado ── */
-function actualizarSubcategorias() {
-  const subcatWrap = document.getElementById("subcategorias");
-  if (!subcatWrap) return;
-
-  if (materialActivo === "todos" || materialActivo === "accesorio") {
-    subcatWrap.classList.remove("visible");
-  } else {
-    subcatWrap.classList.add("visible");
-
-    // Mostrar sólo las subcategorías con productos en el material activo
-    const subcatBtns = subcatWrap.querySelectorAll(".subcat-btn");
-    subcatBtns.forEach(btn => {
-      const subcat = btn.dataset.subcat;
-      if (subcat === "todos") {
-        btn.style.display = "";
-        return;
-      }
-      const hay = productos.some(p => p.material === materialActivo && p.categoria === subcat);
-      btn.style.display = hay ? "" : "none";
-    });
-  }
-}
-
 function inicializarFiltros() {
-  // ── Nivel 1: botones de material ──
-  const botonesMateria = document.querySelectorAll(".material-btn");
-  botonesMateria.forEach(boton => {
-    boton.addEventListener("click", () => {
-      botonesMateria.forEach(b => b.classList.remove("activo"));
-      boton.classList.add("activo");
-      materialActivo    = boton.dataset.material;
-      subcategoriaActiva = "todos";
-
-      // Resetear selección de subcategoría
-      document.querySelectorAll(".subcat-btn").forEach(b => b.classList.remove("activo"));
-      const todosSubcat = document.querySelector(".subcat-btn[data-subcat='todos']");
-      if (todosSubcat) todosSubcat.classList.add("activo");
-
-      // Mostrar/ocultar barra de filtros
-      const filtroBarra = document.getElementById("filtro-barra");
-      if (filtroBarra) filtroBarra.classList.toggle("visible", materialActivo !== "todos");
-
-      document.getElementById("filtro-nombre").value = "";
-      document.getElementById("filtro-precio").value = "";
-
-      actualizarSubcategorias();
-      renderizarProductos();
-    });
-  });
-
-  // ── Nivel 2: botones de subcategoría ──
-  const botonesSubcat = document.querySelectorAll(".subcat-btn");
-  botonesSubcat.forEach(boton => {
-    boton.addEventListener("click", () => {
-      botonesSubcat.forEach(b => b.classList.remove("activo"));
-      boton.classList.add("activo");
-      subcategoriaActiva = boton.dataset.subcat;
-      renderizarProductos();
-    });
-  });
-
-  // ── Búsqueda y orden ──
-  document.getElementById("filtro-nombre").addEventListener("input",  () => renderizarProductos());
-  document.getElementById("filtro-precio").addEventListener("change", () => renderizarProductos());
+  const rerender = () => renderizarProductos();
+  document.getElementById("filtro-nombre")?.addEventListener("input",  rerender);
+  document.getElementById("filtro-precio")?.addEventListener("change", rerender);
+  document.getElementById("filtro-precio-min")?.addEventListener("input", rerender);
+  document.getElementById("filtro-precio-max")?.addEventListener("input", rerender);
 }
 
 function inicializarCatalogo() {

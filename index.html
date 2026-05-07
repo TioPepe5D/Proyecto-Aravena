@@ -192,29 +192,11 @@
   <section class="catalogo" id="catalogo">
     <h2 id="catalogo-titulo" class="animar">Nuestra Colección</h2>
 
-    <!-- Selector de material (Nivel 1) -->
-    <div class="materiales">
-      <button class="material-btn activo" data-material="todos">✨ Todos</button>
-      <button class="material-btn" data-material="plata-nacional">🪙 Plata Nacional SL 925</button>
-      <button class="material-btn" data-material="plata-italiana">⚜️ Plata Italiana</button>
-      <button class="material-btn" data-material="oro-goldfit">✨ Oro Gold Fit 18K</button>
-      <button class="material-btn" data-material="accesorio">🗂 Insumos</button>
-    </div>
-
-    <!-- Selector de subcategoría (Nivel 2 — aparece al elegir material) -->
-    <div class="subcategorias" id="subcategorias">
-      <button class="subcat-btn activo" data-subcat="todos">Todos</button>
-      <button class="subcat-btn" data-subcat="collares">📿 Collares</button>
-      <button class="subcat-btn" data-subcat="pulseras">💎 Pulseras</button>
-      <button class="subcat-btn" data-subcat="aros">🔵 Aros</button>
-      <button class="subcat-btn" data-subcat="colgantes">⭐ Colgantes</button>
-      <button class="subcat-btn" data-subcat="conjuntos">🎁 Conjuntos</button>
-      <button class="subcat-btn" data-subcat="anillos">💍 Anillos</button>
-    </div>
-
-    <!-- Filtro por precio y nombre (aparece al seleccionar categoría) -->
+    <!-- Filtro por precio y nombre -->
     <div class="filtro-barra" id="filtro-barra">
-      <input type="text" id="filtro-nombre" placeholder="Buscar por nombre...">
+      <input type="text" id="filtro-nombre" placeholder="🔍 Buscar por nombre...">
+      <input type="number" id="filtro-precio-min" placeholder="$ Precio mínimo" min="0" inputmode="numeric">
+      <input type="number" id="filtro-precio-max" placeholder="$ Precio máximo" min="0" inputmode="numeric">
       <select id="filtro-precio">
         <option value="">Ordenar por precio</option>
         <option value="asc">Menor precio primero</option>
