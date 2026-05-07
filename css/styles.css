@@ -640,35 +640,30 @@ img { max-width: 100%; display: block; }
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   margin-bottom: 32px;
   flex-wrap: wrap;
 }
 
 .filtro-barra input,
 .filtro-barra select {
-  padding: 10px 16px;
+  padding: 11px 18px;
   border: 1px solid var(--color-borde);
   border-radius: var(--radio);
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-family: var(--fuente-secundaria);
   color: var(--color-texto);
   background: var(--color-fondo-secundario);
   outline: none;
-  transition: border-color 0.2s;
-  min-width: 160px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-width: 240px;
 }
-.filtro-barra input[type="number"] { min-width: 140px; }
 .filtro-barra input:focus, .filtro-barra select:focus {
   border-color: var(--color-primario);
   box-shadow: 0 0 10px rgba(30,157,241,0.2);
 }
+.filtro-barra select { cursor: pointer; }
 .filtro-barra select option { background: var(--color-fondo-secundario); }
-
-/* Ocultar spinner de inputs number */
-.filtro-barra input[type="number"]::-webkit-inner-spin-button,
-.filtro-barra input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-.filtro-barra input[type="number"] { -moz-appearance: textfield; }
 
 @keyframes fadeDown {
   from { opacity: 0; transform: translateY(-8px); }

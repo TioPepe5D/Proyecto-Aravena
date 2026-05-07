@@ -2,8 +2,6 @@ function renderizarProductos() {
   const grid     = document.getElementById("productos-grid");
   const busqueda = (document.getElementById("filtro-nombre")?.value || "").toLowerCase();
   const orden    = document.getElementById("filtro-precio")?.value || "";
-  const minVal   = parseFloat(document.getElementById("filtro-precio-min")?.value) || 0;
-  const maxVal   = parseFloat(document.getElementById("filtro-precio-max")?.value) || Infinity;
 
   let filtrados = [...productos];
 
@@ -11,12 +9,6 @@ function renderizarProductos() {
   if (busqueda) {
     filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(busqueda));
   }
-
-  // ── Filtro por rango de precio ──
-  filtrados = filtrados.filter(p => {
-    if (p.precio <= 0) return true; // "Consultar precio" siempre visible
-    return p.precio >= minVal && p.precio <= maxVal;
-  });
 
   // ── Orden por precio ──
   if (orden === "asc")  filtrados = filtrados.sort((a, b) => a.precio - b.precio);
@@ -180,8 +172,6 @@ function inicializarFiltros() {
   const rerender = () => renderizarProductos();
   document.getElementById("filtro-nombre")?.addEventListener("input",  rerender);
   document.getElementById("filtro-precio")?.addEventListener("change", rerender);
-  document.getElementById("filtro-precio-min")?.addEventListener("input", rerender);
-  document.getElementById("filtro-precio-max")?.addEventListener("input", rerender);
 }
 
 function inicializarCatalogo() {
