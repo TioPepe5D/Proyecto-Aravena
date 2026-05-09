@@ -125,7 +125,7 @@ module.exports = async (req, res) => {
       auto_return:          "approved",
       statement_descriptor: "JoyeriaAravena",
       external_reference:   String(pedido.id),
-      notification_url:     `${vercelUrl}/api/mp-webhook`,
+      notification_url:     `${siteUrl}/api/mp-webhook`,
       binary_mode:          false,
       // Habilitar explícitamente todos los métodos de pago,
       // incluyendo tarjetas de débito (Redcompra) en Chile
