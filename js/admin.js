@@ -123,6 +123,8 @@ function configurarEventos() {
 
   // Botón "Eliminar fallidos" — borrado masivo
   document.getElementById('btn-limpiar-fallidos')?.addEventListener('click', pedirEliminarFallidos);
+  // Botón "Eliminar pendientes" — borrado masivo
+  document.getElementById('btn-limpiar-pendientes')?.addEventListener('click', pedirEliminarPendientes);
 
   // Calculadora de lote
   document.getElementById('btn-calculadora').addEventListener('click', abrirCalculadora);
@@ -393,6 +395,21 @@ function pedirEliminarFallidos() {
   document.getElementById('admin-confirm-overlay').classList.add('activo');
 }
 window.pedirEliminarFallidos = pedirEliminarFallidos;
+
+function pedirEliminarPendientes() {
+  const pendientes = todosLosPedidos.filter(p => p.estado === 'pendiente');
+  if (pendientes.length === 0) {
+    mostrarToast('Sin pedidos', 'No hay pedidos pendientes para eliminar.', 'ok');
+    return;
+  }
+  _pedidoAEliminar = null;
+  _bulkAEliminar   = 'pendiente';
+  document.querySelector('.admin-confirm-titulo').textContent = '¿Eliminar pedidos pendientes?';
+  document.getElementById('admin-confirm-detalle').textContent =
+    `Se eliminarán ${pendientes.length} pedido(s) en estado pendiente. Asegúrate de haber verificado en MercadoPago cuáles realmente pagaron antes de eliminar.`;
+  document.getElementById('admin-confirm-overlay').classList.add('activo');
+}
+window.pedirEliminarPendientes = pedirEliminarPendientes;
 
 function cerrarAdminConfirm() {
   _pedidoAEliminar = null;
