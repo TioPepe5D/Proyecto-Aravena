@@ -255,20 +255,28 @@
     document.getElementById('val-fecha').textContent =
       new Date().toLocaleDateString('es-CL', { day:'2-digit', month:'long', year:'numeric' });
 
-    // Actualizar estado del pedido en Supabase
+    // Verificar el pago contra MercadoPago y actualizar Supabase
+    // — funciona para invitados y usuarios logueados (server-side con service key)
     (async () => {
-      const pedidoId = localStorage.getItem('pedido_pendiente_id');
-      if (!pedidoId || typeof db === 'undefined') return;
+      const params = new URLSearchParams(window.location.search);
+      const pedidoId  = params.get('external_reference') || localStorage.getItem('pedido_pendiente_id');
+      const paymentId = params.get('payment_id') || params.get('collection_id');
+      if (!pedidoId && !paymentId) return;
+
       try {
-        const { data: { session } } = await db.auth.getSession();
-        if (session) {
-          await db.from('pedidos')
-            .update({ estado: 'pagado' })
-            .eq('id', pedidoId)
-            .eq('user_id', session.user.id);
+        const resp = await fetch('/api/verificar-pago', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pedidoId, paymentId })
+        });
+        const data = await resp.json();
+        console.log('[Pago] Verificación:', data);
+        if (data.estado === 'pagado') {
           localStorage.removeItem('pedido_pendiente_id');
         }
-      } catch (e) { console.warn('No se pudo actualizar el pedido:', e); }
+      } catch (e) {
+        console.warn('No se pudo verificar el pago:', e);
+      }
     })();
 
     // Vaciar carrito
