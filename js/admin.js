@@ -111,7 +111,7 @@ function configurarEventos() {
   document.getElementById('modal-cerrar').addEventListener('click', cerrarModal);
   document.getElementById('modal-overlay').addEventListener('click', cerrarModal);
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') { cerrarModal(); cerrarCalculadora(); cerrarAdminConfirm(); }
+    if (e.key === 'Escape') { cerrarModal(); cerrarAdminConfirm(); }
   });
 
   // Modal confirmar eliminar pedido
@@ -123,24 +123,6 @@ function configurarEventos() {
 
   // Botón "Eliminar fallidos" — borrado masivo
   document.getElementById('btn-limpiar-fallidos')?.addEventListener('click', pedirEliminarFallidos);
-  // Botón "Eliminar pendientes" — borrado masivo
-  document.getElementById('btn-limpiar-pendientes')?.addEventListener('click', pedirEliminarPendientes);
-
-  // Calculadora de lote
-  document.getElementById('btn-calculadora').addEventListener('click', abrirCalculadora);
-  document.getElementById('calc-cerrar').addEventListener('click', cerrarCalculadora);
-  document.getElementById('calc-overlay').addEventListener('click', cerrarCalculadora);
-  document.getElementById('calc-buscar').addEventListener('input', buscarProductoCalc);
-  document.getElementById('calc-cantidad').addEventListener('input', recalcular);
-  document.querySelectorAll('.calc-btn-cant').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const input = document.getElementById('calc-cantidad');
-      const delta = parseInt(btn.dataset.delta, 10);
-      input.value = Math.max(1, (parseInt(input.value, 10) || 1) + delta);
-      recalcular();
-    });
-  });
-  document.getElementById('calc-btn-copiar').addEventListener('click', copiarCotizacion);
 }
 
 /* ── Cargar pedidos ──────────────────────── */
@@ -393,21 +375,6 @@ function pedirEliminarFallidos() {
   document.getElementById('admin-confirm-overlay').classList.add('activo');
 }
 window.pedirEliminarFallidos = pedirEliminarFallidos;
-
-function pedirEliminarPendientes() {
-  const pendientes = todosLosPedidos.filter(p => p.estado === 'pendiente');
-  if (pendientes.length === 0) {
-    mostrarToast('Sin pedidos', 'No hay pedidos pendientes para eliminar.', 'ok');
-    return;
-  }
-  _pedidoAEliminar = null;
-  _bulkAEliminar   = 'pendiente';
-  document.querySelector('.admin-confirm-titulo').textContent = '¿Eliminar pedidos pendientes?';
-  document.getElementById('admin-confirm-detalle').textContent =
-    `Se eliminarán ${pendientes.length} pedido(s) en estado pendiente. Asegúrate de haber verificado en MercadoPago cuáles realmente pagaron antes de eliminar.`;
-  document.getElementById('admin-confirm-overlay').classList.add('activo');
-}
-window.pedirEliminarPendientes = pedirEliminarPendientes;
 
 function cerrarAdminConfirm() {
   _pedidoAEliminar = null;
@@ -913,169 +880,6 @@ function reproducirSonido() {
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + 0.35);
   } catch (e) { /* silencio en error */ }
-}
-
-/* ═══════════════════════════════════════════════════════════
-   CALCULADORA DE LOTE
-   ═══════════════════════════════════════════════════════════ */
-
-let calcProductoActivo = null;
-
-// Tiers de descuento por volumen
-const DESCUENTOS_LOTE = [
-  { min: 100, pct: 20 },
-  { min: 50,  pct: 15 },
-  { min: 20,  pct: 10 },
-  { min: 10,  pct: 5  },
-  { min: 1,   pct: 0  }
-];
-
-function calcularDescuento(cantidad) {
-  return DESCUENTOS_LOTE.find(t => cantidad >= t.min)?.pct || 0;
-}
-
-function abrirCalculadora() {
-  document.getElementById('calc-overlay').classList.add('activo');
-  document.getElementById('calc-modal').classList.add('activo');
-  document.getElementById('calc-buscar').value = '';
-  document.getElementById('calc-buscar').focus();
-  buscarProductoCalc();
-}
-
-function cerrarCalculadora() {
-  document.getElementById('calc-overlay').classList.remove('activo');
-  document.getElementById('calc-modal').classList.remove('activo');
-}
-
-function buscarProductoCalc() {
-  if (typeof productos === 'undefined') return;
-  const q = document.getElementById('calc-buscar').value.trim().toLowerCase();
-  const lista = document.getElementById('calc-resultados');
-
-  // Sólo productos con precio > 0
-  const matches = productos
-    .filter(p => p.precio > 0)
-    .filter(p => !q || p.nombre.toLowerCase().includes(q) || (p.categoria || '').toLowerCase().includes(q))
-    .slice(0, 8);
-
-  if (matches.length === 0) {
-    lista.innerHTML = '<div class="calc-no-results">Sin coincidencias</div>';
-    return;
-  }
-
-  lista.innerHTML = matches.map(p => `
-    <div class="calc-resultado-item" onclick="seleccionarProductoCalc(${p.id})">
-      <img src="${p.imagen}" alt="${p.nombre}" onerror="this.style.opacity=0.3">
-      <div class="calc-resultado-info">
-        <p class="calc-resultado-nombre">${p.nombre}</p>
-        <p class="calc-resultado-meta">${p.categoria} · $${p.precio.toLocaleString('es-CL')}</p>
-      </div>
-    </div>
-  `).join('');
-}
-
-function seleccionarProductoCalc(id) {
-  const p = productos.find(x => x.id === id);
-  if (!p) return;
-  calcProductoActivo = p;
-
-  document.getElementById('calc-resultados').innerHTML = '';
-  document.getElementById('calc-buscar').value = p.nombre;
-
-  const elegido = document.getElementById('calc-producto-elegido');
-  elegido.style.display = 'flex';
-  elegido.innerHTML = `
-    <img src="${p.imagen}" alt="${p.nombre}">
-    <div>
-      <p class="calc-elegido-nombre">${p.nombre}</p>
-      <p class="calc-elegido-meta">${p.categoria} · ${p.material}</p>
-      <p class="calc-elegido-precio">$${p.precio.toLocaleString('es-CL')} <small>c/u</small></p>
-    </div>
-    <button class="calc-elegido-quitar" onclick="quitarProductoCalc()" title="Quitar">×</button>
-  `;
-
-  document.getElementById('calc-cantidad-bloque').style.display = 'block';
-  document.getElementById('calc-resultado').style.display = 'block';
-  document.getElementById('calc-cantidad').value = 1;
-  recalcular();
-}
-window.seleccionarProductoCalc = seleccionarProductoCalc;
-
-function quitarProductoCalc() {
-  calcProductoActivo = null;
-  document.getElementById('calc-producto-elegido').style.display = 'none';
-  document.getElementById('calc-cantidad-bloque').style.display = 'none';
-  document.getElementById('calc-resultado').style.display = 'none';
-  document.getElementById('calc-buscar').value = '';
-  document.getElementById('calc-buscar').focus();
-  buscarProductoCalc();
-}
-window.quitarProductoCalc = quitarProductoCalc;
-
-function recalcular() {
-  if (!calcProductoActivo) return;
-  const cant = Math.max(1, parseInt(document.getElementById('calc-cantidad').value, 10) || 1);
-  const precio = calcProductoActivo.precio;
-  const subtotal = precio * cant;
-  const pct = calcularDescuento(cant);
-  const descuento = Math.round(subtotal * pct / 100);
-  const total = subtotal - descuento;
-  const precioReal = Math.round(total / cant);
-
-  document.getElementById('calc-precio-unit').textContent = '$' + precio.toLocaleString('es-CL');
-  document.getElementById('calc-cant-display').textContent = cant;
-  document.getElementById('calc-subtotal').textContent = '$' + subtotal.toLocaleString('es-CL');
-  document.getElementById('calc-total').textContent = '$' + total.toLocaleString('es-CL') + ' CLP';
-  document.getElementById('calc-precio-real').textContent = '$' + precioReal.toLocaleString('es-CL');
-
-  const descRow = document.getElementById('calc-descuento-row');
-  if (pct > 0) {
-    descRow.style.display = 'flex';
-    document.getElementById('calc-descuento-pct').textContent = pct + '%';
-    document.getElementById('calc-descuento-valor').textContent = '−$' + descuento.toLocaleString('es-CL');
-  } else {
-    descRow.style.display = 'none';
-  }
-
-  // Resaltar tier activo
-  document.querySelectorAll('.calc-tier').forEach(t => {
-    const min = parseInt(t.dataset.min, 10);
-    t.classList.toggle('activo', cant >= min &&
-      (DESCUENTOS_LOTE.find(d => d.min === min)?.pct || 0) === pct);
-  });
-
-  // Mensaje WhatsApp
-  const msg =
-`*Cotización mayorista — Joyería Aravena*
-
-📦 ${calcProductoActivo.nombre}
-   Categoría: ${calcProductoActivo.categoria}
-   Material: ${calcProductoActivo.material}
-
-🔢 Cantidad: ${cant} unidades
-💰 Precio unitario: $${precio.toLocaleString('es-CL')}
-📊 Subtotal: $${subtotal.toLocaleString('es-CL')}` +
-(pct > 0 ? `\n🎁 Descuento mayorista (${pct}%): −$${descuento.toLocaleString('es-CL')}` : '') +
-`\n\n✨ *Total: $${total.toLocaleString('es-CL')} CLP*\n   ($${precioReal.toLocaleString('es-CL')} c/u)`;
-
-  document.getElementById('calc-btn-wsp').href =
-    'https://wa.me/56966497904?text=' + encodeURIComponent(msg);
-  document.getElementById('calc-btn-copiar').dataset.texto = msg;
-}
-
-function copiarCotizacion() {
-  const texto = document.getElementById('calc-btn-copiar').dataset.texto;
-  if (!texto) return;
-  navigator.clipboard.writeText(texto).then(() => {
-    const btn = document.getElementById('calc-btn-copiar');
-    const orig = btn.innerHTML;
-    btn.innerHTML = '✓ Copiado!';
-    btn.classList.add('copiado');
-    setTimeout(() => {
-      btn.innerHTML = orig;
-      btn.classList.remove('copiado');
-    }, 1800);
-  }).catch(() => mostrarToast('Error', 'No se pudo copiar', 'error'));
 }
 
 /* ── Visitantes en tiempo real ──────────────────────── */
