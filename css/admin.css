@@ -390,10 +390,6 @@
 .stat-pagado .stat-icon { background: var(--admin-verde-suave); color: var(--admin-verde); }
 .stat-pagado .stat-value { color: var(--admin-verde); }
 
-.stat-pendiente { color: var(--admin-ambar); }
-.stat-pendiente .stat-icon { background: var(--admin-ambar-suave); color: var(--admin-ambar); }
-.stat-pendiente .stat-value { color: var(--admin-ambar); }
-
 .stat-revenue { color: var(--admin-dorado); }
 .stat-revenue .stat-icon { background: var(--admin-dorado-suave); color: var(--admin-dorado); }
 .stat-revenue .stat-value { color: var(--admin-dorado); }

@@ -197,12 +197,10 @@ function calcularStats() {
   // "Pagados" incluye también enviados (siguen siendo ingresos confirmados)
   const pagadosYEnviados = todosLosPedidos.filter(p => p.estado === 'pagado' || p.estado === 'enviado');
   const enviados = todosLosPedidos.filter(p => p.estado === 'enviado').length;
-  const pendientes = todosLosPedidos.filter(p => p.estado === 'pendiente').length;
   const revenue = pagadosYEnviados.reduce((s, p) => s + (Number(p.total) || 0), 0);
 
   animarContador('stat-total', total);
   animarContador('stat-pagados', pagadosYEnviados.length);
-  animarContador('stat-pendientes', pendientes);
   animarContador('stat-enviados', enviados);
   document.getElementById('stat-revenue').textContent = '$' + revenue.toLocaleString('es-CL');
 }
