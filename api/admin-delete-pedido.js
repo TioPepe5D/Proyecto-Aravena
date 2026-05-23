@@ -2,27 +2,26 @@ const { createClient } = require('@supabase/supabase-js');
 
 const ADMIN_EMAILS = ['diegoaravenavera@gmail.com'];
 
-const SUPA_URL     = 'https://qcaxddxxmrwfihnyepbo.supabase.co';
-const SUPA_ANON    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjYXhkZHh4bXJ3ZmlobnllcGJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MzE5NDgsImV4cCI6MjA5MjQwNzk0OH0.0WtrOUK3_SDCkpVBTPg_aMz8rUk1sJ_ms6Ak5p5Xi08';
+const SUPA_URL  = 'https://qcaxddxxmrwfihnyepbo.supabase.co';
+const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjYXhkZHh4bXJ3ZmlobnllcGJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MzE5NDgsImV4cCI6MjA5MjQwNzk0OH0.0WtrOUK3_SDCkpVBTPg_aMz8rUk1sJ_ms6Ak5p5Xi08';
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { pedidoId, byStatus, adminToken } = req.body || {};
+  const { pedidoId, byStatus, adminToken, hardDelete } = req.body || {};
 
   if (!pedidoId && !byStatus) {
     return res.status(400).json({ error: 'Falta pedidoId o byStatus' });
   }
 
-  // Estados permitidos para borrado masivo (evita borrar pagados/enviados por error)
   const ESTADOS_BORRABLES = ['fallido', 'pendiente', 'transferencia_pendiente'];
   if (byStatus && !ESTADOS_BORRABLES.includes(byStatus)) {
     return res.status(400).json({ error: `Estado no permitido para borrado masivo: ${byStatus}` });
   }
 
-  // Verificar que el token pertenece a un admin
+  // Verificar admin
   const supabaseAuth = createClient(SUPA_URL, SUPA_ANON);
   let adminEmail = null;
   try {
@@ -37,29 +36,41 @@ module.exports = async (req, res) => {
     return res.status(403).json({ error: 'No autorizado' });
   }
 
-  // Usar service role key para bypass RLS
   const serviceKey = process.env.SUPABASE_SERVICE_KEY;
-  if (!serviceKey) {
-    return res.status(500).json({ error: 'Service key no configurada' });
-  }
+  if (!serviceKey) return res.status(500).json({ error: 'Service key no configurada' });
 
   const supabaseAdmin = createClient(SUPA_URL, serviceKey);
 
+  // hardDelete=true solo cuando el admin confirma desde la vista de eliminados
+  if (hardDelete) {
+    if (byStatus === 'eliminado') {
+      const { data, error } = await supabaseAdmin
+        .from('pedidos').delete().eq('estado', 'eliminado').select('id');
+      if (error) return res.status(500).json({ error: error.message });
+      return res.status(200).json({ ok: true, deleted: (data || []).length });
+    }
+    if (pedidoId) {
+      const { error } = await supabaseAdmin
+        .from('pedidos').delete().eq('id', pedidoId).eq('estado', 'eliminado');
+      if (error) return res.status(500).json({ error: error.message });
+      return res.status(200).json({ ok: true, deleted: 1 });
+    }
+  }
+
+  // Soft delete: marcar como 'eliminado' en vez de borrar
   if (byStatus) {
-    // Borrado masivo por estado
     const { data, error } = await supabaseAdmin
       .from('pedidos')
-      .delete()
+      .update({ estado: 'eliminado' })
       .eq('estado', byStatus)
       .select('id');
     if (error) return res.status(500).json({ error: error.message });
     return res.status(200).json({ ok: true, deleted: (data || []).length });
   }
 
-  // Borrado individual
   const { error } = await supabaseAdmin
     .from('pedidos')
-    .delete()
+    .update({ estado: 'eliminado' })
     .eq('id', pedidoId);
   if (error) return res.status(500).json({ error: error.message });
   return res.status(200).json({ ok: true, deleted: 1 });

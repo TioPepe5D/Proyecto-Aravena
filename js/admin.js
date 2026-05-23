@@ -127,8 +127,11 @@ function configurarEventos() {
     if (e.target.id === 'admin-confirm-overlay') cerrarAdminConfirm();
   });
 
-  // Botón "Eliminar fallidos" — borrado masivo
+  // Botón "Eliminar fallidos" — mueve a papelera
   document.getElementById('btn-limpiar-fallidos')?.addEventListener('click', pedirEliminarFallidos);
+
+  // Botón "Vaciar papelera" — borrado definitivo
+  document.getElementById('btn-vaciar-papelera')?.addEventListener('click', pedirVaciarPapelera);
 
   // Botón Sincronizar Drive
   document.getElementById('btn-drive-sync')?.addEventListener('click', abrirDriveModal);
@@ -227,6 +230,8 @@ function aplicarFiltros() {
   const estado = document.getElementById('filtro-estado').value;
 
   pedidosFiltrados = todosLosPedidos.filter(p => {
+    // "todos" excluye eliminados — hay que elegirlos explícitamente
+    if (estado === 'todos' && p.estado === 'eliminado') return false;
     if (estado !== 'todos' && p.estado !== estado) return false;
 
     if (busqueda) {
@@ -264,16 +269,21 @@ function renderizarTabla() {
     const total = Number(p.total) || 0;
 
     const acciones = [];
-    if (p.estado === 'pagado') {
-      acciones.push(`<button class="btn-accion btn-accion-enviar" onclick="cambiarEstado('${p.id}', 'enviado')" title="Marcar como despachado">📦 Marcar enviado</button>`);
-    } else if (p.estado !== 'enviado') {
-      acciones.push(`<button class="btn-accion btn-accion-pagar" onclick="cambiarEstado('${p.id}', 'pagado')">Marcar pagado</button>`);
+    if (p.estado === 'eliminado') {
+      acciones.push(`<button class="btn-accion btn-accion-restaurar" onclick="restaurarPedido('${p.id}')" title="Restaurar pedido">↩ Restaurar</button>`);
+      acciones.push(`<button class="btn-accion btn-accion-eliminar" onclick="eliminarPedidoDefinitivo('${p.id}')" title="Borrar definitivamente">🗑 Borrar</button>`);
+    } else {
+      if (p.estado === 'pagado') {
+        acciones.push(`<button class="btn-accion btn-accion-enviar" onclick="cambiarEstado('${p.id}', 'enviado')" title="Marcar como despachado">📦 Marcar enviado</button>`);
+      } else if (p.estado !== 'enviado') {
+        acciones.push(`<button class="btn-accion btn-accion-pagar" onclick="cambiarEstado('${p.id}', 'pagado')">Marcar pagado</button>`);
+      }
+      if (p.estado !== 'fallido' && p.estado !== 'enviado') {
+        acciones.push(`<button class="btn-accion btn-accion-fallar" onclick="cambiarEstado('${p.id}', 'fallido')">Fallido</button>`);
+      }
+      acciones.push(`<button class="btn-accion" onclick="verDetalle('${p.id}')">Ver</button>`);
+      acciones.push(`<button class="btn-accion btn-accion-eliminar" onclick="eliminarPedido('${p.id}')" title="Mover a papelera">🗑</button>`);
     }
-    if (p.estado !== 'fallido' && p.estado !== 'enviado') {
-      acciones.push(`<button class="btn-accion btn-accion-fallar" onclick="cambiarEstado('${p.id}', 'fallido')">Fallido</button>`);
-    }
-    acciones.push(`<button class="btn-accion" onclick="verDetalle('${p.id}')">Ver</button>`);
-    acciones.push(`<button class="btn-accion btn-accion-eliminar" onclick="eliminarPedido('${p.id}')" title="Eliminar pedido">🗑</button>`);
 
     // Intentar mostrar nombre de datos_envio si es pedido de invitado
     const envioNombre = p.datos_envio?.nombre || '';
@@ -356,7 +366,8 @@ window.cambiarEstado = cambiarEstado;
 
 /* ── Eliminar pedido (con modal de confirmación) ──────── */
 let _pedidoAEliminar = null;
-let _bulkAEliminar   = null; // 'fallido' | null
+let _bulkAEliminar   = null;
+let _hardDelete      = false;
 
 function eliminarPedido(pedidoId) {
   const pedido = todosLosPedidos.find(p => String(p.id) === String(pedidoId));
@@ -391,6 +402,7 @@ window.pedirEliminarFallidos = pedirEliminarFallidos;
 function cerrarAdminConfirm() {
   _pedidoAEliminar = null;
   _bulkAEliminar   = null;
+  _hardDelete      = false;
   document.getElementById('admin-confirm-overlay').classList.remove('activo');
 }
 
@@ -408,8 +420,8 @@ async function confirmarEliminarPedido() {
     }
 
     const body = bulk
-      ? { byStatus: bulk, adminToken: session.access_token }
-      : { pedidoId,        adminToken: session.access_token };
+      ? { byStatus: bulk, adminToken: session.access_token, hardDelete: _hardDelete }
+      : { pedidoId,       adminToken: session.access_token, hardDelete: _hardDelete };
 
     const res = await fetch('/api/admin-delete-pedido', {
       method: 'POST',
@@ -424,14 +436,25 @@ async function confirmarEliminarPedido() {
     }
 
     if (bulk) {
-      const antes = todosLosPedidos.length;
-      todosLosPedidos = todosLosPedidos.filter(p => p.estado !== bulk);
-      const eliminados = data.deleted ?? (antes - todosLosPedidos.length);
-      mostrarToast('Pedidos eliminados', `${eliminados} pedido(s) ${bulk}(s) eliminados`, 'ok');
+      const count = data.deleted ?? 0;
+      if (_hardDelete) {
+        todosLosPedidos = todosLosPedidos.filter(p => p.estado !== 'eliminado');
+        mostrarToast('Papelera vaciada', `${count} pedido(s) borrado(s) definitivamente`, 'ok');
+      } else {
+        // Soft delete: cambiar estado en memoria
+        todosLosPedidos.forEach(p => { if (p.estado === bulk) p.estado = 'eliminado'; });
+        mostrarToast('Pedidos movidos a papelera', `${count} pedido(s) en papelera. Puedes restaurarlos desde "Eliminados".`, 'ok');
+      }
     } else {
       const idCorto = String(pedidoId).slice(0, 8).toUpperCase();
-      todosLosPedidos = todosLosPedidos.filter(p => String(p.id) !== String(pedidoId));
-      mostrarToast('Pedido eliminado', `#${idCorto} eliminado correctamente`, 'ok');
+      if (_hardDelete) {
+        todosLosPedidos = todosLosPedidos.filter(p => String(p.id) !== String(pedidoId));
+        mostrarToast('Pedido borrado', `#${idCorto} borrado definitivamente`, 'ok');
+      } else {
+        const pedido = todosLosPedidos.find(p => String(p.id) === String(pedidoId));
+        if (pedido) pedido.estado = 'eliminado';
+        mostrarToast('Pedido en papelera', `#${idCorto} movido a papelera. Puedes restaurarlo desde "Eliminados".`, 'ok');
+      }
     }
 
     calcularStats();
@@ -442,6 +465,50 @@ async function confirmarEliminarPedido() {
     console.error('[Admin] Error eliminando:', e);
     mostrarToast('Error', 'Error inesperado al eliminar.', 'error');
   }
+}
+
+/* ── Restaurar pedido ────────────────────── */
+async function restaurarPedido(pedidoId) {
+  try {
+    const { error } = await db.from('pedidos').update({ estado: 'pendiente' }).eq('id', pedidoId);
+    if (error) { mostrarToast('Error', error.message, 'error'); return; }
+    const pedido = todosLosPedidos.find(p => String(p.id) === String(pedidoId));
+    if (pedido) pedido.estado = 'pendiente';
+    calcularStats();
+    aplicarFiltros();
+    mostrarToast('Pedido restaurado', `#${String(pedidoId).slice(0,8).toUpperCase()} restaurado como pendiente`, 'ok');
+  } catch (e) {
+    mostrarToast('Error', 'No se pudo restaurar.', 'error');
+  }
+}
+window.restaurarPedido = restaurarPedido;
+
+/* ── Borrar definitivamente (desde papelera) ── */
+function eliminarPedidoDefinitivo(pedidoId) {
+  const idCorto = String(pedidoId).slice(0, 8).toUpperCase();
+  _pedidoAEliminar = pedidoId;
+  _bulkAEliminar   = null;
+  _hardDelete      = true;
+  document.querySelector('.admin-confirm-titulo').textContent = '¿Borrar definitivamente?';
+  document.getElementById('admin-confirm-detalle').textContent =
+    `Pedido #${idCorto} — Esta acción es irreversible.`;
+  document.getElementById('admin-confirm-overlay').classList.add('activo');
+}
+window.eliminarPedidoDefinitivo = eliminarPedidoDefinitivo;
+
+function pedirVaciarPapelera() {
+  const eliminados = todosLosPedidos.filter(p => p.estado === 'eliminado');
+  if (eliminados.length === 0) {
+    mostrarToast('Papelera vacía', 'No hay pedidos en la papelera.', 'info');
+    return;
+  }
+  _pedidoAEliminar = null;
+  _bulkAEliminar   = 'eliminado';
+  _hardDelete      = true;
+  document.querySelector('.admin-confirm-titulo').textContent = '¿Vaciar papelera?';
+  document.getElementById('admin-confirm-detalle').textContent =
+    `Se borrarán definitivamente ${eliminados.length} pedido(s). Acción irreversible.`;
+  document.getElementById('admin-confirm-overlay').classList.add('activo');
 }
 
 /* ── Ver detalle (modal) ─────────────────── */
