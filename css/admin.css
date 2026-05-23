@@ -1386,3 +1386,241 @@
   gap: 0.6rem;
   flex-wrap: wrap;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   BOTÓN SINCRONIZAR DRIVE
+   ═══════════════════════════════════════════════════════════ */
+.btn-drive-sync {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, rgba(66,133,244,0.15), rgba(66,133,244,0.08));
+  border: 1px solid rgba(66,133,244,0.35);
+  color: #60a5fa;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+.btn-drive-sync:hover {
+  background: linear-gradient(135deg, rgba(66,133,244,0.25), rgba(66,133,244,0.14));
+  border-color: rgba(66,133,244,0.6);
+  color: #93c5fd;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MODAL SINCRONIZAR DRIVE
+   ═══════════════════════════════════════════════════════════ */
+.drive-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  z-index: 1100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+.drive-overlay.activo {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.drive-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(96vw, 900px);
+  max-height: 88vh;
+  background: var(--color-fondo-card);
+  border: 1px solid var(--color-borde);
+  border-radius: 16px;
+  z-index: 1101;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+}
+
+.drive-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1.4rem 1.6rem 1rem;
+  border-bottom: 1px solid var(--color-borde);
+  flex-shrink: 0;
+}
+.drive-modal-titulo {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-texto);
+  margin: 0 0 0.2rem;
+}
+.drive-modal-sub {
+  font-size: 0.82rem;
+  color: var(--color-texto-suave);
+  margin: 0;
+}
+
+.drive-cerrar {
+  background: none;
+  border: none;
+  color: var(--color-texto-suave);
+  font-size: 1.6rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 0.2rem;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+.drive-cerrar:hover { color: var(--color-texto); }
+
+.drive-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.2rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Estados de carga/error */
+.drive-cargando {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2.5rem 0;
+  color: var(--color-texto-suave);
+}
+.drive-error {
+  padding: 1rem 1.2rem;
+  background: var(--admin-rojo-suave);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: 8px;
+  color: #fca5a5;
+  font-size: 0.88rem;
+}
+.drive-vacio {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-texto-suave);
+  font-size: 0.95rem;
+}
+.drive-instrucciones-txt {
+  font-size: 0.88rem;
+  color: var(--color-texto-suave);
+  margin: 0;
+  padding: 0.7rem 1rem;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  border: 1px solid var(--color-borde);
+}
+
+/* Grid de imágenes */
+.drive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.drive-item {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--color-borde);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.drive-item:has(.drive-item-select:not([value=""])) {
+  border-color: rgba(66,133,244,0.4);
+}
+
+.drive-item-img-wrap {
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: rgba(255,255,255,0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.drive-item-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.drive-item-sin-thumb {
+  font-size: 0.75rem;
+  color: var(--color-texto-suave);
+  text-align: center;
+  padding: 1rem;
+}
+
+.drive-item-info {
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.drive-item-nombre {
+  font-size: 0.75rem;
+  color: var(--color-texto-suave);
+  margin: 0;
+  word-break: break-all;
+  line-height: 1.3;
+}
+.drive-item-select {
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  background: var(--color-fondo);
+  border: 1px solid var(--color-borde);
+  border-radius: 6px;
+  color: var(--color-texto);
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+.drive-item-select:focus {
+  outline: none;
+  border-color: rgba(66,133,244,0.5);
+}
+
+/* Badges de estado */
+.drive-item-badge { font-size: 0.75rem; min-height: 1.2em; }
+.drive-badge-sync { color: var(--color-texto-suave); }
+.drive-badge-ok   { color: var(--admin-verde); font-weight: 600; }
+.drive-badge-error { color: var(--admin-rojo); font-weight: 600; cursor: help; }
+
+/* Footer del modal */
+.drive-footer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.6rem;
+  border-top: 1px solid var(--color-borde);
+  background: var(--color-fondo-card);
+}
+.drive-asignados {
+  font-size: 0.85rem;
+  color: var(--color-texto-suave);
+}
+.btn-drive-confirmar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.4rem;
+  background: linear-gradient(135deg, #4285f4, #2563eb);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+.btn-drive-confirmar:hover:not(:disabled) { opacity: 0.9; }
+.btn-drive-confirmar:active { transform: scale(0.98); }
+.btn-drive-confirmar:disabled { opacity: 0.5; cursor: not-allowed; }

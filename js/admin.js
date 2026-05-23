@@ -78,6 +78,12 @@ function mostrarDenegado(mensaje) {
   }
 }
 
+/* ══════════════════════════════════════════════════════════
+   SINCRONIZACIÓN DE IMÁGENES DESDE GOOGLE DRIVE
+   ══════════════════════════════════════════════════════════ */
+
+let driveArchivos = []; // archivos cargados desde Drive
+
 function configurarEventos() {
   document.getElementById('btn-logout-admin').addEventListener('click', async () => {
     if (realtimeSub) await db.removeChannel(realtimeSub);
@@ -123,6 +129,12 @@ function configurarEventos() {
 
   // Botón "Eliminar fallidos" — borrado masivo
   document.getElementById('btn-limpiar-fallidos')?.addEventListener('click', pedirEliminarFallidos);
+
+  // Botón Sincronizar Drive
+  document.getElementById('btn-drive-sync')?.addEventListener('click', abrirDriveModal);
+  document.getElementById('drive-cerrar')?.addEventListener('click', cerrarDriveModal);
+  document.getElementById('drive-overlay')?.addEventListener('click', cerrarDriveModal);
+  document.getElementById('btn-drive-confirmar')?.addEventListener('click', sincronizarAsignados);
 }
 
 /* ── Cargar pedidos ──────────────────────── */
@@ -978,5 +990,161 @@ async function cargarUsuariosActivos() {
     }
   } catch (e) {
     console.warn('[Admin] Error cargando UAU:', e.message);
+  }
+}
+
+/* ── Drive Sync: abrir modal ────────────────────────────── */
+async function abrirDriveModal() {
+  const overlay = document.getElementById('drive-overlay');
+  const modal   = document.getElementById('drive-modal');
+  const grid    = document.getElementById('drive-grid');
+  const estado  = document.getElementById('drive-estado');
+  const footer  = document.getElementById('drive-footer');
+
+  overlay.classList.add('activo');
+  modal.style.display = 'flex';
+  grid.innerHTML = '';
+  footer.style.display = 'none';
+  estado.innerHTML = '<div class="drive-cargando"><div class="spinner-dorado"></div><p>Cargando imágenes de Drive…</p></div>';
+
+  try {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) { cerrarDriveModal(); return; }
+
+    const res = await fetch('/api/drive-list', {
+      headers: { 'Authorization': 'Bearer ' + session.access_token }
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      estado.innerHTML = `<div class="drive-error"><strong>Error:</strong> ${data.error}</div>`;
+      return;
+    }
+
+    driveArchivos = data.files || [];
+
+    if (driveArchivos.length === 0) {
+      estado.innerHTML = '<div class="drive-vacio">No hay imágenes en la carpeta de Drive.</div>';
+      return;
+    }
+
+    estado.innerHTML = `<p class="drive-instrucciones-txt">
+      Se encontraron <strong>${driveArchivos.length}</strong> imágenes. Selecciona el producto para cada una y haz clic en "Sincronizar asignados".
+    </p>`;
+
+    grid.innerHTML = driveArchivos.map((f, idx) => {
+      const opcionesProductos = typeof productos !== 'undefined'
+        ? productos.map(p =>
+            `<option value="${p.id}">${p.id} — ${p.nombre.slice(0, 35)}${p.nombre.length > 35 ? '…' : ''}</option>`
+          ).join('')
+        : '';
+      return `
+        <div class="drive-item" id="drive-item-${idx}">
+          <div class="drive-item-img-wrap">
+            ${f.thumbnail
+              ? `<img src="${f.thumbnail}" alt="${f.name}" loading="lazy">`
+              : `<div class="drive-item-sin-thumb">Sin previsualización</div>`
+            }
+          </div>
+          <div class="drive-item-info">
+            <p class="drive-item-nombre" title="${f.name}">${f.name.slice(0, 40)}${f.name.length > 40 ? '…' : ''}</p>
+            <select class="drive-item-select" id="drive-sel-${idx}" data-drive-id="${f.id}" data-idx="${idx}" onchange="actualizarContadorAsignados()">
+              <option value="">— Sin asignar —</option>
+              ${opcionesProductos}
+            </select>
+            <span class="drive-item-badge" id="drive-badge-${idx}"></span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    footer.style.display = 'flex';
+    actualizarContadorAsignados();
+
+  } catch (e) {
+    estado.innerHTML = `<div class="drive-error"><strong>Error inesperado:</strong> ${e.message}</div>`;
+  }
+}
+
+function cerrarDriveModal() {
+  document.getElementById('drive-overlay').classList.remove('activo');
+  document.getElementById('drive-modal').style.display = 'none';
+}
+
+function actualizarContadorAsignados() {
+  const selects = document.querySelectorAll('.drive-item-select');
+  let count = 0;
+  selects.forEach(s => { if (s.value) count++; });
+  const el = document.getElementById('drive-asignados-count');
+  if (el) el.textContent = `${count} asignado${count !== 1 ? 's' : ''}`;
+}
+window.actualizarContadorAsignados = actualizarContadorAsignados;
+
+/* ── Drive Sync: ejecutar sincronización ────────────────── */
+async function sincronizarAsignados() {
+  const selects = Array.from(document.querySelectorAll('.drive-item-select')).filter(s => s.value);
+
+  if (selects.length === 0) {
+    mostrarToast('Sin asignaciones', 'Asigna al menos una imagen a un producto.', 'info');
+    return;
+  }
+
+  const btn = document.getElementById('btn-drive-confirmar');
+  btn.disabled = true;
+  btn.textContent = 'Sincronizando…';
+
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) {
+    mostrarToast('Error', 'Sesión expirada.', 'error');
+    btn.disabled = false;
+    btn.textContent = 'Sincronizar asignados';
+    return;
+  }
+
+  let exitosos = 0;
+  let fallidos = 0;
+
+  for (const select of selects) {
+    const idx      = select.dataset.idx;
+    const driveId  = select.dataset.driveId;
+    const prodId   = select.value;
+    const badge    = document.getElementById(`drive-badge-${idx}`);
+
+    if (badge) badge.innerHTML = '<span class="drive-badge-sync">⏳</span>';
+
+    try {
+      const res = await fetch('/api/drive-sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ driveFileId: driveId, productId: prodId, adminToken: session.access_token }),
+      });
+      const data = await res.json();
+
+      if (res.ok && data.ok) {
+        exitosos++;
+        if (badge) badge.innerHTML = '<span class="drive-badge-ok">✓ Sincronizado</span>';
+        // Actualizar override en memoria
+        if (window.imagenesOverride) window.imagenesOverride[parseInt(prodId)] = data.url;
+      } else {
+        fallidos++;
+        if (badge) badge.innerHTML = `<span class="drive-badge-error" title="${data.error}">✗ Error</span>`;
+      }
+    } catch (e) {
+      fallidos++;
+      if (badge) badge.innerHTML = '<span class="drive-badge-error">✗ Error de red</span>';
+    }
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Sincronizar asignados';
+
+  if (exitosos > 0) {
+    mostrarToast(
+      'Sincronización completa',
+      `${exitosos} imagen${exitosos !== 1 ? 'es' : ''} actualizada${exitosos !== 1 ? 's' : ''} correctamente${fallidos > 0 ? ` (${fallidos} con error)` : ''}.`,
+      exitosos > 0 ? 'ok' : 'error'
+    );
+  } else {
+    mostrarToast('Error', `No se pudo sincronizar ninguna imagen.`, 'error');
   }
 }
