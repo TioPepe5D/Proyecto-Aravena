@@ -137,6 +137,9 @@ function configurarEventos() {
   // Botón Sincronizar Drive
   document.getElementById('btn-drive-sync')?.addEventListener('click', abrirDriveModal);
   document.getElementById('btn-sync-catalogo')?.addEventListener('click', sincronizarCatalogo);
+  document.getElementById('btn-editar-catalogo')?.addEventListener('click', abrirEditarCatalogo);
+  document.getElementById('catalogo-cerrar')?.addEventListener('click', cerrarEditarCatalogo);
+  document.getElementById('catalogo-overlay')?.addEventListener('click', cerrarEditarCatalogo);
   document.getElementById('drive-cerrar')?.addEventListener('click', cerrarDriveModal);
   document.getElementById('drive-overlay')?.addEventListener('click', cerrarDriveModal);
   document.getElementById('btn-drive-confirmar')?.addEventListener('click', sincronizarAsignados);
@@ -1248,4 +1251,91 @@ async function sincronizarCatalogo() {
     btn.disabled = false;
     btn.innerHTML = textoOriginal;
   }
+}
+
+/* ── Editar Catálogo ─────────────────────────────────────── */
+const CATEGORIAS = ['general','collares','pulseras','aros','anillos','conjuntos','colgantes','exhibidores'];
+
+async function abrirEditarCatalogo() {
+  const overlay = document.getElementById('catalogo-overlay');
+  const modal   = document.getElementById('catalogo-modal');
+  const lista   = document.getElementById('catalogo-lista');
+
+  overlay.style.display = 'block';
+  modal.style.display   = 'flex';
+  lista.innerHTML = '<p style="color:#aaa;text-align:center;padding:2rem">Cargando catálogo…</p>';
+
+  const { data, error } = await db.from('catalogo').select('*').order('created_at', { ascending: false });
+
+  if (error || !data) {
+    lista.innerHTML = `<p style="color:#f87171;text-align:center">Error: ${error?.message}</p>`;
+    return;
+  }
+
+  if (data.length === 0) {
+    lista.innerHTML = '<p style="color:#aaa;text-align:center;padding:2rem">No hay productos en el catálogo todavía.</p>';
+    return;
+  }
+
+  lista.innerHTML = data.map(p => {
+    const opsCat = CATEGORIAS.map(c =>
+      `<option value="${c}"${p.categoria === c ? ' selected' : ''}>${c}</option>`
+    ).join('');
+    return `
+    <div style="display:grid;grid-template-columns:56px 1fr 110px 160px 80px auto;gap:.5rem;align-items:center;background:#0f0f23;border:1px solid #2a2a4a;border-radius:10px;padding:.6rem .8rem" id="cat-row-${p.id}">
+      <img src="${p.imagen_url}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid #333">
+      <input type="text" value="${p.nombre || ''}" placeholder="Nombre del producto"
+        style="background:#1a1a3e;border:1px solid #333;color:#fff;border-radius:6px;padding:.35rem .6rem;font-size:.85rem;width:100%"
+        id="cat-nombre-${p.id}">
+      <input type="number" value="${p.precio || 0}" min="0" placeholder="Precio"
+        style="background:#1a1a3e;border:1px solid #333;color:#fff;border-radius:6px;padding:.35rem .6rem;font-size:.85rem;width:100%"
+        id="cat-precio-${p.id}">
+      <select style="background:#1a1a3e;border:1px solid #333;color:#fff;border-radius:6px;padding:.35rem .6rem;font-size:.85rem"
+        id="cat-cat-${p.id}">${opsCat}</select>
+      <label style="display:flex;align-items:center;gap:.3rem;color:#aaa;font-size:.8rem;cursor:pointer">
+        <input type="checkbox" id="cat-activo-${p.id}"${p.activo ? ' checked' : ''}> Activo
+      </label>
+      <button onclick="guardarProductoCatalogo(${p.id})"
+        style="background:#10b981;border:none;color:#fff;border-radius:6px;padding:.35rem .7rem;cursor:pointer;font-size:.8rem;white-space:nowrap"
+        id="cat-btn-${p.id}">Guardar</button>
+    </div>`;
+  }).join('');
+}
+
+async function guardarProductoCatalogo(id) {
+  const btn      = document.getElementById(`cat-btn-${id}`);
+  const nombre   = document.getElementById(`cat-nombre-${id}`).value.trim();
+  const precio   = parseInt(document.getElementById(`cat-precio-${id}`).value) || 0;
+  const categoria= document.getElementById(`cat-cat-${id}`).value;
+  const activo   = document.getElementById(`cat-activo-${id}`).checked;
+
+  btn.textContent = '…';
+  btn.disabled = true;
+
+  try {
+    const { data: { session } } = await db.auth.getSession();
+    const res = await fetch('/api/catalog-update', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + session.access_token,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id, nombre, precio, categoria, activo }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    btn.textContent = '✓';
+    btn.style.background = '#059669';
+    setTimeout(() => { btn.textContent = 'Guardar'; btn.style.background = '#10b981'; btn.disabled = false; }, 1500);
+  } catch (e) {
+    btn.textContent = 'Error';
+    btn.style.background = '#ef4444';
+    setTimeout(() => { btn.textContent = 'Guardar'; btn.style.background = '#10b981'; btn.disabled = false; }, 2000);
+    mostrarToast('Error', e.message, 'error');
+  }
+}
+
+function cerrarEditarCatalogo() {
+  document.getElementById('catalogo-overlay').style.display = 'none';
+  document.getElementById('catalogo-modal').style.display   = 'none';
 }
