@@ -1222,18 +1222,6 @@ async function sincronizarAsignados() {
 }
 
 /* ── Sync completo del catálogo desde Drive ─────────────── */
-async function _thumbnailABase64(url) {
-  const resp = await fetch(url);
-  if (!resp.ok) throw new Error('thumbnail HTTP ' + resp.status);
-  const blob = await resp.blob();
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload  = () => resolve(reader.result.split(',')[1]);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-}
-
 async function sincronizarCatalogo() {
   const btn = document.getElementById('btn-sync-catalogo');
   const textoOriginal = btn.innerHTML;
@@ -1268,16 +1256,11 @@ async function sincronizarCatalogo() {
           ? file.thumbnail.replace(/=s\d+/, '=s800')
           : null;
 
-        if (!thumbnailUrl) { errores++; continue; }
-
-        // Descargar en el browser (evita problemas de auth server-side)
-        const base64 = await _thumbnailABase64(thumbnailUrl);
-
-        // Enviar base64 a Gemini
+        // El servidor descarga la imagen vía service account (sin CORS ni sesión)
         const gemRes = await fetch('/api/gemini-analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ base64, mimeType: file.mimeType || 'image/jpeg' }),
+          body: JSON.stringify({ driveFileId: file.id, mimeType: file.mimeType || 'image/jpeg' }),
         });
         if (!gemRes.ok) { errores++; continue; }
         const { nombre, precio, categoria } = await gemRes.json();

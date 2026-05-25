@@ -1,27 +1,39 @@
-// Recibe base64 de una imagen (o URL de thumbnail), llama a Gemini y devuelve análisis
+// Descarga una imagen de Drive vía service account y la analiza con Gemini
+const { google } = require('googleapis');
 const { analizarConGemini } = require('./_gemini');
+
+function getDriveAuth() {
+  return new google.auth.JWT({
+    email: process.env.GOOGLE_CLIENT_EMAIL,
+    key: (process.env.GOOGLE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
+    scopes: ['https://www.googleapis.com/auth/drive.readonly'],
+  });
+}
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
-  const { base64, thumbnailUrl, mimeType = 'image/jpeg' } = req.body || {};
+  const { driveFileId, base64, mimeType } = req.body || {};
 
   try {
     let imageBase64 = base64;
+    let imageMime   = mimeType || 'image/jpeg';
 
-    if (!imageBase64 && thumbnailUrl) {
-      // Fallback: descargar desde URL (puede fallar si requiere sesión Google)
-      const resp = await fetch(thumbnailUrl);
-      if (!resp.ok) throw new Error(`No se pudo descargar miniatura: ${resp.status}`);
-      const buffer = Buffer.from(await resp.arrayBuffer());
-      imageBase64 = buffer.toString('base64');
+    if (!imageBase64) {
+      if (!driveFileId) return res.status(400).json({ error: 'Falta driveFileId o base64' });
+      // Descargar la imagen con la service account (autenticado, sin CORS)
+      const drive = google.drive({ version: 'v3', auth: getDriveAuth() });
+      const resp = await drive.files.get(
+        { fileId: driveFileId, alt: 'media' },
+        { responseType: 'arraybuffer' }
+      );
+      imageBase64 = Buffer.from(resp.data).toString('base64');
+      imageMime   = resp.headers['content-type'] || 'image/jpeg';
     }
 
-    if (!imageBase64) return res.status(400).json({ error: 'Falta base64 o thumbnailUrl' });
-
-    const resultado = await analizarConGemini(imageBase64, mimeType);
+    const resultado = await analizarConGemini(imageBase64, imageMime);
     return res.status(200).json({ ok: true, ...resultado });
   } catch (e) {
     console.error('[gemini-analyze]', e.message);
