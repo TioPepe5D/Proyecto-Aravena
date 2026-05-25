@@ -1246,8 +1246,9 @@ async function sincronizarCatalogo() {
     const total = files.length;
 
     let procesados = 0, errores = 0;
+    let primerError = '';
 
-    // 2. Procesar cada archivo: descargar thumbnail en browser → Gemini → guardar
+    // 2. Procesar cada archivo: servidor descarga vía service account → Gemini → guardar
     for (const file of files) {
       btn.innerHTML = `${spinnerHTML} Analizando (${procesados}/${total})…`;
 
@@ -1262,7 +1263,15 @@ async function sincronizarCatalogo() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ driveFileId: file.id, mimeType: file.mimeType || 'image/jpeg' }),
         });
-        if (!gemRes.ok) { errores++; continue; }
+        if (!gemRes.ok) {
+          errores++;
+          if (!primerError) {
+            const txt = await gemRes.text();
+            primerError = `gemini-analyze ${gemRes.status}: ${txt.slice(0, 200)}`;
+            console.error('[sync]', primerError);
+          }
+          continue;
+        }
         const { nombre, precio, categoria } = await gemRes.json();
 
         // Guardar en ambas bases de datos
@@ -1278,17 +1287,30 @@ async function sincronizarCatalogo() {
             imageUrl: thumbnailUrl,
           }),
         });
-        if (saveRes.ok) procesados++;
-        else errores++;
+        if (saveRes.ok) {
+          procesados++;
+        } else {
+          errores++;
+          if (!primerError) {
+            const txt = await saveRes.text();
+            primerError = `catalog-save ${saveRes.status}: ${txt.slice(0, 200)}`;
+            console.error('[sync]', primerError);
+          }
+        }
 
       } catch (err) {
         console.warn('[sync] Error en archivo', file.name, err.message);
+        if (!primerError) primerError = err.message;
         errores++;
       }
     }
 
     const msg = `${procesados} foto${procesados !== 1 ? 's' : ''} procesada${procesados !== 1 ? 's' : ''}${errores ? `, ${errores} error(es)` : ''}`;
-    mostrarToast('Catálogo sincronizado', msg, 'success');
+    if (errores && procesados === 0 && primerError) {
+      mostrarToast('Error en sincronización', primerError, 'error');
+    } else {
+      mostrarToast('Catálogo sincronizado', msg, 'success');
+    }
   } catch (e) {
     mostrarToast('Error', e.message, 'error');
   } finally {
