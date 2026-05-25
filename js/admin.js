@@ -136,6 +136,10 @@ function configurarEventos() {
 
   // Botón Sincronizar Drive
   document.getElementById('btn-drive-sync')?.addEventListener('click', abrirDriveModal);
+  document.getElementById('btn-sync-catalogo')?.addEventListener('click', sincronizarCatalogo);
+  document.getElementById('btn-editar-catalogo')?.addEventListener('click', abrirEditarCatalogo);
+  document.getElementById('catalogo-cerrar')?.addEventListener('click', cerrarEditarCatalogo);
+  document.getElementById('catalogo-overlay')?.addEventListener('click', cerrarEditarCatalogo);
   document.getElementById('drive-cerrar')?.addEventListener('click', cerrarDriveModal);
   document.getElementById('drive-overlay')?.addEventListener('click', cerrarDriveModal);
   document.getElementById('btn-drive-confirmar')?.addEventListener('click', sincronizarAsignados);
@@ -1215,4 +1219,167 @@ async function sincronizarAsignados() {
   } else {
     mostrarToast('Error', `No se pudo sincronizar ninguna imagen.`, 'error');
   }
+}
+
+/* ── Sync completo del catálogo desde Drive ─────────────── */
+async function sincronizarCatalogo() {
+  const btn = document.getElementById('btn-sync-catalogo');
+  const textoOriginal = btn.innerHTML;
+  const spinnerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>`;
+  btn.disabled = true;
+
+  try {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) { mostrarToast('Error', 'Sesión expirada', 'error'); return; }
+
+    // 1. Obtener lista de archivos de Drive (con thumbnails)
+    btn.innerHTML = `${spinnerHTML} Cargando lista…`;
+    const listRes = await fetch('/api/drive-list', {
+      headers: { 'Authorization': 'Bearer ' + session.access_token }
+    });
+    if (!listRes.ok) {
+      const e = await listRes.json();
+      mostrarToast('Error', e.error || 'No se pudo listar Drive', 'error');
+      return;
+    }
+    const { files } = await listRes.json();
+    const total = files.length;
+
+    let procesados = 0, errores = 0;
+
+    // 2. Procesar cada archivo: descargar thumbnail en browser → Gemini → guardar
+    for (const file of files) {
+      btn.innerHTML = `${spinnerHTML} Analizando (${procesados}/${total})…`;
+
+      try {
+        const thumbnailUrl = file.thumbnail
+          ? file.thumbnail.replace(/=s\d+/, '=s800')
+          : null;
+
+        // El servidor descarga la imagen vía service account (sin CORS ni sesión)
+        const gemRes = await fetch('/api/gemini-analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ driveFileId: file.id, mimeType: file.mimeType || 'image/jpeg' }),
+        });
+        if (!gemRes.ok) { errores++; continue; }
+        const { nombre, precio, categoria } = await gemRes.json();
+
+        // Guardar en ambas bases de datos
+        const saveRes = await fetch('/api/catalog-save', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + session.access_token,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            driveFileId: file.id,
+            nombre, precio, categoria,
+            imageUrl: thumbnailUrl,
+          }),
+        });
+        if (saveRes.ok) procesados++;
+        else errores++;
+
+      } catch (err) {
+        console.warn('[sync] Error en archivo', file.name, err.message);
+        errores++;
+      }
+    }
+
+    const msg = `${procesados} foto${procesados !== 1 ? 's' : ''} procesada${procesados !== 1 ? 's' : ''}${errores ? `, ${errores} error(es)` : ''}`;
+    mostrarToast('Catálogo sincronizado', msg, 'success');
+  } catch (e) {
+    mostrarToast('Error', e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = textoOriginal;
+  }
+}
+
+/* ── Editar Catálogo ─────────────────────────────────────── */
+const CATEGORIAS = ['general','collares','pulseras','aros','anillos','conjuntos','colgantes','exhibidores'];
+
+async function abrirEditarCatalogo() {
+  const overlay = document.getElementById('catalogo-overlay');
+  const modal   = document.getElementById('catalogo-modal');
+  const lista   = document.getElementById('catalogo-lista');
+
+  overlay.style.display = 'block';
+  modal.style.display   = 'flex';
+  lista.innerHTML = '<p style="color:#aaa;text-align:center;padding:2rem">Cargando catálogo…</p>';
+
+  const { data, error } = await db.from('catalogo').select('*').order('created_at', { ascending: false });
+
+  if (error || !data) {
+    lista.innerHTML = `<p style="color:#f87171;text-align:center">Error: ${error?.message}</p>`;
+    return;
+  }
+
+  if (data.length === 0) {
+    lista.innerHTML = '<p style="color:#aaa;text-align:center;padding:2rem">No hay productos en el catálogo todavía.</p>';
+    return;
+  }
+
+  lista.innerHTML = data.map(p => {
+    const opsCat = CATEGORIAS.map(c =>
+      `<option value="${c}"${p.categoria === c ? ' selected' : ''}>${c}</option>`
+    ).join('');
+    return `
+    <div style="display:grid;grid-template-columns:56px 1fr 110px 160px 80px auto;gap:.5rem;align-items:center;background:#0f0f23;border:1px solid #2a2a4a;border-radius:10px;padding:.6rem .8rem" id="cat-row-${p.id}">
+      <img src="${p.imagen_url}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid #333">
+      <input type="text" value="${p.nombre || ''}" placeholder="Nombre del producto"
+        style="background:#1a1a3e;border:1px solid #333;color:#fff;border-radius:6px;padding:.35rem .6rem;font-size:.85rem;width:100%"
+        id="cat-nombre-${p.id}">
+      <input type="number" value="${p.precio || 0}" min="0" placeholder="Precio"
+        style="background:#1a1a3e;border:1px solid #333;color:#fff;border-radius:6px;padding:.35rem .6rem;font-size:.85rem;width:100%"
+        id="cat-precio-${p.id}">
+      <select style="background:#1a1a3e;border:1px solid #333;color:#fff;border-radius:6px;padding:.35rem .6rem;font-size:.85rem"
+        id="cat-cat-${p.id}">${opsCat}</select>
+      <label style="display:flex;align-items:center;gap:.3rem;color:#aaa;font-size:.8rem;cursor:pointer">
+        <input type="checkbox" id="cat-activo-${p.id}"${p.activo ? ' checked' : ''}> Activo
+      </label>
+      <button onclick="guardarProductoCatalogo(${p.id})"
+        style="background:#10b981;border:none;color:#fff;border-radius:6px;padding:.35rem .7rem;cursor:pointer;font-size:.8rem;white-space:nowrap"
+        id="cat-btn-${p.id}">Guardar</button>
+    </div>`;
+  }).join('');
+}
+
+async function guardarProductoCatalogo(id) {
+  const btn      = document.getElementById(`cat-btn-${id}`);
+  const nombre   = document.getElementById(`cat-nombre-${id}`).value.trim();
+  const precio   = parseInt(document.getElementById(`cat-precio-${id}`).value) || 0;
+  const categoria= document.getElementById(`cat-cat-${id}`).value;
+  const activo   = document.getElementById(`cat-activo-${id}`).checked;
+
+  btn.textContent = '…';
+  btn.disabled = true;
+
+  try {
+    const { data: { session } } = await db.auth.getSession();
+    const res = await fetch('/api/catalog-update', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + session.access_token,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id, nombre, precio, categoria, activo }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    btn.textContent = '✓';
+    btn.style.background = '#059669';
+    setTimeout(() => { btn.textContent = 'Guardar'; btn.style.background = '#10b981'; btn.disabled = false; }, 1500);
+  } catch (e) {
+    btn.textContent = 'Error';
+    btn.style.background = '#ef4444';
+    setTimeout(() => { btn.textContent = 'Guardar'; btn.style.background = '#10b981'; btn.disabled = false; }, 2000);
+    mostrarToast('Error', e.message, 'error');
+  }
+}
+
+function cerrarEditarCatalogo() {
+  document.getElementById('catalogo-overlay').style.display = 'none';
+  document.getElementById('catalogo-modal').style.display   = 'none';
 }
