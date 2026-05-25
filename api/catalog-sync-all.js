@@ -6,7 +6,7 @@ const SUPA_ARAVENA_URL = 'https://qcaxddxxmrwfihnyepbo.supabase.co';
 const SUPA_AMMIRA_URL  = 'https://jgtavepljzcwwagdihgx.supabase.co';
 const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjYXhkZHh4bXJ3ZmlobnllcGJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MzE5NDgsImV4cCI6MjA5MjQwNzk0OH0.0WtrOUK3_SDCkpVBTPg_aMz8rUk1sJ_ms6Ak5p5Xi08';
 const ADMIN_EMAILS = ['diegoaravenavera@gmail.com', 'martinmagun2@gmail.com'];
-const BATCH_SIZE = 8; // fotos por llamada (evita timeout)
+const BATCH_SIZE = 5; // fotos por llamada, procesadas en paralelo
 
 function getDriveAuth() {
   return new google.auth.JWT({
@@ -79,7 +79,6 @@ module.exports = async (req, res) => {
   if (!folderId) return res.status(500).json({ error: 'DRIVE_FOLDER_ID no configurado' });
 
   try {
-    // Listar todos los archivos de Drive
     const auth  = getDriveAuth();
     const drive = google.drive({ version: 'v3', auth });
     const driveResp = await drive.files.list({
@@ -88,30 +87,29 @@ module.exports = async (req, res) => {
       pageSize: 500,
     });
     const driveFiles = driveResp.data.files || [];
-
-    // Procesar solo el lote actual
     const lote = driveFiles.slice(offset, offset + BATCH_SIZE);
-    const resultados = { procesados: 0, errores: [] };
 
-    for (const file of lote) {
-      try {
+    // Procesar el lote en paralelo
+    const resultados = await Promise.allSettled(
+      lote.map(async file => {
         const imageData = await procesarArchivo(file);
         await subirYGuardar(file, supaAravena, imageData);
         if (supaAmmira) await subirYGuardar(file, supaAmmira, imageData);
-        resultados.procesados++;
-      } catch (e) {
-        console.error(`[sync-all] Error ${file.name}:`, e.message);
-        resultados.errores.push({ archivo: file.name, error: e.message });
-      }
-    }
+        return file.name;
+      })
+    );
+
+    const procesados = resultados.filter(r => r.status === 'fulfilled').length;
+    const errores = resultados
+      .map((r, i) => r.status === 'rejected' ? { archivo: lote[i].name, error: r.reason?.message } : null)
+      .filter(Boolean);
 
     const siguiente = offset + BATCH_SIZE;
     return res.status(200).json({
       ok: true,
       total: driveFiles.length,
-      procesados: resultados.procesados,
-      errores: resultados.errores,
-      pendientes: Math.max(0, driveFiles.length - siguiente),
+      procesados,
+      errores,
       siguiente: siguiente < driveFiles.length ? siguiente : null,
     });
 
