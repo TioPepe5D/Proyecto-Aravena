@@ -73,6 +73,14 @@
           <p class="admin-subtitulo">Gestiona pedidos, ventas y clientes</p>
         </div>
         <div class="admin-header-acciones">
+          <button id="btn-drive-sync" class="btn-drive-sync" title="Sincronizar imágenes desde Google Drive">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" opacity=".3"/>
+              <path d="M4.93 4.93l4.24 4.24M14.83 9.17l4.24-4.24M19.07 19.07l-4.24-4.24M9.17 14.83l-4.24 4.24"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            Sincronizar Drive
+          </button>
           <button id="btn-export" class="btn-export" title="Exportar pedidos filtrados">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -80,6 +88,15 @@
               <line x1="12" y1="15" x2="12" y2="3"/>
             </svg>
             Exportar CSV
+          </button>
+          <button id="btn-vaciar-papelera" class="btn-vaciar-papelera" title="Borrar definitivamente todos los pedidos en la papelera">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+              <path d="M10 11v6"/><path d="M14 11v6"/>
+              <path d="M9 6V4h6v2"/>
+            </svg>
+            Vaciar papelera
           </button>
           <button id="btn-limpiar-fallidos" class="btn-limpiar-fallidos" title="Eliminar todos los pedidos con estado fallido">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -213,6 +230,7 @@
           <option value="pagado">Pagados</option>
           <option value="enviado">Enviados</option>
           <option value="fallido">Fallidos</option>
+          <option value="eliminado">Eliminados (papelera)</option>
         </select>
         <button id="btn-refrescar" class="btn-refrescar" title="Refrescar">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -277,6 +295,31 @@
 
   <!-- Contenedor de notificaciones -->
   <div id="admin-toasts" class="admin-toasts"></div>
+
+  <!-- Modal Sincronizar Drive -->
+  <div class="drive-overlay" id="drive-overlay"></div>
+  <div class="drive-modal" id="drive-modal" style="display:none">
+    <div class="drive-modal-header">
+      <div>
+        <h2 class="drive-modal-titulo">Sincronizar imágenes desde Drive</h2>
+        <p class="drive-modal-sub">Asigna cada foto de Drive al producto correspondiente</p>
+      </div>
+      <button class="drive-cerrar" id="drive-cerrar" aria-label="Cerrar">&times;</button>
+    </div>
+    <div class="drive-modal-body">
+      <div id="drive-estado" class="drive-estado"></div>
+      <div class="drive-grid" id="drive-grid"></div>
+      <div class="drive-footer" id="drive-footer" style="display:none">
+        <span class="drive-asignados" id="drive-asignados-count">0 asignados</span>
+        <button class="btn-drive-confirmar" id="btn-drive-confirmar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Sincronizar asignados
+        </button>
+      </div>
+    </div>
+  </div>
 
   <script src="js/supabase-client.js?v=3"></script>
   <script src="js/products.js?v=3"></script>

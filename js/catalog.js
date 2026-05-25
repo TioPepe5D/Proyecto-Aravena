@@ -30,7 +30,7 @@ function renderizarProductos() {
     return `
     <div class="producto-card animar${cantidad > 0 ? ' en-carrito' : ''}" style="transition-delay: ${delay}ms" data-id="${producto.id}">
       <div class="producto-card-img-wrap">
-        <img src="${producto.imagen}" alt="${producto.nombre}" ${lazyAttr} ${fetchPriority}>
+        <img src="${(window.imagenesOverride && window.imagenesOverride[producto.id]) || producto.imagen}" alt="${producto.nombre}" ${lazyAttr} ${fetchPriority}>
         ${cantidad > 0 ? `<span class="badge-en-carrito">${cantidad}</span>` : ''}
         ${typeof iconCorazon === 'function' ? iconCorazon(producto.id) : ''}
       </div>

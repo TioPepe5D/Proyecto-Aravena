@@ -15,3 +15,19 @@ try {
 } catch (e) {
   console.error('[Auth] Error al inicializar Supabase:', e);
 }
+
+// Mapa global de imágenes sobreescritas desde Drive/Storage
+window.imagenesOverride = {};
+
+async function cargarImagenesOverride() {
+  if (!db) return;
+  try {
+    const { data } = await db.from('imagen_override').select('product_id, url');
+    if (data && data.length > 0) {
+      data.forEach(row => { window.imagenesOverride[row.product_id] = row.url; });
+    }
+  } catch (e) { /* silencioso: tabla puede no existir aún */ }
+}
+
+// Cargar al inicio de cada página que incluya este script
+cargarImagenesOverride();

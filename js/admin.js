@@ -4,7 +4,8 @@
 
 // Emails con permisos de admin
 const ADMIN_EMAILS = [
-  'diegoaravenavera@gmail.com'
+  'diegoaravenavera@gmail.com',
+  'martinmagun2@gmail.com'
 ];
 
 let todosLosPedidos = [];
@@ -78,6 +79,12 @@ function mostrarDenegado(mensaje) {
   }
 }
 
+/* ══════════════════════════════════════════════════════════
+   SINCRONIZACIÓN DE IMÁGENES DESDE GOOGLE DRIVE
+   ══════════════════════════════════════════════════════════ */
+
+let driveArchivos = []; // archivos cargados desde Drive
+
 function configurarEventos() {
   document.getElementById('btn-logout-admin').addEventListener('click', async () => {
     if (realtimeSub) await db.removeChannel(realtimeSub);
@@ -121,8 +128,17 @@ function configurarEventos() {
     if (e.target.id === 'admin-confirm-overlay') cerrarAdminConfirm();
   });
 
-  // Botón "Eliminar fallidos" — borrado masivo
+  // Botón "Eliminar fallidos" — mueve a papelera
   document.getElementById('btn-limpiar-fallidos')?.addEventListener('click', pedirEliminarFallidos);
+
+  // Botón "Vaciar papelera" — borrado definitivo
+  document.getElementById('btn-vaciar-papelera')?.addEventListener('click', pedirVaciarPapelera);
+
+  // Botón Sincronizar Drive
+  document.getElementById('btn-drive-sync')?.addEventListener('click', abrirDriveModal);
+  document.getElementById('drive-cerrar')?.addEventListener('click', cerrarDriveModal);
+  document.getElementById('drive-overlay')?.addEventListener('click', cerrarDriveModal);
+  document.getElementById('btn-drive-confirmar')?.addEventListener('click', sincronizarAsignados);
 }
 
 /* ── Cargar pedidos ──────────────────────── */
@@ -215,6 +231,8 @@ function aplicarFiltros() {
   const estado = document.getElementById('filtro-estado').value;
 
   pedidosFiltrados = todosLosPedidos.filter(p => {
+    // "todos" excluye eliminados — hay que elegirlos explícitamente
+    if (estado === 'todos' && p.estado === 'eliminado') return false;
     if (estado !== 'todos' && p.estado !== estado) return false;
 
     if (busqueda) {
@@ -252,16 +270,21 @@ function renderizarTabla() {
     const total = Number(p.total) || 0;
 
     const acciones = [];
-    if (p.estado === 'pagado') {
-      acciones.push(`<button class="btn-accion btn-accion-enviar" onclick="cambiarEstado('${p.id}', 'enviado')" title="Marcar como despachado">📦 Marcar enviado</button>`);
-    } else if (p.estado !== 'enviado') {
-      acciones.push(`<button class="btn-accion btn-accion-pagar" onclick="cambiarEstado('${p.id}', 'pagado')">Marcar pagado</button>`);
+    if (p.estado === 'eliminado') {
+      acciones.push(`<button class="btn-accion btn-accion-restaurar" onclick="restaurarPedido('${p.id}')" title="Restaurar pedido">↩ Restaurar</button>`);
+      acciones.push(`<button class="btn-accion btn-accion-eliminar" onclick="eliminarPedidoDefinitivo('${p.id}')" title="Borrar definitivamente">🗑 Borrar</button>`);
+    } else {
+      if (p.estado === 'pagado') {
+        acciones.push(`<button class="btn-accion btn-accion-enviar" onclick="cambiarEstado('${p.id}', 'enviado')" title="Marcar como despachado">📦 Marcar enviado</button>`);
+      } else if (p.estado !== 'enviado') {
+        acciones.push(`<button class="btn-accion btn-accion-pagar" onclick="cambiarEstado('${p.id}', 'pagado')">Marcar pagado</button>`);
+      }
+      if (p.estado !== 'fallido' && p.estado !== 'enviado') {
+        acciones.push(`<button class="btn-accion btn-accion-fallar" onclick="cambiarEstado('${p.id}', 'fallido')">Fallido</button>`);
+      }
+      acciones.push(`<button class="btn-accion" onclick="verDetalle('${p.id}')">Ver</button>`);
+      acciones.push(`<button class="btn-accion btn-accion-eliminar" onclick="eliminarPedido('${p.id}')" title="Mover a papelera">🗑</button>`);
     }
-    if (p.estado !== 'fallido' && p.estado !== 'enviado') {
-      acciones.push(`<button class="btn-accion btn-accion-fallar" onclick="cambiarEstado('${p.id}', 'fallido')">Fallido</button>`);
-    }
-    acciones.push(`<button class="btn-accion" onclick="verDetalle('${p.id}')">Ver</button>`);
-    acciones.push(`<button class="btn-accion btn-accion-eliminar" onclick="eliminarPedido('${p.id}')" title="Eliminar pedido">🗑</button>`);
 
     // Intentar mostrar nombre de datos_envio si es pedido de invitado
     const envioNombre = p.datos_envio?.nombre || '';
@@ -344,7 +367,8 @@ window.cambiarEstado = cambiarEstado;
 
 /* ── Eliminar pedido (con modal de confirmación) ──────── */
 let _pedidoAEliminar = null;
-let _bulkAEliminar   = null; // 'fallido' | null
+let _bulkAEliminar   = null;
+let _hardDelete      = false;
 
 function eliminarPedido(pedidoId) {
   const pedido = todosLosPedidos.find(p => String(p.id) === String(pedidoId));
@@ -379,6 +403,7 @@ window.pedirEliminarFallidos = pedirEliminarFallidos;
 function cerrarAdminConfirm() {
   _pedidoAEliminar = null;
   _bulkAEliminar   = null;
+  _hardDelete      = false;
   document.getElementById('admin-confirm-overlay').classList.remove('activo');
 }
 
@@ -396,8 +421,8 @@ async function confirmarEliminarPedido() {
     }
 
     const body = bulk
-      ? { byStatus: bulk, adminToken: session.access_token }
-      : { pedidoId,        adminToken: session.access_token };
+      ? { byStatus: bulk, adminToken: session.access_token, hardDelete: _hardDelete }
+      : { pedidoId,       adminToken: session.access_token, hardDelete: _hardDelete };
 
     const res = await fetch('/api/admin-delete-pedido', {
       method: 'POST',
@@ -412,14 +437,25 @@ async function confirmarEliminarPedido() {
     }
 
     if (bulk) {
-      const antes = todosLosPedidos.length;
-      todosLosPedidos = todosLosPedidos.filter(p => p.estado !== bulk);
-      const eliminados = data.deleted ?? (antes - todosLosPedidos.length);
-      mostrarToast('Pedidos eliminados', `${eliminados} pedido(s) ${bulk}(s) eliminados`, 'ok');
+      const count = data.deleted ?? 0;
+      if (_hardDelete) {
+        todosLosPedidos = todosLosPedidos.filter(p => p.estado !== 'eliminado');
+        mostrarToast('Papelera vaciada', `${count} pedido(s) borrado(s) definitivamente`, 'ok');
+      } else {
+        // Soft delete: cambiar estado en memoria
+        todosLosPedidos.forEach(p => { if (p.estado === bulk) p.estado = 'eliminado'; });
+        mostrarToast('Pedidos movidos a papelera', `${count} pedido(s) en papelera. Puedes restaurarlos desde "Eliminados".`, 'ok');
+      }
     } else {
       const idCorto = String(pedidoId).slice(0, 8).toUpperCase();
-      todosLosPedidos = todosLosPedidos.filter(p => String(p.id) !== String(pedidoId));
-      mostrarToast('Pedido eliminado', `#${idCorto} eliminado correctamente`, 'ok');
+      if (_hardDelete) {
+        todosLosPedidos = todosLosPedidos.filter(p => String(p.id) !== String(pedidoId));
+        mostrarToast('Pedido borrado', `#${idCorto} borrado definitivamente`, 'ok');
+      } else {
+        const pedido = todosLosPedidos.find(p => String(p.id) === String(pedidoId));
+        if (pedido) pedido.estado = 'eliminado';
+        mostrarToast('Pedido en papelera', `#${idCorto} movido a papelera. Puedes restaurarlo desde "Eliminados".`, 'ok');
+      }
     }
 
     calcularStats();
@@ -430,6 +466,50 @@ async function confirmarEliminarPedido() {
     console.error('[Admin] Error eliminando:', e);
     mostrarToast('Error', 'Error inesperado al eliminar.', 'error');
   }
+}
+
+/* ── Restaurar pedido ────────────────────── */
+async function restaurarPedido(pedidoId) {
+  try {
+    const { error } = await db.from('pedidos').update({ estado: 'pendiente' }).eq('id', pedidoId);
+    if (error) { mostrarToast('Error', error.message, 'error'); return; }
+    const pedido = todosLosPedidos.find(p => String(p.id) === String(pedidoId));
+    if (pedido) pedido.estado = 'pendiente';
+    calcularStats();
+    aplicarFiltros();
+    mostrarToast('Pedido restaurado', `#${String(pedidoId).slice(0,8).toUpperCase()} restaurado como pendiente`, 'ok');
+  } catch (e) {
+    mostrarToast('Error', 'No se pudo restaurar.', 'error');
+  }
+}
+window.restaurarPedido = restaurarPedido;
+
+/* ── Borrar definitivamente (desde papelera) ── */
+function eliminarPedidoDefinitivo(pedidoId) {
+  const idCorto = String(pedidoId).slice(0, 8).toUpperCase();
+  _pedidoAEliminar = pedidoId;
+  _bulkAEliminar   = null;
+  _hardDelete      = true;
+  document.querySelector('.admin-confirm-titulo').textContent = '¿Borrar definitivamente?';
+  document.getElementById('admin-confirm-detalle').textContent =
+    `Pedido #${idCorto} — Esta acción es irreversible.`;
+  document.getElementById('admin-confirm-overlay').classList.add('activo');
+}
+window.eliminarPedidoDefinitivo = eliminarPedidoDefinitivo;
+
+function pedirVaciarPapelera() {
+  const eliminados = todosLosPedidos.filter(p => p.estado === 'eliminado');
+  if (eliminados.length === 0) {
+    mostrarToast('Papelera vacía', 'No hay pedidos en la papelera.', 'info');
+    return;
+  }
+  _pedidoAEliminar = null;
+  _bulkAEliminar   = 'eliminado';
+  _hardDelete      = true;
+  document.querySelector('.admin-confirm-titulo').textContent = '¿Vaciar papelera?';
+  document.getElementById('admin-confirm-detalle').textContent =
+    `Se borrarán definitivamente ${eliminados.length} pedido(s). Acción irreversible.`;
+  document.getElementById('admin-confirm-overlay').classList.add('activo');
 }
 
 /* ── Ver detalle (modal) ─────────────────── */
@@ -978,5 +1058,161 @@ async function cargarUsuariosActivos() {
     }
   } catch (e) {
     console.warn('[Admin] Error cargando UAU:', e.message);
+  }
+}
+
+/* ── Drive Sync: abrir modal ────────────────────────────── */
+async function abrirDriveModal() {
+  const overlay = document.getElementById('drive-overlay');
+  const modal   = document.getElementById('drive-modal');
+  const grid    = document.getElementById('drive-grid');
+  const estado  = document.getElementById('drive-estado');
+  const footer  = document.getElementById('drive-footer');
+
+  overlay.classList.add('activo');
+  modal.style.display = 'flex';
+  grid.innerHTML = '';
+  footer.style.display = 'none';
+  estado.innerHTML = '<div class="drive-cargando"><div class="spinner-dorado"></div><p>Cargando imágenes de Drive…</p></div>';
+
+  try {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) { cerrarDriveModal(); return; }
+
+    const res = await fetch('/api/drive-list', {
+      headers: { 'Authorization': 'Bearer ' + session.access_token }
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      estado.innerHTML = `<div class="drive-error"><strong>Error:</strong> ${data.error}</div>`;
+      return;
+    }
+
+    driveArchivos = data.files || [];
+
+    if (driveArchivos.length === 0) {
+      estado.innerHTML = '<div class="drive-vacio">No hay imágenes en la carpeta de Drive.</div>';
+      return;
+    }
+
+    estado.innerHTML = `<p class="drive-instrucciones-txt">
+      Se encontraron <strong>${driveArchivos.length}</strong> imágenes. Selecciona el producto para cada una y haz clic en "Sincronizar asignados".
+    </p>`;
+
+    grid.innerHTML = driveArchivos.map((f, idx) => {
+      const opcionesProductos = typeof productos !== 'undefined'
+        ? productos.map(p =>
+            `<option value="${p.id}">${p.id} — ${p.nombre.slice(0, 35)}${p.nombre.length > 35 ? '…' : ''}</option>`
+          ).join('')
+        : '';
+      return `
+        <div class="drive-item" id="drive-item-${idx}">
+          <div class="drive-item-img-wrap">
+            ${f.thumbnail
+              ? `<img src="${f.thumbnail}" alt="${f.name}" loading="lazy">`
+              : `<div class="drive-item-sin-thumb">Sin previsualización</div>`
+            }
+          </div>
+          <div class="drive-item-info">
+            <p class="drive-item-nombre" title="${f.name}">${f.name.slice(0, 40)}${f.name.length > 40 ? '…' : ''}</p>
+            <select class="drive-item-select" id="drive-sel-${idx}" data-drive-id="${f.id}" data-idx="${idx}" onchange="actualizarContadorAsignados()">
+              <option value="">— Sin asignar —</option>
+              ${opcionesProductos}
+            </select>
+            <span class="drive-item-badge" id="drive-badge-${idx}"></span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    footer.style.display = 'flex';
+    actualizarContadorAsignados();
+
+  } catch (e) {
+    estado.innerHTML = `<div class="drive-error"><strong>Error inesperado:</strong> ${e.message}</div>`;
+  }
+}
+
+function cerrarDriveModal() {
+  document.getElementById('drive-overlay').classList.remove('activo');
+  document.getElementById('drive-modal').style.display = 'none';
+}
+
+function actualizarContadorAsignados() {
+  const selects = document.querySelectorAll('.drive-item-select');
+  let count = 0;
+  selects.forEach(s => { if (s.value) count++; });
+  const el = document.getElementById('drive-asignados-count');
+  if (el) el.textContent = `${count} asignado${count !== 1 ? 's' : ''}`;
+}
+window.actualizarContadorAsignados = actualizarContadorAsignados;
+
+/* ── Drive Sync: ejecutar sincronización ────────────────── */
+async function sincronizarAsignados() {
+  const selects = Array.from(document.querySelectorAll('.drive-item-select')).filter(s => s.value);
+
+  if (selects.length === 0) {
+    mostrarToast('Sin asignaciones', 'Asigna al menos una imagen a un producto.', 'info');
+    return;
+  }
+
+  const btn = document.getElementById('btn-drive-confirmar');
+  btn.disabled = true;
+  btn.textContent = 'Sincronizando…';
+
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) {
+    mostrarToast('Error', 'Sesión expirada.', 'error');
+    btn.disabled = false;
+    btn.textContent = 'Sincronizar asignados';
+    return;
+  }
+
+  let exitosos = 0;
+  let fallidos = 0;
+
+  for (const select of selects) {
+    const idx      = select.dataset.idx;
+    const driveId  = select.dataset.driveId;
+    const prodId   = select.value;
+    const badge    = document.getElementById(`drive-badge-${idx}`);
+
+    if (badge) badge.innerHTML = '<span class="drive-badge-sync">⏳</span>';
+
+    try {
+      const res = await fetch('/api/drive-sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ driveFileId: driveId, productId: prodId, adminToken: session.access_token }),
+      });
+      const data = await res.json();
+
+      if (res.ok && data.ok) {
+        exitosos++;
+        if (badge) badge.innerHTML = '<span class="drive-badge-ok">✓ Sincronizado</span>';
+        // Actualizar override en memoria
+        if (window.imagenesOverride) window.imagenesOverride[parseInt(prodId)] = data.url;
+      } else {
+        fallidos++;
+        if (badge) badge.innerHTML = `<span class="drive-badge-error" title="${data.error}">✗ Error</span>`;
+      }
+    } catch (e) {
+      fallidos++;
+      if (badge) badge.innerHTML = '<span class="drive-badge-error">✗ Error de red</span>';
+    }
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Sincronizar asignados';
+
+  if (exitosos > 0) {
+    mostrarToast(
+      'Sincronización completa',
+      `${exitosos} imagen${exitosos !== 1 ? 'es' : ''} actualizada${exitosos !== 1 ? 's' : ''} correctamente${fallidos > 0 ? ` (${fallidos} con error)` : ''}.`,
+      exitosos > 0 ? 'ok' : 'error'
+    );
+  } else {
+    mostrarToast('Error', `No se pudo sincronizar ninguna imagen.`, 'error');
   }
 }
