@@ -60,7 +60,7 @@ function renderizarProducto() {
     <div class="producto-grid">
 
       <div class="producto-imagen-wrap">
-        <img src="${producto.imagen}" alt="${producto.nombre}">
+        <img src="${(window.imagenesOverride && window.imagenesOverride[producto.id]) || producto.imagen}" alt="${producto.nombre}">
       </div>
 
       <div class="producto-info-wrap">
