@@ -136,6 +136,7 @@ function configurarEventos() {
 
   // Botón Sincronizar Drive
   document.getElementById('btn-drive-sync')?.addEventListener('click', abrirDriveModal);
+  document.getElementById('btn-sync-catalogo')?.addEventListener('click', sincronizarCatalogo);
   document.getElementById('drive-cerrar')?.addEventListener('click', cerrarDriveModal);
   document.getElementById('drive-overlay')?.addEventListener('click', cerrarDriveModal);
   document.getElementById('btn-drive-confirmar')?.addEventListener('click', sincronizarAsignados);
@@ -1214,5 +1215,37 @@ async function sincronizarAsignados() {
     );
   } else {
     mostrarToast('Error', `No se pudo sincronizar ninguna imagen.`, 'error');
+  }
+}
+
+/* ── Sync completo del catálogo desde Drive ─────────────── */
+async function sincronizarCatalogo() {
+  const btn = document.getElementById('btn-sync-catalogo');
+  const textoOriginal = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg> Sincronizando…`;
+
+  try {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) { mostrarToast('Error', 'Sesión expirada', 'error'); return; }
+
+    const res = await fetch('/api/catalog-sync-all', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + session.access_token }
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      mostrarToast('Error', data.error || 'Error al sincronizar', 'error');
+      return;
+    }
+
+    const msg = `${data.procesados} foto${data.procesados !== 1 ? 's' : ''} procesada${data.procesados !== 1 ? 's' : ''}, ${data.omitidos} sin cambios${data.errores?.length ? `, ${data.errores.length} error(es)` : ''}`;
+    mostrarToast('Catálogo sincronizado', msg, 'success');
+  } catch (e) {
+    mostrarToast('Error', e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = textoOriginal;
   }
 }
