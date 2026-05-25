@@ -1225,25 +1225,45 @@ async function sincronizarAsignados() {
 async function sincronizarCatalogo() {
   const btn = document.getElementById('btn-sync-catalogo');
   const textoOriginal = btn.innerHTML;
+  const spinnerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>`;
   btn.disabled = true;
-  btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg> Sincronizando…`;
 
   try {
     const { data: { session } } = await db.auth.getSession();
     if (!session) { mostrarToast('Error', 'Sesión expirada', 'error'); return; }
 
-    const res = await fetch('/api/catalog-sync-all', {
-      method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + session.access_token }
-    });
-    const data = await res.json();
+    let offset = 0;
+    let totalProcesados = 0;
+    let totalErrores = 0;
+    let total = 0;
 
-    if (!res.ok) {
-      mostrarToast('Error', data.error || 'Error al sincronizar', 'error');
-      return;
+    while (true) {
+      btn.innerHTML = `${spinnerHTML} Analizando${total > 0 ? ` (${totalProcesados}/${total})` : ''}…`;
+
+      const res = await fetch('/api/catalog-sync-all', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + session.access_token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ offset }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        mostrarToast('Error', data.error || 'Error al sincronizar', 'error');
+        return;
+      }
+
+      total = data.total || total;
+      totalProcesados += data.procesados || 0;
+      totalErrores += data.errores?.length || 0;
+
+      if (!data.siguiente) break;
+      offset = data.siguiente;
     }
 
-    const msg = `${data.procesados} foto${data.procesados !== 1 ? 's' : ''} procesada${data.procesados !== 1 ? 's' : ''}, ${data.omitidos} sin cambios${data.errores?.length ? `, ${data.errores.length} error(es)` : ''}`;
+    const msg = `${totalProcesados} foto${totalProcesados !== 1 ? 's' : ''} procesada${totalProcesados !== 1 ? 's' : ''}${totalErrores ? `, ${totalErrores} error(es)` : ''}`;
     mostrarToast('Catálogo sincronizado', msg, 'success');
   } catch (e) {
     mostrarToast('Error', e.message, 'error');
