@@ -4,10 +4,5 @@
       "path": "/api/drive-watch",
       "schedule": "0 12 * * *"
     }
-  ],
-  "functions": {
-    "api/catalog-sync-all.js": {
-      "maxDuration": 60
-    }
-  }
+  ]
 }

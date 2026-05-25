@@ -6,7 +6,7 @@ const SUPA_ARAVENA_URL = 'https://qcaxddxxmrwfihnyepbo.supabase.co';
 const SUPA_AMMIRA_URL  = 'https://jgtavepljzcwwagdihgx.supabase.co';
 const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjYXhkZHh4bXJ3ZmlobnllcGJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MzE5NDgsImV4cCI6MjA5MjQwNzk0OH0.0WtrOUK3_SDCkpVBTPg_aMz8rUk1sJ_ms6Ak5p5Xi08';
 const ADMIN_EMAILS = ['diegoaravenavera@gmail.com', 'martinmagun2@gmail.com'];
-const BATCH_SIZE = 5; // fotos por llamada, procesadas en paralelo
+const BATCH_SIZE = 1; // 1 foto por llamada (límite 10s de Vercel Hobby)
 
 function getDriveAuth() {
   return new google.auth.JWT({
