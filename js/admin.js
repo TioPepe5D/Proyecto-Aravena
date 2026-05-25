@@ -1222,6 +1222,18 @@ async function sincronizarAsignados() {
 }
 
 /* ── Sync completo del catálogo desde Drive ─────────────── */
+async function _thumbnailABase64(url) {
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error('thumbnail HTTP ' + resp.status);
+  const blob = await resp.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload  = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
 async function sincronizarCatalogo() {
   const btn = document.getElementById('btn-sync-catalogo');
   const textoOriginal = btn.innerHTML;
@@ -1247,23 +1259,25 @@ async function sincronizarCatalogo() {
 
     let procesados = 0, errores = 0;
 
-    // 2. Procesar cada archivo: Gemini analyze + catalog save
+    // 2. Procesar cada archivo: descargar thumbnail en browser → Gemini → guardar
     for (const file of files) {
       btn.innerHTML = `${spinnerHTML} Analizando (${procesados}/${total})…`;
 
       try {
-        // Usar thumbnail de mayor resolución para Gemini
         const thumbnailUrl = file.thumbnail
           ? file.thumbnail.replace(/=s\d+/, '=s800')
           : null;
 
         if (!thumbnailUrl) { errores++; continue; }
 
-        // Llamar a Gemini con la miniatura
+        // Descargar en el browser (evita problemas de auth server-side)
+        const base64 = await _thumbnailABase64(thumbnailUrl);
+
+        // Enviar base64 a Gemini
         const gemRes = await fetch('/api/gemini-analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ thumbnailUrl }),
+          body: JSON.stringify({ base64, mimeType: file.mimeType || 'image/jpeg' }),
         });
         if (!gemRes.ok) { errores++; continue; }
         const { nombre, precio, categoria } = await gemRes.json();
@@ -1284,7 +1298,10 @@ async function sincronizarCatalogo() {
         if (saveRes.ok) procesados++;
         else errores++;
 
-      } catch (_) { errores++; }
+      } catch (err) {
+        console.warn('[sync] Error en archivo', file.name, err.message);
+        errores++;
+      }
     }
 
     const msg = `${procesados} foto${procesados !== 1 ? 's' : ''} procesada${procesados !== 1 ? 's' : ''}${errores ? `, ${errores} error(es)` : ''}`;
